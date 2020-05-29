@@ -15,6 +15,12 @@ type User {
     password: String
     createdRecipes: [Recipe!]
 }
+
+type AuthData {
+    userId: ID!
+    token: String!
+    tokenExpiration: Int!
+}
 type Recipe {
     _id: ID!
     recipeName: String!
@@ -43,6 +49,7 @@ input RecipeInput {
 type RootQuery {
     recipes: [Recipe!]!
     subscriptions: [Subscription!]!
+    login(email: String!, password: String!): AuthData!
 }
 type RootMutation {
     createUser(userInput: UserInput): User
