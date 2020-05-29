@@ -1,0 +1,19 @@
+.rel { position: relative }
+.abs { position: absolute }
+.fix { position: fixed }
+.fill, .top { top: 0 }
+.fill, .bottom { bottom: 0 }
+.fill, .left { left: 0 }
+.fill, .right { right: 0 }
+.x { width: 100% }
+.x2 { width: 50% }
+.fit-content {
+  width: -moz-fit-content;
+  width: -webkit-fit-content;
+  width: fit-content;
+}
+.xa {width: auto}
+.y { height: 100% }
+.y2 { height: 50% }
+.ya {height: auto}
+

@@ -1,0 +1,63 @@
+.ls05{
+  letter-spacing: 0.5px;
+}
+
+.ls1{
+  letter-spacing: 1px;
+}
+
+.ls2{
+  letter-spacing: 2px;
+}
+
+.fw3{
+  font-weight: 300;
+}
+
+.fw4{
+  font-weight: 400;
+}
+
+.fw5{
+  font-weight: 500;
+}
+
+.fw6{
+  font-weight: 600;
+}
+
+.fw7{
+  font-weight: 700;
+}
+
+.caps {
+  text-transform: uppercase;
+}
+
+
+.pointer {
+  cursor: pointer;
+}
+
+.small {
+  font-size: calc(1.2rem);
+  &.le {
+    @media (max-width: $break-iphone5) {
+      font-size: calc((11/16) * 1rem);
+    }
+  }
+}
+
+.underline {
+  border-bottom: 1px solid #4a4a4a;
+  width: fit-content;
+}
+
+
+.avenir {
+  font-family: "Avenir Next", sans-serif;
+}
+
+.bask {
+  font-family: "Monotype Baskerville",serif;
+}
