@@ -3,10 +3,11 @@ const Subscription = require ('../../models/subscriptions')
 const Recipe = require ('../../models/recipe')
 const { transformSubscription, transformRecipe} = require('./merge')
 
-
-
 module.exports = {
-    subscriptions: async () => {
+    subscriptions: async (args, req) => {
+        if(!req.isAuth) {
+            throw new Error('Unauthenticated!')
+        }
         try {
             const subscriptions = await Subscription.find();
             return subscriptions.map(subscription => transformSubscription(subscription))
@@ -15,16 +16,22 @@ module.exports = {
             throw err
         }
     },
-    subscribeToRecipe: async args => {
+    subscribeToRecipe: async (args, req) => {
+        if(!req.isAuth) {
+            throw new Error('Unauthenticated!')
+        }
         const fetchedRecipe = await Recipe.findOne({_id: args.recipeId})
         const subscription = new Subscription({
-            user: '5ed0a1826a0ee3220a2bec03',
+            user: req.userId,
             recipe: fetchedRecipe
         })
         const result = await subscription.save();
         return transformSubscription(result)
     },
-    unsubscribeFromRecipe: async args => {
+    unsubscribeFromRecipe: async (args, req) => {
+        if(!req.isAuth) {
+            throw new Error('Unauthenticated!')
+        }
         try {
             const subscription =  await Subscription.findById(args.subscriptionId).populate('recipe')
             const recipe = transformRecipe(subscription.recipe)
