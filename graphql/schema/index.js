@@ -1,7 +1,14 @@
 const { buildSchema } = require('graphql')
 
 module.exports = buildSchema(`
-
+type Subscription {
+    _id: ID!
+    recipe: Recipe!
+    user: User!
+    createdAt: String!
+    updatedAt: String!
+    
+}
 type User {
     _id: ID!
     email: String!
@@ -35,10 +42,13 @@ input RecipeInput {
 }
 type RootQuery {
     recipes: [Recipe!]!
+    subscriptions: [Subscription!]!
 }
 type RootMutation {
     createUser(userInput: UserInput): User
     createRecipe(recipeInput: RecipeInput): Recipe
+    subscribeToRecipe(recipeId: ID!): Subscription!
+    unsubscribeFromRecipe(subscriptionId: ID!): Recipe!
 }
 schema {
     query: RootQuery
