@@ -1,0 +1,16 @@
+.hidden {
+    display: none!important;
+}
+
+// .transparent {
+//     opacity: 0;
+//     transition: opacity 0.3s
+// }
+
+img, .contain {
+    object-fit: contain
+}
+
+.cover {
+    object-fit: cover
+}

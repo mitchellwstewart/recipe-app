@@ -1,0 +1,48 @@
+.container--xxs {
+  max-width: 20em;
+}
+
+.container--xs {
+  max-width: $break-xs; // 420px
+}
+
+.container--s {
+  max-width: $break-s; // 600px
+}
+
+.container--5 {
+  max-width: $break-5; // 500px
+}
+
+.container--ms {
+  max-width: $break-ms; // 656px
+}
+
+.container-mob {
+  max-width: $break-mob; // Mobile - 768px
+}
+
+.container--m {
+  max-width: $break-m; // 864px
+}
+
+.container--l {
+  max-width: $break-l; // 964px
+}
+
+.container--xl {
+  max-width: $break-xl; // 1248px
+}
+
+.container--xl {
+  max-width: $break-xxl; // 1600px
+}
+
+.outer {
+  padding-right: 2rem;
+    padding-left: 2rem;
+  @media (min-width: $break-l) {
+    padding-right: 4rem;
+    padding-left: 4rem;
+  }
+}

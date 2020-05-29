@@ -1,0 +1,15 @@
+
+@import './styles/lib/_breakpoints.scss';
+@import './styles/lib/_display.scss';
+@import './styles/lib/_align.scss';
+@import './styles/lib/_flexbox.scss';
+@import './styles/lib/_positioning.scss';
+@import './styles/lib/_spacing.scss';
+@import './styles/lib/_z-index.scss';
+@import './styles/lib/_containers.scss';
+@import './styles/lib/_typography.scss';
+@import './styles/lib/_colors.scss';
+
+.main-content {
+  margin: 4.5rem 2.5rem;
+}
