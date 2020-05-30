@@ -1,0 +1,28 @@
+.modal {
+  width: 90%;
+  background: white;
+  border: 1px solid black;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+  position: fixed;
+  overflow: scroll;
+  top: 10vh;
+  bottom: 10vh;
+  left: 5%;
+  @media(min-width: 768px) {
+    width: 50rem;
+    left: calc((100% - 50rem) / 2)
+  }
+
+  &__header {
+    padding: 1rem;
+    background: rgb(1, 10, 129);;
+    color: white;
+    h1{
+      margin: 0;
+      font-size: 1.25rem;
+    }
+  }
+  &__actions {
+
+  }
+}

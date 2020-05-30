@@ -1,0 +1,22 @@
+.recipes-control {
+  border: 1px solid black;
+  padding: 3rem;
+  margin: 2rem auto;
+  width: 30rem;
+  max-width: 80%;
+}
+
+.recipes{
+  &__list{
+    width: 40rem;
+    max-width: 90%;
+    margin: 2rem auto;
+    list-style: none;
+    padding: 0;
+    &-item {
+      margin: 1rem 0;
+      padding: 1rem;
+      border: 1px solid black;
+    }
+  }
+}
