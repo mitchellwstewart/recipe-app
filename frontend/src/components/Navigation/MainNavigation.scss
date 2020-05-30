@@ -13,7 +13,7 @@
       list-style: none;
       li {
         margin: 0 1rem;
-        a {
+        a, button {
           color: rgb(83, 180, 189);
           text-decoration: none;
           &:hover, &.active{

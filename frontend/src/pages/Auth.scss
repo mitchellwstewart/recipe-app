@@ -2,30 +2,5 @@
   width: 25em;
   max-width: 80%;
   margin: 5rem auto;
-  .form-control {
-    margin-bottom: 1rem;
-    label {
-      margin-bottom: 0.5rem;
-    }
-    label, input {
-      width: 100%;
-    }
-  }
-  .form-actions {
-    display: flex;
-    button {
-      background: rgb(1, 10, 129);
-      font: inherit;
-      color: white;
-      border: 1px solid gray;
-      border-radius: 3px;
-      padding: 0.25rem 1rem;
-      margin-right: 1rem;
-      box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.26);
-      &:active, &:hover {
-        background: rgb(0, 6, 92);
-        color: rgb(207, 207, 207);
-      }
-    }
-  }
+
 }
