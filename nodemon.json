@@ -1,7 +1,7 @@
 {
     "env": {
         "MONGO_USER": "mitchellwstewart",
-        "MONGO_PASSWORD": "rbISCCTeRxCQziZ4",
+        "MONGO_PASSWORD": "608Hg6PVbA39Z18g",
         "MONGO_DB": "recipes_dev"
     }
 }
