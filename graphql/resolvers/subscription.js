@@ -9,7 +9,7 @@ module.exports = {
             throw new Error('Unauthenticated!')
         }
         try {
-            const subscriptions = await Subscription.find();
+            const subscriptions = await Subscription.find({user: req.userId});
             return subscriptions.map(subscription => transformSubscription(subscription))
         }
         catch (err) {
