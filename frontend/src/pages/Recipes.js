@@ -13,6 +13,10 @@ class RecipesPage extends Component {
     isLoading: false
   }
 
+  isActive = true
+
+  
+
   static contextType = AuthContext
   constructor(props) {
     super(props);
@@ -27,22 +31,66 @@ class RecipesPage extends Component {
 
   componentDidMount(){
     this.fetchRecipes()
+    console.log('component did mount')
   }
 
 
-  startCreateEventHandler = () => {
+  startCreateRecipeHandler = () => {
+    console.log('startCreateRecipeHandler')
     this.setState({creating: true})
   }
 
   modalCancelHandler = () => {
+    console.log('modalCancelHandler')
     this.setState({creating: false, selectedRecipe: null})
   }
 
   subscribeToRecipeHandler = () => {
-
+    console.log('subscribeToRecipeHandler')
+    if(!this.context.token) {
+      this.setState({selectedRecipe: null})
+      return;
+    }
+    // this.setState({isLoading: true})
+      const requestBody = {
+        query: `
+          mutation SubscripeToRecipe ($id: ID!) {
+            subscribeToRecipe(recipeId: $id){
+              _id
+              createdAt
+              updatedAt
+            }
+          }
+        `,
+        variables: {
+          id: this.state.selectedRecipe._id
+        }
+      }
+    
+        fetch('http://localhost:3001/graphql', {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + this.context.token
+          }
+        }).then(res => {
+          if(res.status !== 200 && res.status !== 201) {
+            throw new Error('Failed!')
+          }
+          return res.json()
+        }).then(resData => {
+          console.log('resData: ', resData)
+          this.setState({selectedRecipe: null})
+        })
+        
+        .catch(err => {
+          throw err
+        })
   }
 
   modalConfirmHandler = () => {
+    console.log('modalConfirmHandler')
     this.setState({creating: false})
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
@@ -64,8 +112,15 @@ class RecipesPage extends Component {
     }
       const requestBody = {
         query: `
-          mutation {
-            createRecipe(recipeInput: {recipeName: "${recipeName}",recipeDescription: "${recipeDescription}",recipeIngredients: "${recipeIngredients}",recipeSteps: "${recipeSteps}",minutesEstimate: ${minutesEstimate},date: "${date}",link: "${link}" 
+          mutation CreateRecipe(
+            $recipeName: String!,
+            $recipeDescription: String!,
+            $recipeIngredients: String!,
+            $recipeSteps: String!,
+            $minutesEstimate: Float!,
+            $date: String!,
+            $link: String!) {
+            createRecipe(recipeInput: {recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, minutesEstimate: $minutesEstimate, date: $date, link: $link 
             }){
               _id
               recipeName
@@ -77,7 +132,17 @@ class RecipesPage extends Component {
               link
             }
           }
-        `};
+        `,
+        variables: {
+          recipeName: recipeName,
+          recipeDescription: recipeDescription,
+          recipeIngredients: recipeIngredients,
+          recipeSteps: recipeSteps,
+          minutesEstimate: minutesEstimate,
+          date: date,
+          link: link
+        }
+      };
     
         const token = this.context.token;
         fetch('http://localhost:3001/graphql', {
@@ -93,6 +158,7 @@ class RecipesPage extends Component {
           }
           return res.json()
         }).then(resData => {
+          console.log('resData: ', resData)
           this.setState(prevState => {
             const updatedRecipes = [...prevState.recipes]
             updatedRecipes.push({
@@ -108,6 +174,7 @@ class RecipesPage extends Component {
                 _id: this.context.userId,
               }
             })
+            console.log('updatedRecipes: ', updatedRecipes)
             return {recipes: updatedRecipes}
           })
         }).catch(err => {
@@ -116,6 +183,7 @@ class RecipesPage extends Component {
     }
 
     fetchRecipes() {
+      console.log('fetchRecipes')
       this.setState({isLoading: true})
       const requestBody = {
         query: `
@@ -151,7 +219,9 @@ class RecipesPage extends Component {
           return res.json()
         }).then(resData => {
           const recipes = resData.data.recipes
-          this.setState({recipes: recipes, isLoading: false})
+          if(this.isActive) {
+            this.setState({recipes: recipes, isLoading: false})
+          }
         })
         
         .catch(err => {
@@ -161,18 +231,27 @@ class RecipesPage extends Component {
     }
 
     deleteRecipeHandler = () => {
+      console.log
+      ('deleteRecipeHandler')
       console.log('recipe delete request by creator')
     }
     showDetailHandler = recipeId => {
+      console.log('showDetailHandler')
       this.setState(prevState => {
         const selectedRecipe = prevState.recipes.find(recipe => recipe._id === recipeId)
         return { selectedRecipe: selectedRecipe }
       })
     }
+
+    componentWillUnmount = () => {
+      this.isActive = false
+    }
+
     render() {
+      console.log('render')
         return(
           <React.Fragment>
-            {this.state.creating || this.state.selectedRecipe && <Backdrop />}
+            {(this.state.creating || this.state.selectedRecipe) && <Backdrop />}
             {this.state.creating && 
             (
             <Modal title="Add New" 
@@ -218,7 +297,7 @@ class RecipesPage extends Component {
               canCancel 
               canConfirm 
               canDelete = {!this.context.userId && false}
-              confirmText="Subscripe To Recipe"
+              confirmText={this.context.token ? "Subscribe To Recipe" : "Confirm"}
               onCancel={this.modalCancelHandler} 
               onConfirm={this.subscribeToRecipeHandler}
               onDelete={this.deleteRecipeHandler}>
@@ -229,9 +308,11 @@ class RecipesPage extends Component {
             </Modal>)
             }
             <div className="recipes-control">
-              <h1>The Recipes Page</h1>
-              {this.context.token && <button className="btn" onClick={this.startCreateEventHandler}>Create Recipe</button>}
+              <h1>The Recipes Page</h1> 
+              {this.context.token && <button className="btn" onClick={this.startCreateRecipeHandler}>Create Recipe</button>}
             </div>
+
+            {console.log('hello: ', this.state)}
             {this.state.isLoading ? <Spinner /> : <RecipeList authUserId={this.context.userId} recipes={this.state.recipes} onViewDetail={this.showDetailHandler} />}
          
           </React.Fragment>

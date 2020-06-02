@@ -1,0 +1,23 @@
+.subscriptions-control {
+  button {
+    font: inherit;
+    border: none;
+    color: #010a81;
+    background: transparent;
+    padding: 0.25em 1rem;
+    border-bottom: 2px solid transparent;
+    box-shadow: unset;
+    border-radius: 0;
+    &:hover {
+      color: #010a81;
+      background: white;
+    }
+    &:focus {
+      outline: none;
+    }
+      &.active {
+        border-bottom: 2px solid #010a81;
+        text-decoration: none;
+      }
+  }
+}

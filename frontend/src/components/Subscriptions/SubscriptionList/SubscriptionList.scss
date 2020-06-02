@@ -1,0 +1,14 @@
+.subscriptions {
+    list-style: none;
+    width: 40rem;
+    max-width: 90%;
+    margin: auto;
+    border: solid thin black;
+    background: rgb(196, 196, 224);
+  
+  &__item {
+    border: solid thin black;
+    margin: 1em 2em;
+    background: white;
+  }
+}

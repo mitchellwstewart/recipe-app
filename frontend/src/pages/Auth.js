@@ -27,31 +27,38 @@ class AuthPage extends Component {
     if(email.trim().length === 0 || password.trim().length === 0) {
       return;
     }
-    console.log('email: ', email)
-    console.log('password: ', password)
+
     // ...
 let requestBody = {
   query: `
-    query {
-      login(email: "${email}", password: "${password}") {
+    query Login($email: String!, $password: String! ) {
+      login(email: $email, password: $password) {
         userId
         token
         tokenExpiration
       }
     }
-  `
+  `,
+  variables: {
+    email: email,
+    password: password
+  }
 }
 
 if(!this.state.isLogin) {
    requestBody = {
     query: `
-      mutation {
-        createUser(userInput: {email: "${email}", password: "${password}"}){
+      mutation CreateUser($email: String!, $password: String!){
+        createUser(userInput: {email: $email, password: $password}){
           _id
           email
         }
       }
-    `
+    `,
+    variables: {
+      email: email, //the key is the graphql name we set, the value is the value pulled from evt
+      password: password
+    }
   };
 }
     
@@ -62,13 +69,14 @@ if(!this.state.isLogin) {
         'Content-Type': 'application/json'
       }
     }).then(res => {
+      console.log(res)
       if(res.status !== 200 && res.status !== 201) {
         throw new Error('Failed!')
       }
       return res.json()
     }).then(resData => {
       console.log('resData: ', resData)
-      if(resData.data.login.token) {
+      if(resData.data.login && resData.data.login.token) {
         this.context.login(resData.data.login.token, resData.data.login.userId, resData.data.login.tokenExpiration)
       }
     })
