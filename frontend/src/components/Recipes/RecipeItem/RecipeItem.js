@@ -11,8 +11,13 @@ const recipeItem = props => {
     </div> 
     <div>
       {props.userId === props.creatorId 
-      ? <p>Your the owner of this recipe</p>
-      : <button className="btn" onClick={props.onDetail.bind(this, props.recipeId)}>View Details</button>
+      ? (
+        <React.Fragment>
+          <p>Your the owner of this recipe</p>
+          <button className="btn" onClick={props.onDetail.bind(this, props.recipeId)}>View Details</button>
+        </React.Fragment>
+      )
+      : (<button className="btn" onClick={props.onDetail.bind(this, props.recipeId)}>View Details</button>)
       }
     </div>
   </li>

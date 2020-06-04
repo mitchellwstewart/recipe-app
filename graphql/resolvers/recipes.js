@@ -4,7 +4,7 @@ const {  transformRecipe } = require ('./merge')
 
 module.exports = {
     recipes: async () => {
-        try{
+        try {
             const recipes = await Recipe.find()
             return recipes.map(recipe =>  transformRecipe(recipe))
         }
@@ -18,14 +18,14 @@ module.exports = {
         }
         try {
             const recipe = new Recipe ({
-                recipeName: args.recipeInput.recipeName,
-                recipeDescription: args.recipeInput.recipeDescription ,
-                recipeIngredients: args.recipeInput.recipeIngredients ,
-                recipeSteps: args.recipeInput.recipeSteps ,
-                minutesEstimate: +args.recipeInput.minutesEstimate,
-                date: new Date(args.recipeInput.date),
-                link: args.recipeInput.link,
-                creator: req.userId
+              recipeName: args.recipeInput.recipeName,
+              recipeDescription: args.recipeInput.recipeDescription ,
+              recipeIngredients: args.recipeInput.recipeIngredients ,
+              recipeSteps: args.recipeInput.recipeSteps ,
+              minutesEstimate: +args.recipeInput.minutesEstimate,
+              date: new Date(args.recipeInput.date),
+              link: args.recipeInput.link,
+              creator: req.userId
            })
            let createdRecipe;
             const result = await recipe.save()
@@ -37,5 +37,30 @@ module.exports = {
             return createdRecipe
         }
         catch(err) { throw err }
+    },
+    deleteRecipe:  async (args, req) => {
+      if(!req.isAuth) {
+        throw new Error ('Unauthenticated')
+      }
+      try{
+        const fetchedRecipe = await Recipe.findOne({_id: args.recipeId})
+
+
+
+        if(req.userId.toString() !== fetchedRecipe.creator.toString()) {
+          throw new Error ('Unauthenticated: User does not own recipe')
+        }
+
+        const creator = await User.findById(req.userId)
+            if(!creator) { throw new Error ('USER NOT FOUND') }
+            creator.createdRecipes.filter(recipe => recipe != args.recipeId)
+            await creator.save()
+          const result = await fetchedRecipe.delete()
+          console.log('result after deltiing: ', result)
+        return result._id
+      }
+      catch(err) { throw err }
+      
+      
     }
 }

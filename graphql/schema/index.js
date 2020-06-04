@@ -7,7 +7,6 @@ type Subscription {
     user: User!
     createdAt: String!
     updatedAt: String!
-    
 }
 type User {
     _id: ID!
@@ -15,7 +14,6 @@ type User {
     password: String
     createdRecipes: [Recipe!]
 }
-
 type AuthData {
     userId: ID!
     token: String!
@@ -54,6 +52,7 @@ type RootQuery {
 type RootMutation {
     createUser(userInput: UserInput): User
     createRecipe(recipeInput: RecipeInput): Recipe
+    deleteRecipe(recipeId: ID!): Recipe
     subscribeToRecipe(recipeId: ID!): Subscription!
     unsubscribeFromRecipe(subscriptionId: ID!): Recipe!
 }

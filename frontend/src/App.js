@@ -15,10 +15,20 @@ class App extends Component {
   }
   login = (token, userId, tokenExpiration) => {
     this.setState({token: token, userId: userId})
+    localStorage.setItem('jwt', token)
+    localStorage.setItem('userId', userId)
   }
 
   logout = () => {
+    localStorage.removeItem('jwt')
+    localStorage.removeItem('userId')
     this.setState({token: null, userId: null})
+  }
+
+  componentDidMount = () => {
+    let LStoken = localStorage.getItem('jwt')
+    let LSuser = localStorage.getItem('userId')
+    LStoken && LSuser && this.setState({token: LStoken, userId: LSuser })
   }
   render (){
     return (
@@ -28,7 +38,6 @@ class App extends Component {
           <MainNavigation />
             <main className="main-content">
               <Switch>
-                
                 {this.state.token && <Redirect from="/" to="/recipes" exact />}
                 {this.state.token && <Redirect from="/auth" to="/recipes" exact />}
                 {!this.state.token && <Route path="/auth" component={AuthPage} />}
