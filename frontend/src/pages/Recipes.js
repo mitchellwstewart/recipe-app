@@ -368,6 +368,7 @@ class RecipesPage extends Component {
         const recipes = resData.data.recipes
         if(this.isActive) {
           this.setState({recipes: recipes, isLoading: false})
+          console.log('state: ', this.state)
         }
       })
       
@@ -400,7 +401,6 @@ class RecipesPage extends Component {
         //in this case, the options are delete, edit(if owner) or subscribe(if visitor)
           (<Modal 
           title={this.state.selectedRecipe.recipeName} 
-          creator_id={this.state.selectedRecipe.creator._id}
           canCancel 
           canSubscribe = {this.context.userId !== this.state.selectedRecipe.creator._id ? true : false} 
           canEdit = {this.context.userId !== this.state.selectedRecipe.creator._id ? false : true}
@@ -423,7 +423,6 @@ class RecipesPage extends Component {
         //in this case, the options are save changes or cancel (both if owner)
         (<Modal
           title="Update Recipe" 
-          creator_id={this.state.recipeToUpdate.creator._id}
           canCancel 
           canSaveChanges 
           saveText={this.context.token && "Save Changes" }

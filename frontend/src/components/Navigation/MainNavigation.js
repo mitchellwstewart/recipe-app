@@ -15,7 +15,7 @@ const mainNavigation = props => (
           <ul className="f m0 p0">
 
             {!context.token && <li><NavLink to="/auth">Authenticate</NavLink></li>}
-            <li><NavLink to="/recipes">Recipes</NavLink></li>
+            <li><NavLink to="/recipes">All Recipes</NavLink></li>
            {
            context.token && 
            <React.Fragment>
