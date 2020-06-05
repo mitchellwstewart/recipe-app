@@ -12,13 +12,10 @@ module.exports = (req, res, next) => {
         return next();
     }
     let decodedToken;
-    console.log('try to decode this dang JWT: ', token)
     try {
         decodedToken = jwt.verify(token, 'somesupersecretkey')
-        console.log('WORKED: ', decodedToken)
     }
     catch (err) {
-      console.log('DIDNt WORK: ', err)
         req.isAuth = false;
         return next();
     }
@@ -30,6 +27,5 @@ module.exports = (req, res, next) => {
     
     req.isAuth = true;
     req.userId = decodedToken.userId;
-    console.log('hitting it')
     next()
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import './RecipeItem.scss'
 
 const recipeItem = props => {
+  console.log(props)
   return (
     <li key={props.recipeId} className="recipe__list-item f jcb">
     <div>

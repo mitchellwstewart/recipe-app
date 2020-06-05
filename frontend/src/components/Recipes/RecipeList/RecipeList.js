@@ -4,6 +4,8 @@ import RecipeItem from '../RecipeItem/RecipeItem'
 
 const recipeList = props => {
   const recipes = props.recipes.map(recipe => {
+    console.log('creator id : ', recipe.creator._id)
+    console.log('props user: ', props.authUserId)
     return <RecipeItem 
     userId={props.authUserId} 
     key={recipe._id}

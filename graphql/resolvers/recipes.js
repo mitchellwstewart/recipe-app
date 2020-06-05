@@ -44,15 +44,13 @@ module.exports = {
       }
       try{
         const fetchedRecipe = await Recipe.findOne({_id: args.recipeId})
-
-
-
         if(req.userId.toString() !== fetchedRecipe.creator.toString()) {
           throw new Error ('Unauthenticated: User does not own recipe')
         }
 
         const creator = await User.findById(req.userId)
             if(!creator) { throw new Error ('USER NOT FOUND') }
+            console.log('creator is here: ', creator)
             creator.createdRecipes.filter(recipe => recipe != args.recipeId)
             await creator.save()
           const result = await fetchedRecipe.delete()
@@ -60,7 +58,43 @@ module.exports = {
         return result._id
       }
       catch(err) { throw err }
-      
-      
+    },
+    updateRecipe:  async (args, req) => {
+      console.log(args.recipeId)
+      if(!req.isAuth) {
+        throw new Error ('Unauthenticated')
+      }
+      try{
+        
+       await Recipe.updateOne(
+          {_id: args.recipeId},
+          { $set: {
+              recipeName: args.recipeInput.recipeName,
+              recipeDescription: args.recipeInput.recipeDescription ,
+              recipeIngredients: args.recipeInput.recipeIngredients ,
+              recipeSteps: args.recipeInput.recipeSteps ,
+              minutesEstimate: +args.recipeInput.minutesEstimate,
+              date: new Date(args.recipeInput.date),
+              link: args.recipeInput.link,
+              creator: req.userId
+           }}
+       );
+       const result =  await Recipe.findOne({_id: args.recipeId})
+       updatedRecipe = transformRecipe(result)
+       console.log(updatedRecipe)
+        const creator = await User.findById(req.userId)
+            if(!creator) { throw new Error ('USER NOT FOUND') }
+            console.log('creator is here: ', creator)
+            const updatedRecipes = [...creator.createdRecipes.filter(recipe => recipe != args.recipeId), updatedRecipe]
+            creator.createdRecipes = updatedRecipes 
+            await creator.save()
+          
+          console.log('result after updating: ', updatedRecipe)
+        return updatedRecipe
+      }
+      catch(err) { 
+        console.log('error: ', err)
+        throw err 
+      }
     }
 }

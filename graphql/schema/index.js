@@ -53,6 +53,7 @@ type RootMutation {
     createUser(userInput: UserInput): User
     createRecipe(recipeInput: RecipeInput): Recipe
     deleteRecipe(recipeId: ID!): Recipe
+    updateRecipe(recipeId: ID!, recipeInput: RecipeInput): Recipe
     subscribeToRecipe(recipeId: ID!): Subscription!
     unsubscribeFromRecipe(subscriptionId: ID!): Recipe!
 }
