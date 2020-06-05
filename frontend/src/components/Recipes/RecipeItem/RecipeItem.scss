@@ -4,6 +4,24 @@
       margin: 1rem 0;
       padding: 1rem;
       border: 1px solid black;
+      width: 200px;
+      min-height: 200px;
+      &:hover {
+        opacity: 0.5
+      }
+      &_container {
+
+      }
+      &_title {
+        font-size: 1em;
+      }
+      &_time {
+        font-size: 12px;
+        font-weight: 100;
+      }
+      &_owner {
+
+      }
     }
   }
 }
