@@ -1,24 +1,32 @@
 import React from 'react';
 import './RecipeItem.scss'
+import testImage from '../../../assets/test-image.jpg'
 
 const recipeItem = props => {
   console.log(props)
   return (
-    <li key={props.recipeId} className="recipe__list-item f jcb pointer" onClick={props.onDetail.bind(this, props.recipeId)}>
-    <div className="recipe__list-item_image">
-
-    </div>
-    <div className="recipe__list-item_container">
-      <h1 className="recipe__list-item_title">{props.recipeName}</h1>
-      <h3 className="recipe__list-item_time">{props.minutesEstimate} mins</h3>
-      <h3 >Date Added: {new Date(props.date).toLocaleDateString()}</h3>
-    </div> 
-    <div>
-      {props.userId === props.creator._id 
-      ? <p className="recipe__list-item_owner">Your the owner of this recipe</p>
-      : <p className="recipe__list-item_owner">Saved by {props.creator.email}</p>
-      }
-    </div>
+    <li key={props.recipeId} className="recipe__list-item  pointer bcw rel" onClick={props.onDetail.bind(this, props.recipeId)}>
+      <div className="overlay abs fill f aic jcc">
+        <p className="overlay_text caps ls2 p1">view</p>
+      </div>
+      <div className="recipe__list-item_inner f fdc jcb x y">
+        <div className="recipe__list-item_inner_image f aic jcc">
+          <img className="x y" src={testImage}/>
+        </div>
+        <div className="recipe__list-item_inner_container">
+          <h1 className="recipe__list-item_inner_title cdbl">{props.recipeName}</h1>
+          <div>
+            {props.userId === props.creator._id 
+            ? <p className="recipe__list-item_inner_owner cdbl fw5">Your recipe</p>
+            : <p className="recipe__list-item_inner_owner cdbl fw5">Saved by {props.creator.email}</p>
+            }
+         </div>
+          
+        </div> 
+        <h3 className="recipe__list-item_inner_time cdlg">{props.minutesEstimate} {props.minutesEstimate < 2 ? 'min' : 'mins'}</h3>
+        
+      </div>
+    
   </li>
   )
 

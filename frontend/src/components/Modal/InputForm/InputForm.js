@@ -2,9 +2,11 @@ import React from 'react'
 
 
 const inputForm = (props) => {
-  console.log('input form props: ', props)
+  
+  
+  console.log('input form props: ', props.onDrop)
   return (
-  <form>
+  <form encType="multipart/form-data">
       <div className="form-control">
         <label htmlFor="recipeName">Recipe Name</label>
         <input ref={props.recipeNameEl} type="text" id="recipeName" defaultValue={props.recipeNameValue ? props.recipeNameValue : ""}/>
@@ -28,6 +30,15 @@ const inputForm = (props) => {
       <div className="form-control">
         <label htmlFor="recipeLink">Recipe Link</label>
         <input ref={props.linkEl} type="url" id="recipeLink" defaultValue={props.linkValue ? props.linkValue : ""} />
+      </div>
+      <div className="form-control">
+       <label>Upload your image</label>
+       <input type="file" name="Recipe Image" id="recipeImage" />
+      </div>
+      <div className="form-control">
+      <label htmlFor="imageUpload">Use Link Image (first image found)</label>
+      <input ref={props.useLinkImageEl} type="checkbox" id="useLinkImage" defaultChecked={props.useLinkImage ? true : false} />
+        
       </div>
     </form>
   )
