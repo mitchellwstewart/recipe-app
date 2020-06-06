@@ -1,7 +1,12 @@
 .main-navigation {
+  &__inner{
+    max-width: 1600px;
+    width: 90%;
+    margin: auto;
+  }
   height: 3.5rem;
   background: rgb(228, 228, 228);
-  padding: 0 2rem;
+  
   &__logo {
     h1 {
       font-size: 1.5rem;

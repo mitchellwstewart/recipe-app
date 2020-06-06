@@ -454,7 +454,7 @@ class RecipesPage extends Component {
           />
         </Modal>)}
         <div className="recipes-control">
-          <h1 className="ac">The Recipes Page</h1> 
+          <h1 className="ac caps">The Recipes Page</h1> 
           {this.context.token && <button className="btn" onClick={this.startCreateOrUpdateRecipeHandler}>Create Recipe</button>}
         </div>
         {this.state.isLoading ? <Spinner /> : <RecipeList authUserId={this.context.userId} recipes={this.state.recipes} onViewDetail={this.showDetailHandler} />}
