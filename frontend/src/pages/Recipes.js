@@ -15,6 +15,7 @@ class RecipesPage extends Component {
     isLoading: false,
     selectedRecipe: null,
     recipeToUpdate: null,
+    imageFile: null
   }
 
   isActive = true
@@ -329,6 +330,11 @@ class RecipesPage extends Component {
     })
   }
 
+  imageUploadHandler = async files => {
+    this.setState({imageFile: files[0]})
+    console.log(this.state.imageFile)
+  }
+
   fetchRecipes() {
     console.log('fetchRecipes')
     this.setState({isLoading: true})
@@ -395,8 +401,17 @@ class RecipesPage extends Component {
         onCancel={this.modalCancelHandler} 
         onConfirm={this.modalConfirmHandler}
         >
-          <InputForm recipeNameEl={this.recipeNameEl} dateEl={this.dateEl} linkEl={this.linkEl} minutesEstimateEl={this.minutesEstimateEl} recipeDescriptionEl={this.recipeDescriptionEl} recipeIngredientsEl={this.recipeIngredientsEl} recipeStepsEl={this.recipeStepsEl}/>
-        </Modal>) }
+          <InputForm 
+          recipeNameEl={this.recipeNameEl} 
+          dateEl={this.dateEl} 
+          linkEl={this.linkEl} 
+          minutesEstimateEl={this.minutesEstimateEl}
+          recipeDescriptionEl={this.recipeDescriptionEl} 
+          recipeIngredientsEl={this.recipeIngredientsEl} 
+          recipeStepsEl={this.recipeStepsEl}
+          onDrop = {this.imageUploadHandler}
+          />
+        </Modal>)}
         {this.state.selectedRecipe && 
         //in this case, the options are delete, edit(if owner) or subscribe(if visitor)
           (<Modal 
@@ -417,8 +432,7 @@ class RecipesPage extends Component {
             <h3>Estimated Time: {this.state.selectedRecipe.minutesEstimate} mins</h3>
             <h3>Date Added: {new Date(this.state.selectedRecipe.date).toLocaleDateString()}</h3>
             <p>{this.state.selectedRecipe.recipeDescription}</p>
-        </Modal>)
-        }
+        </Modal>)}
         {this.state.recipeToUpdate &&
         //in this case, the options are save changes or cancel (both if owner)
         (<Modal
@@ -429,14 +443,18 @@ class RecipesPage extends Component {
           onCancel={this.modalCancelHandler.bind(this, 'update')} 
           onSaveChanges={this.modalUpdateRecipeHandler}
         >
-          <InputForm recipeNameEl={this.recipeNameEl} recipeNameValue={this.state.recipeToUpdate.recipeName} dateEl={this.dateEl} dateValue={this.state.recipeToUpdate.date} linkEl={this.linkEl} linkValue={this.state.recipeToUpdate.link} minutesEstimateEl={this.minutesEstimateEl} minutesEstimateValue={this.state.recipeToUpdate.minutesEstimate} recipeDescriptionEl={this.recipeDescriptionEl} recipeDescriptionValue={this.state.recipeToUpdate.recipeDescription} recipeIngredientsEl={this.recipeIngredientsEl} recipeIngredientsValue={this.state.recipeToUpdate.recipeIngredients} recipeStepsEl={this.recipeStepsEl} recipeStepsValue={this.state.recipeToUpdate.recipeSteps} value="test"/>
-        </Modal>
-
-        )
-
-        }
+          <InputForm 
+          recipeNameEl={this.recipeNameEl} 
+          recipeNameValue={this.state.recipeToUpdate.recipeName} 
+          dateEl={this.dateEl} 
+          dateValue={this.state.recipeToUpdate.date} 
+          linkEl={this.linkEl} 
+          linkValue={this.state.recipeToUpdate.link} minutesEstimateEl={this.minutesEstimateEl} minutesEstimateValue={this.state.recipeToUpdate.minutesEstimate} recipeDescriptionEl={this.recipeDescriptionEl} recipeDescriptionValue={this.state.recipeToUpdate.recipeDescription} recipeIngredientsEl={this.recipeIngredientsEl} recipeIngredientsValue={this.state.recipeToUpdate.recipeIngredients} recipeStepsEl={this.recipeStepsEl} recipeStepsValue={this.state.recipeToUpdate.recipeSteps} 
+          onDrop = {this.imageUploadHandler}
+          />
+        </Modal>)}
         <div className="recipes-control">
-          <h1>The Recipes Page</h1> 
+          <h1 className="ac">The Recipes Page</h1> 
           {this.context.token && <button className="btn" onClick={this.startCreateOrUpdateRecipeHandler}>Create Recipe</button>}
         </div>
         {this.state.isLoading ? <Spinner /> : <RecipeList authUserId={this.context.userId} recipes={this.state.recipes} onViewDetail={this.showDetailHandler} />}

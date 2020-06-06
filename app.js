@@ -26,6 +26,8 @@ app.use('/graphql', graphqlHttp(() => ({
     graphiql: true
 })))
 mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-wujcz.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`)
+
+
 .then(() => {
     app.listen(3001)
 }).catch(err=>{

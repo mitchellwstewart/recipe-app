@@ -14,7 +14,7 @@ class Modal extends Component {
   render() {
     console.log(this.props)
   return (
-    <div className="modal">
+    <div className="modal z2">
     <header className="modal__header"><h1>{this.props.title}</h1></header>
     <section className="modal__content">
       {this.props.children}

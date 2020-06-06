@@ -1,27 +1,52 @@
 .recipe{
   &__list{
     &-item {
+      
       margin: 1rem 0;
       padding: 1rem;
-      border: 1px solid black;
+      border: 1px solid rgb(208, 224, 231);
       width: 200px;
       min-height: 200px;
+      .overlay {
+        background-color: transparent;
+        opacity: 0;
+        &_text{
+          font-size: 1em;
+          color: rgb(121, 121, 121);
+          // border: 2px solid rgb(121, 121, 121);
+        }
+      }
       &:hover {
-        opacity: 0.5
+        .recipe__list-item_inner {
+          opacity: 0.2;
+        }
+        .overlay{
+          opacity: 1;
+          background-color: rgba(0, 0, 0, 0.089)
+        }
       }
-      &_container {
-
+      &_inner {
+        &_image {
+          height: 100px;
+          img {
+            object-fit: cover;
+          }
+        }
+        &_container {
+  
+        }
+        &_title {
+          font-size: 1em;
+        }
+        &_time {
+          font-size: 12px;
+          font-weight: 100;
+        }
+        &_owner {
+          font-size: 12px;
+        }
       }
-      &_title {
-        font-size: 1em;
-      }
-      &_time {
-        font-size: 12px;
-        font-weight: 100;
-      }
-      &_owner {
-
-      }
+      
     }
   }
 }
