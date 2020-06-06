@@ -20,7 +20,6 @@ class RecipesPage extends Component {
 
   isActive = true
 
-
   static contextType = AuthContext
   constructor(props) {
     super(props);
@@ -421,6 +420,7 @@ class RecipesPage extends Component {
           canEdit = {this.context.userId !== this.state.selectedRecipe.creator._id ? false : true}
           canDelete = {this.context.userId !== this.state.selectedRecipe.creator._id ? false : true}
           subscribeText={"Subscribe To Recipe" }
+          selectedRecipe = {this.state.selectedRecipe}
           editText={"Edit Recipe"}
           deleteText={"Delete"}
           onCancel={this.modalCancelHandler} 

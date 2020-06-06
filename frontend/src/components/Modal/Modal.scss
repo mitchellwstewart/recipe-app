@@ -12,17 +12,47 @@
     width: 50rem;
     left: calc((100% - 50rem) / 2)
   }
+  &__nav {
+
+  }
 
   &__header {
     padding: 1rem;
-    background: rgb(1, 10, 129);;
-    color: white;
+    background: white(1, 10, 129);;
+    color: black;
+    border: 1px solid black;
     h1{
       margin: 0;
       font-size: 1.25rem;
     }
-  }
-  &__actions {
+    &_actions {
 
+    }
   }
+
+  &__content {
+    &_ingredients-nav {
+      width: 20%;
+      max-width: 200px;
+      .yield-count {
+        &_amount {
+          max-width: 20px;
+          max-height: 20px;
+        }
+      }
+      .ingredient-container {
+       
+      }
+    }
+    &_main {
+      &_nav {
+        &_item {
+          &.active {
+            border-bottom: 1px solid black;
+          }
+        }
+      }
+    }
+  }
+  
 }

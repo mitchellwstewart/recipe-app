@@ -1,19 +1,20 @@
+@import '../../../styles/lib/breakpoints';
+
 .recipe{
   &__list{
     &-item {
-      
       margin: 0 0 1rem;
       padding: 1rem;
       border: 1px solid rgb(208, 224, 231);
-      width: 200px;
+      width: 100%;
+      @media (min-width: $break-mob){max-width:200px;}
       min-height: 200px;
       .overlay {
         background-color: transparent;
         opacity: 0;
         &_text{
-          font-size: 1em;
+          font-size: 1.5em;
           color: rgb(121, 121, 121);
-          // border: 2px solid rgb(121, 121, 121);
         }
       }
       &:hover {
@@ -22,7 +23,7 @@
         }
         .overlay{
           opacity: 1;
-          background-color: rgba(0, 0, 0, 0.089)
+          background-color: rgba(200, 226, 230, 0.164)
         }
       }
       &_inner {
