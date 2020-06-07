@@ -3,7 +3,7 @@ import './RecipeItem.scss'
 import testImage from '../../../assets/test-image.jpg'
 
 const recipeItem = props => {
-  console.log(props)
+  
   return (
     <li key={props.recipeId} className="recipe__list-item  pointer bcw rel" onClick={props.onDetail.bind(this, props.recipeId)}>
       <div className="overlay abs fill f aic jcc">

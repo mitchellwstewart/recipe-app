@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import './Modal.scss'
-import AuthContext from '../../context/auth-context'
+import '../Modals.scss'
+import AuthContext from '../../../context/auth-context'
 
 
 
-class Modal extends Component {
+class ViewModal extends Component {
   state = {
     viewing: 'description'
   }
@@ -65,7 +65,6 @@ class Modal extends Component {
           <input className="yield-count_amount" type="text" defaultValue="4"/>
         </div>
         {ingredients.split("-").map((ingredient, idx) => {
-          console.log('ingredient: ', ingredient)
           return ingredient !== " " && (
           <li key={idx} className="ingredient-container f aic">
             <p className="ingredient-container_amount" >1 </p>
@@ -98,4 +97,4 @@ class Modal extends Component {
  
   };
 
-export default Modal;
+export default ViewModal;

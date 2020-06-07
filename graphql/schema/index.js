@@ -23,12 +23,20 @@ type Recipe {
     _id: ID!
     recipeName: String!
     recipeDescription: String!
-    recipeIngredients: String!
+    recipeIngredients: [Ingredient]
     recipeSteps: String!
+    yields: Float!
     minutesEstimate: Float!
     date: String!
     link: String!
     creator: User!
+}
+
+type Ingredient {
+  _id: ID
+  name: String
+  amount: Float
+  unit: String
 }
 
 input UserInput {
@@ -40,10 +48,18 @@ input RecipeInput {
     recipeDescription: String!
     recipeIngredients: String!
     recipeSteps: String!
+    yields: Float!
     minutesEstimate: Float!
     date: String!
     link: String!
 }
+
+input IngredientInput{
+  name: String!
+  amount: Float!
+  unit: String!
+}
+
 type RootQuery {
     recipes: [Recipe!]!
     subscriptions: [Subscription!]!
