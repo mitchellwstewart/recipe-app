@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
-
+const { ingredientSchema } = require('./ingredient')
 const Schema = mongoose.Schema
+
 
 const recipeSchema = new Schema({
     recipeName: {
@@ -9,10 +10,14 @@ const recipeSchema = new Schema({
     },
     recipeDescription: {type: String},
     recipeIngredients: {
-        type: String
+      type: [ingredientSchema]
     },
     recipeSteps: {
         type: String
+    },
+    yields: {
+      type: Number,
+      required: true
     },
     minutesEstimate: Number,
     date: {

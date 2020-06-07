@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './Recipes.scss';
-import Modal from '../components/Modal/Modal';
-import InputForm from '../components/Modal/InputForm/InputForm';
+import ViewModal from '../components/Modals/ViewRecipe/ViewRecipe';
+import CreateAndUpdateModal from '../components/Modals/CreateAndUpdateRecipe/CreateAndUpdateRecipe';
+import InputForm from '../components/Modals/InputForm/InputForm';
 import Backdrop from '../components/Backdrop/Backdrop'
 import AuthContext from '../context/auth-context'
 import RecipeList from '../components/Recipes/RecipeList/RecipeList'
@@ -28,8 +29,12 @@ class RecipesPage extends Component {
     this.recipeIngredientsEl = React.createRef();
     this.recipeStepsEl = React.createRef();
     this.minutesEstimateEl = React.createRef();
+    this.yieldsEl = React.createRef();
     this.dateEl = React.createRef();
     this.linkEl = React.createRef();
+    this.ingredientAmountEl = React.createRef();
+    this.ingredientUnitEl = React.createRef();
+    this.ingredientNameEl = React.createRef();
   }
 
   componentDidMount(){
@@ -40,14 +45,12 @@ class RecipesPage extends Component {
 
   startCreateOrUpdateRecipeHandler = (args) => {
     args === 'update' ? console.log('UPDATING ') : console.log('CREATING')
-    if(args === 'update'){
-      this.setState(prevState => {
+    args === 'update'
+      ? this.setState(prevState => {
         return {updating: true, recipeToUpdate: prevState.selectedRecipe, selectedRecipe: null}
       })
-    } 
-    else  this.setState({creating: true})
+    : this.setState({creating: true})
     console.log('startCreateOrUpdateRecipeHandler')
-    
   }
 
   modalCancelHandler = (args) => {
@@ -57,12 +60,13 @@ class RecipesPage extends Component {
 
   modalConfirmHandler = () => {
     console.log('modalConfirmHandler')
-    console.log('date: ', this.dateEl)
+    console.log('date: ', this.recipeStepsEl.current.value)
     this.setState({creating: false})
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
     const recipeIngredients = this.recipeIngredientsEl.current.value
     const recipeSteps = this.recipeStepsEl.current.value
+    const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
     if(
@@ -70,6 +74,7 @@ class RecipesPage extends Component {
       recipeDescription.trim().length === 0 ||
       recipeIngredients.trim().length === 0 ||
       recipeSteps.trim().length === 0 ||
+      yields <= 0 || 
       minutesEstimate <= 0 ||
       link.trim().length === 0 
     ){
@@ -82,16 +87,18 @@ class RecipesPage extends Component {
             $recipeDescription: String!,
             $recipeIngredients: String!,
             $recipeSteps: String!,
+            $yields: Float!,
             $minutesEstimate: Float!,
             $date: String!,
             $link: String!) {
-            createRecipe(recipeInput: {recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, minutesEstimate: $minutesEstimate, date: $date, link: $link 
+            createRecipe(recipeInput: {recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields, minutesEstimate: $minutesEstimate, date: $date, link: $link 
             }){
               _id
               recipeName
               recipeDescription
               recipeIngredients
               recipeSteps
+              yields
               minutesEstimate
               date
               link
@@ -103,6 +110,7 @@ class RecipesPage extends Component {
           recipeDescription: recipeDescription,
           recipeIngredients: recipeIngredients,
           recipeSteps: recipeSteps,
+          yields: yields,
           minutesEstimate: minutesEstimate,
           date: new Date().toISOString(),
           link: link
@@ -131,6 +139,7 @@ class RecipesPage extends Component {
               recipeDescription: resData.data.createRecipe.recipeDescription,
               recipeIngredients: resData.data.createRecipe.recipeIngredients,
               recipeSteps: resData.data.createRecipe.recipeSteps,
+              yields: resData.data.createRecipe.yields,
               minutesEstimate: resData.data.createRecipe.minutesEstimate,
               date: resData.data.createRecipe.date,
               link: resData.data.createRecipe.link,
@@ -241,6 +250,7 @@ class RecipesPage extends Component {
     const recipeDescription = this.recipeDescriptionEl.current.value
     const recipeIngredients = this.recipeIngredientsEl.current.value
     const recipeSteps = this.recipeStepsEl.current.value
+    const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
      if(
@@ -249,6 +259,7 @@ class RecipesPage extends Component {
        recipeIngredients.trim().length === 0 ||
        recipeSteps.trim().length === 0 ||
        minutesEstimate <= 0 ||
+       yields <= 0 ||
        link.trim().length === 0 
      ){
        return;
@@ -261,16 +272,18 @@ class RecipesPage extends Component {
              $recipeDescription: String!,
              $recipeIngredients: String!,
              $recipeSteps: String!,
+             $yields: Float!,
              $minutesEstimate: Float!,
              $date: String!,
              $link: String!) {
-             updateRecipe(recipeId: $recipeId, recipeInput: { recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, minutesEstimate: $minutesEstimate, date: $date, link: $link 
+             updateRecipe(recipeId: $recipeId, recipeInput: { recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields minutesEstimate: $minutesEstimate, date: $date, link: $link 
              }){
                _id
                recipeName
                recipeDescription
                recipeIngredients
                recipeSteps
+               yields
                minutesEstimate
                date
                link
@@ -283,6 +296,7 @@ class RecipesPage extends Component {
            recipeDescription: recipeDescription,
            recipeIngredients: recipeIngredients,
            recipeSteps: recipeSteps,
+           yields: yields,
            minutesEstimate: minutesEstimate,
            date: new Date().toISOString(),
            link: link
@@ -313,12 +327,6 @@ class RecipesPage extends Component {
        }).catch(err => {
          throw err
        })
-
-
-
-
-
-
   }
 
   showDetailHandler = recipeId => {
@@ -344,8 +352,13 @@ class RecipesPage extends Component {
             _id
             recipeName
             recipeDescription
-            recipeIngredients
+            recipeIngredients {
+              name
+              amount
+              unit
+            }
             recipeSteps
+            yields
             minutesEstimate
             date
             link
@@ -387,15 +400,17 @@ class RecipesPage extends Component {
     this.isActive = false
   }
   render() {
+    
     return(
       <React.Fragment>
         {(this.state.creating || this.state.updating || this.state.selectedRecipe) && <Backdrop />}
         {this.state.creating && 
         (
-        <Modal title="Add New" 
+        <CreateAndUpdateModal title="Add New" 
         //in this case, the options is confrim only (always owner)
         canCancel 
         canConfirm 
+        isCreate
         confirmText="Confirm"
         onCancel={this.modalCancelHandler} 
         onConfirm={this.modalConfirmHandler}
@@ -405,15 +420,19 @@ class RecipesPage extends Component {
           dateEl={this.dateEl} 
           linkEl={this.linkEl} 
           minutesEstimateEl={this.minutesEstimateEl}
+          yieldsEl={this.yieldsEl}
           recipeDescriptionEl={this.recipeDescriptionEl} 
           recipeIngredientsEl={this.recipeIngredientsEl} 
           recipeStepsEl={this.recipeStepsEl}
+          ingredientAmountEl={this.ingredientAmountEl}
+          ingredientUnitEl={this.ingredientUnitEl}
+          ingredientNameEl={this.ingredientNameEl}
           onDrop = {this.imageUploadHandler}
           />
-        </Modal>)}
+        </CreateAndUpdateModal>)}
         {this.state.selectedRecipe && 
         //in this case, the options are delete, edit(if owner) or subscribe(if visitor)
-          (<Modal 
+          (<ViewModal 
           title={this.state.selectedRecipe.recipeName} 
           canCancel 
           canSubscribe = {this.context.userId !== this.state.selectedRecipe.creator._id ? true : false} 
@@ -427,21 +446,18 @@ class RecipesPage extends Component {
           onSubscribe={this.modalSubscribeToRecipeHandler}
           onDelete={this.modalDeleteRecipeHandler}
           onEdit={this.startCreateOrUpdateRecipeHandler.bind(this, 'update')}
-          >
-            <h1>{this.state.selectedRecipe.recipeName}</h1>
-            <h3>Estimated Time: {this.state.selectedRecipe.minutesEstimate} mins</h3>
-            <h3>Date Added: {new Date(this.state.selectedRecipe.date).toLocaleDateString()}</h3>
-            <p>{this.state.selectedRecipe.recipeDescription}</p>
-        </Modal>)}
+          />)}
         {this.state.recipeToUpdate &&
         //in this case, the options are save changes or cancel (both if owner)
-        (<Modal
+        (<CreateAndUpdateModal
           title="Update Recipe" 
+          isUpdate
           canCancel 
           canSaveChanges 
           saveText={this.context.token && "Save Changes" }
           onCancel={this.modalCancelHandler.bind(this, 'update')} 
           onSaveChanges={this.modalUpdateRecipeHandler}
+          selectedRecipe = {this.state.recipeToUpdate}
         >
           <InputForm 
           recipeNameEl={this.recipeNameEl} 
@@ -452,7 +468,7 @@ class RecipesPage extends Component {
           linkValue={this.state.recipeToUpdate.link} minutesEstimateEl={this.minutesEstimateEl} minutesEstimateValue={this.state.recipeToUpdate.minutesEstimate} recipeDescriptionEl={this.recipeDescriptionEl} recipeDescriptionValue={this.state.recipeToUpdate.recipeDescription} recipeIngredientsEl={this.recipeIngredientsEl} recipeIngredientsValue={this.state.recipeToUpdate.recipeIngredients} recipeStepsEl={this.recipeStepsEl} recipeStepsValue={this.state.recipeToUpdate.recipeSteps} 
           onDrop = {this.imageUploadHandler}
           />
-        </Modal>)}
+        </CreateAndUpdateModal>)}
         <div className="recipes-control">
           <h1 className="ac caps">The Recipes Page</h1> 
           {this.context.token && <button className="btn" onClick={this.startCreateOrUpdateRecipeHandler}>Create Recipe</button>}
