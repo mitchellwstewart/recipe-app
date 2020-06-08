@@ -28,6 +28,7 @@ class RecipesPage extends Component {
     this.recipeDescriptionEl = React.createRef();
     this.recipeIngredientsEl = React.createRef();
     this.recipeStepsEl = React.createRef();
+    this.recipeStepEl = React.createRef();
     this.minutesEstimateEl = React.createRef();
     this.yieldsEl = React.createRef();
     this.dateEl = React.createRef();
@@ -67,9 +68,14 @@ class RecipesPage extends Component {
       const ingredientName = ingredientNode.querySelector('[data-name]').dataset.name
       const ingredientAmount = +ingredientNode.querySelector('[data-amount]').dataset.amount
       const ingredientUnit = ingredientNode.querySelector('[data-unit]').dataset.unit
-      return {name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
+        return {name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
     })
-    const recipeSteps = this.recipeStepsEl.current.value
+    const recipeSteps = Array.from(this.recipeStepsEl.current.children).map((stepNode, idx) => {
+      const stepNumber = +(idx+1)
+      const stepInstruction = stepNode.querySelector('span.step-content').innerText
+        return {stepNumber: stepNumber, stepInstruction: stepInstruction}
+    })
+    console.log("recipeSteps: ", recipeSteps)
     const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
@@ -77,7 +83,7 @@ class RecipesPage extends Component {
       recipeName.trim().length === 0 ||
       recipeDescription.trim().length === 0 ||
       recipeIngredients.length === 0 ||
-      recipeSteps.trim().length === 0 ||
+      recipeSteps.length === 0 ||
       yields <= 0 || 
       minutesEstimate <= 0 ||
       link.trim().length === 0 
@@ -90,7 +96,7 @@ class RecipesPage extends Component {
             $recipeName: String!,
             $recipeDescription: String!,
             $recipeIngredients: [IngredientInput!],
-            $recipeSteps: String!,
+            $recipeSteps: [StepInput!],
             $yields: Float!,
             $minutesEstimate: Float!,
             $date: String!,
@@ -106,7 +112,10 @@ class RecipesPage extends Component {
                 unit
                 amount
               }
-              recipeSteps
+              recipeSteps {
+                stepNumber
+                stepInstruction
+              }
               yields
               minutesEstimate
               date
@@ -368,7 +377,10 @@ class RecipesPage extends Component {
               amount
               unit
             }
-            recipeSteps
+            recipeSteps {
+              stepNumber
+              stepInstruction
+            }
             yields
             minutesEstimate
             date
@@ -435,6 +447,7 @@ class RecipesPage extends Component {
           recipeDescriptionEl={this.recipeDescriptionEl} 
           recipeIngredientsEl={this.recipeIngredientsEl} 
           recipeStepsEl={this.recipeStepsEl}
+          recipeStepEl={this.recipeStepEl}
           ingredientAmountEl={this.ingredientAmountEl}
           ingredientUnitEl={this.ingredientUnitEl}
           ingredientNameEl={this.ingredientNameEl}

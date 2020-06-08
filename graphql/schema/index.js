@@ -24,7 +24,7 @@ type Recipe {
     recipeName: String!
     recipeDescription: String!
     recipeIngredients: [Ingredient!]
-    recipeSteps: String!
+    recipeSteps: [Step]!
     yields: Float!
     minutesEstimate: Float!
     date: String!
@@ -39,6 +39,12 @@ type Ingredient {
   unit: String
 }
 
+type Step {
+  _id: ID
+  stepInstruction: String!
+  stepNumber: Float!
+}
+
 input UserInput {
     email: String!
     password: String!
@@ -47,7 +53,7 @@ input RecipeInput {
     recipeName: String!
     recipeDescription: String!
     recipeIngredients: [IngredientInput!]
-    recipeSteps: String!
+    recipeSteps: [StepInput!]
     yields: Float!
     minutesEstimate: Float!
     date: String!
@@ -58,6 +64,13 @@ input IngredientInput{
   name: String!
   amount: Float!
   unit: String
+}
+
+
+
+input StepInput {
+  stepNumber: Float!
+  stepInstruction: String!
 }
 
 type RootQuery {

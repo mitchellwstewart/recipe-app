@@ -86,7 +86,12 @@ class ViewModal extends Component {
           <li className={`modal__content_main_nav_item pointer mr1 ${this.state.viewing === "creator-notes" ? "active" : ""}`} id="creator-notes" onClick={this.viewHandler}>Creator Notes</li>
         </ul>
         {this.state.viewing === "description" && <p>{description}</p>}
-        {this.state.viewing === "steps" && <p>{steps}</p>}
+        {this.state.viewing === "steps" && (
+          steps.map(step => {
+          return <p key={step.stepNumber}>{step.stepNumber}. {step.stepInstruction}</p>
+          })
+        
+        )}
         {this.state.viewing === "creator-notes" && <p>{dateAdded}</p>}
       </div>
       
