@@ -5,9 +5,11 @@ class InputForm extends Component  {
     super(props)
     this.state = {
       openIngredientDropdown: false,
+      openStepsDropdown: false,
       ingredientsAdded: [],
-      addedSteps: [],
+      stepsAdded: [],
       ingredientValidation: false,
+
     }
 
    
@@ -25,6 +27,13 @@ class InputForm extends Component  {
     this.props.ingredientUnitEl.current.value = ''
     this.props.ingredientNameEl.current.value = ''
     this.setState({openIngredientDropdown: !this.state.openIngredientDropdown})
+  }
+
+  openStepsHandler = () => {
+    // this.props.ingredientAmountEl.current.value = 1
+    // this.props.ingredientUnitEl.current.value = ''
+    // this.props.ingredientNameEl.current.value = ''
+    this.setState({openStepsDropdown: !this.state.openStepsDropdown})
   }
 
   addIngredientHandler = (e) => {
@@ -51,6 +60,18 @@ class InputForm extends Component  {
        return {ingredientsAdded: updatedIngredients, openIngredientDropdown: false}
      })
     }
+  }
+
+  addStepHandler = (e) => {
+    console.log('add step')
+  
+     
+     this.setState(prevState => {
+       console.log('prevState: ', prevState.stepsAdded)
+       const updatedSteps = [...prevState.stepsAdded, this.props.recipeStepEl.current.value]
+       console.log('updatededIngredients: ', updatedSteps)
+       return {stepsAdded: updatedSteps, openStepsDropdown: false}
+     })
     
   }
 
@@ -79,11 +100,15 @@ class InputForm extends Component  {
             <label htmlFor="recipeDescription">Recipe Description</label>
             <textarea ref={this.props.recipeDescriptionEl} type="text" id="recipeDescription" rows="4" defaultValue={this.props.recipeDescriptionValue ? this.props.recipeDescriptionValue : ""}/>
           </div>
+
+
           <div className="form-control">
             <div className="recipeIngredients_header f">
               <label htmlFor="header"><b>Recipe Ingredients</b></label>
               <div className="add-recipe pointer" onClick={this.openIngredientHandler}>{this.state.openIngredientDropdown ? "Close x " : "Add Ingredient +"}</div>
             </div>
+
+            {/* Ingredients List */}
             
             <ul className="ingredient-list" ref={this.props.recipeIngredientsEl} >
               {this.state.ingredientsAdded && this.state.ingredientsAdded.map((ingredientObj, idx) => {
@@ -122,12 +147,35 @@ class InputForm extends Component  {
                   Add
                 </div>
             </div>
-            
           </div>
+            {/* Recipe Steps */}
+            
           <div className="form-control">
             <label htmlFor="recipeSteps">Recipe Steps</label>
-            <textarea ref={this.props.recipeStepsEl} type="text" id="recipeSteps" rows="4" defaultValue={this.props.recipeStepsValue ? this.props.recipeStepsValue : ""}/>
+            <div className="add-recipe pointer" onClick={this.openStepsHandler}>{this.state.openStepsDropdown ? "Close x " : "Add Step +"}</div>
+            <ul className="recipeSteps_container" ref={this.props.recipeStepsEl} >
+              {this.state.stepsAdded && this.state.stepsAdded.map((step, idx) => {
+                  return (
+                  <li className="step-list_item f" key={idx}>
+                    <div className="remove-item pointer" id={idx} onClick={this.removeStepHandler}>X</div>
+                    <p><span className="step-order">{idx + 1}.</span> <span className="step-content">{step}</span></p>
+                    </li> 
+                  )
+              })}
+            </ul>
+
+            <div className={`recipeSteps_inputs bcbl ${this.state.openStepsDropdown ? "" : "hidden"}`}>
+              <div className="form-control">
+                <label htmlFor="step-item">Step</label>
+                <input type="text" ref={this.props.recipeStepEl} id="stepItem" defaultValue={this.props.recipeStep ? this.props.recipeStep : ""} />
+              </div>
+              <div className="pointer" onClick={this.addStepHandler}>
+                  Add
+                </div>
+            </div>
           </div>
+
+
           <div className="form-control">
             <label htmlFor="yields">Yields</label>
             <input ref={this.props.yieldsEl} type="number" id="yields" defaultValue={this.state.updatedYield} />

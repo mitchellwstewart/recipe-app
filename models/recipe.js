@@ -22,9 +22,16 @@ const recipeSchema = new Schema({
         type: String,
       }
     }],
-    recipeSteps: {
-        type: String
-    },
+    recipeSteps: [{
+      stepNumber:{
+        type: Number,
+        required: true,
+      },
+      stepInstruction: {
+        type: String,
+        required: true,
+      }
+    }],
     yields: {
       type: Number,
       required: true
