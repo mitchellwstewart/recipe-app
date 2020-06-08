@@ -74,7 +74,7 @@ class ViewModal extends Component {
         {ingredients.map((ingredient, idx) => {
           return (
           <li key={idx} className="ingredient-container f aic">
-            <p className="ingredient-container_amount" >{ingredient.amount *  this.state.updatedYield / this.props.selectedRecipe.yields} {ingredient.unit} - {ingredient.name}</p>
+            <p className="ingredient-container_amount" >{parseFloat((ingredient.amount * this.state.updatedYield / this.props.selectedRecipe.yields).toFixed(2))} {ingredient.unit} - {ingredient.name}</p>
           </li>
           )
         })}
