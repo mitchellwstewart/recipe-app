@@ -23,7 +23,7 @@ type Recipe {
     _id: ID!
     recipeName: String!
     recipeDescription: String!
-    recipeIngredients: [Ingredient]
+    recipeIngredients: [Ingredient!]
     recipeSteps: String!
     yields: Float!
     minutesEstimate: Float!
@@ -34,8 +34,8 @@ type Recipe {
 
 type Ingredient {
   _id: ID
-  name: String
-  amount: Float
+  name: String!
+  amount: Float!
   unit: String
 }
 
@@ -46,7 +46,7 @@ input UserInput {
 input RecipeInput {
     recipeName: String!
     recipeDescription: String!
-    recipeIngredients: String!
+    recipeIngredients: [IngredientInput!]
     recipeSteps: String!
     yields: Float!
     minutesEstimate: Float!
@@ -57,7 +57,7 @@ input RecipeInput {
 input IngredientInput{
   name: String!
   amount: Float!
-  unit: String!
+  unit: String
 }
 
 type RootQuery {

@@ -13,10 +13,12 @@ module.exports = {
         }
     },
     createRecipe: async (args, req) => {
+      console.log('create recipe: ', args.recipeInput.recipeIngredients)
         if(!req.isAuth) {
             throw new Error('Unauthenticated!')
         }
         try {
+          console.log('WE ARE TRIYNG')
             const recipe = new Recipe ({
               recipeName: args.recipeInput.recipeName,
               recipeDescription: args.recipeInput.recipeDescription ,
@@ -28,16 +30,21 @@ module.exports = {
               link: args.recipeInput.link,
               creator: req.userId
            })
+           
            let createdRecipe;
             const result = await recipe.save()
             createdRecipe = transformRecipe(result)
+            console.log("CREATED RECIUOE: ", createdRecipe)
             const creator = await User.findById(req.userId)
             if(!creator) { throw new Error ('USER NOT FOUND') }
             creator.createdRecipes.push(recipe)
             await creator.save()
             return createdRecipe
         }
-        catch(err) { throw err }
+        catch(err) { 
+          console.log('ERROR: ', err)
+          throw err 
+        }
     },
     deleteRecipe:  async (args, req) => {
       if(!req.isAuth) {

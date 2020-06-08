@@ -6,7 +6,8 @@ import AuthContext from '../../../context/auth-context'
 
 class ViewModal extends Component {
   state = {
-    viewing: 'description'
+    viewing: 'description',
+    updatedYield: this.props.selectedRecipe.yields
   }
   constructor(props) {
     super(props)
@@ -18,6 +19,12 @@ class ViewModal extends Component {
     console.log(e.target)
     this.setState({viewing: e.target.id})
   }
+  yieldHandler = e => {
+    const value = parseInt(e.target.value)
+    console.log("vale:", value)
+     !Number.isNaN(value)  && this.setState({updatedYield: value})
+  }
+
   render() {
     console.log("SELECTED:",this.props.selectedRecipe)
     const recipeName = this.props.selectedRecipe.recipeName
@@ -62,14 +69,12 @@ class ViewModal extends Component {
       <ul className="modal__content_ingredients-nav f fdc">
         <div className="yield-count">
           Yields: 
-          <input className="yield-count_amount" type="text" defaultValue="4"/>
+          <input className="yield-count_amount" type="text" onChange={this.yieldHandler} defaultValue={this.state.updatedYield}/>
         </div>
-        {ingredients.split("-").map((ingredient, idx) => {
-          return ingredient !== " " && (
+        {ingredients.map((ingredient, idx) => {
+          return (
           <li key={idx} className="ingredient-container f aic">
-            <p className="ingredient-container_amount" >1 </p>
-            - 
-          <p> {ingredient}</p>
+            <p className="ingredient-container_amount" >{ingredient.amount *  this.state.updatedYield / this.props.selectedRecipe.yields} {ingredient.unit} - {ingredient.name}</p>
           </li>
           )
         })}
