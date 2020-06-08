@@ -6,7 +6,8 @@ class InputForm extends Component  {
     this.state = {
       openIngredientDropdown: false,
       ingredientsAdded: [],
-      addedSteps: []
+      addedSteps: [],
+      ingredientValidation: false,
     }
 
    
@@ -24,25 +25,48 @@ class InputForm extends Component  {
     this.props.ingredientUnitEl.current.value = ''
     this.props.ingredientNameEl.current.value = ''
     this.setState({openIngredientDropdown: !this.state.openIngredientDropdown})
-    
   }
 
   addIngredientHandler = (e) => {
     console.log('add ingredient')
-     const ingredientObj = { 
-       name: this.props.ingredientNameEl.current.value,
-       amount: this.props.ingredientAmountEl.current.value,
-       unit: this.props.ingredientUnitEl.current.value
-     }
-    this.setState(prevState => {
-      console.log('prevState: ', prevState.ingredientsAdded)
-     // console.log('ingredientObj: ', ingredientObj)
-      const updatedIngredients = [...prevState.ingredientsAdded, ingredientObj]
-      console.log('updatededIngredients: ', updatedIngredients)
-      return {ingredientsAdded: updatedIngredients, openIngredientDropdown: false}
-    })
+    if(this.state.ingredientsAdded.find(ingredient => ingredient.name === this.props.ingredientNameEl.current.value)) {
+      this.setState({ingredientValidation: true})
+      console.log('INGREDIENT WITH THIS NAME ALREADY ADDED')
+      setTimeout(()=>{
+        this.setState({ingredientValidation: false})
+      }, 3000)
+    
+    return
+    }
+    else {
+      const ingredientObj = { 
+        name: this.props.ingredientNameEl.current.value,
+        amount: this.props.ingredientAmountEl.current.value,
+        unit: this.props.ingredientUnitEl.current.value,
+      }
+     this.setState(prevState => {
+       console.log('prevState: ', prevState.ingredientsAdded)
+       const updatedIngredients = [...prevState.ingredientsAdded, ingredientObj]
+       console.log('updatededIngredients: ', updatedIngredients)
+       return {ingredientsAdded: updatedIngredients, openIngredientDropdown: false}
+     })
+    }
     
   }
+
+  removeIngredientHandler = (e) => {
+    console.log('remove ingredient: ', e.target.id)
+   let deleteSelectionName = e.target.id
+     this.setState(prevState => {
+       console.log('prevState: ', prevState.ingredientsAdded)
+       const updatedIngredients = prevState.ingredientsAdded.filter(ingredientObj => ingredientObj.name !== deleteSelectionName)
+       console.log('updatededIngredients: ', updatedIngredients)
+       return {ingredientsAdded: updatedIngredients, openIngredientDropdown: false}
+     })
+  }
+
+
+
   render() {
     console.log('input form props: ', this.props)
     return (
@@ -61,11 +85,16 @@ class InputForm extends Component  {
               <div className="add-recipe pointer" onClick={this.openIngredientHandler}>{this.state.openIngredientDropdown ? "Close x " : "Add Ingredient +"}</div>
             </div>
             
-            <div ref={this.props.recipeIngredientsEl} >
-              {this.state.ingredientsAdded && this.state.ingredientsAdded.map(ingredientObj => {
-                  return (<p>{ingredientObj.amount} {ingredientObj.unit} - {ingredientObj.name}</p>)
+            <ul className="ingredient-list" ref={this.props.recipeIngredientsEl} >
+              {this.state.ingredientsAdded && this.state.ingredientsAdded.map((ingredientObj, idx) => {
+                  return (
+                  <li className="ingredient-list_item f" key={idx}>
+                    <div className="remove-item pointer" id={ingredientObj.name} onClick={this.removeIngredientHandler}>X</div>
+                    <p><span data-amount={ingredientObj.amount}>{ingredientObj.amount}</span> <span data-unit={ingredientObj.unit}>{ingredientObj.unit}</span> - <span data-name={ingredientObj.name}>{ingredientObj.name}</span></p>
+                    </li> 
+                  )
               })}
-            </div>
+            </ul>
 
             <div className={`ingredientInputContainer bcbl ${this.state.openIngredientDropdown ? "" : "hidden"}`}>
               <div className="form-control">
@@ -75,7 +104,6 @@ class InputForm extends Component  {
               <div className="form-control">
                 <label htmlFor="ingredientUnit">Unit</label>
                 <select defaultValue="cup" id="ingredientUnit" size="1" ref={this.props.ingredientUnitEl} >
-                  
                   <option value="cup" >cup</option>
                   <option value="tbsp">tbsp</option>
                   <option value="tsp">tsp</option>
@@ -88,6 +116,7 @@ class InputForm extends Component  {
               <div className="form-control">
                 <label htmlFor="ingredientName">Ingredient Name</label>
                 <input type="string" ref={this.props.ingredientNameEl} id="ingredientName" defaultValue={this.props.recipeIngredientsValue ? this.props.recipeIngredientsValue : ""} />
+                {this.state.ingredientValidation && <p className="caps cr">this ingredient already exists, choose a different name or delete exisiting ingredient</p>}
               </div>
               <div className="pointer" onClick={this.addIngredientHandler}>
                   Add
@@ -101,7 +130,7 @@ class InputForm extends Component  {
           </div>
           <div className="form-control">
             <label htmlFor="yields">Yields</label>
-            <input ref={this.props.yieldsEl} type="number" id="yields" defaultValue={this.props.yields ? this.props.yields : 1} />
+            <input ref={this.props.yieldsEl} type="number" id="yields" defaultValue={this.state.updatedYield} />
           </div>
           <div className="form-control">
             <label htmlFor="minutesEstimate">Estimated Minutes</label>

@@ -60,11 +60,15 @@ class RecipesPage extends Component {
 
   modalConfirmHandler = () => {
     console.log('modalConfirmHandler')
-    console.log('date: ', this.recipeStepsEl.current.value)
     this.setState({creating: false})
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
-    const recipeIngredients = this.recipeIngredientsEl.current.value
+    const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
+      const ingredientName = ingredientNode.querySelector('[data-name]').dataset.name
+      const ingredientAmount = +ingredientNode.querySelector('[data-amount]').dataset.amount
+      const ingredientUnit = ingredientNode.querySelector('[data-unit]').dataset.unit
+      return {name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
+    })
     const recipeSteps = this.recipeStepsEl.current.value
     const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
@@ -72,7 +76,7 @@ class RecipesPage extends Component {
     if(
       recipeName.trim().length === 0 ||
       recipeDescription.trim().length === 0 ||
-      recipeIngredients.trim().length === 0 ||
+      recipeIngredients.length === 0 ||
       recipeSteps.trim().length === 0 ||
       yields <= 0 || 
       minutesEstimate <= 0 ||
@@ -85,7 +89,7 @@ class RecipesPage extends Component {
           mutation CreateRecipe(
             $recipeName: String!,
             $recipeDescription: String!,
-            $recipeIngredients: String!,
+            $recipeIngredients: [IngredientInput!],
             $recipeSteps: String!,
             $yields: Float!,
             $minutesEstimate: Float!,
@@ -96,7 +100,12 @@ class RecipesPage extends Component {
               _id
               recipeName
               recipeDescription
-              recipeIngredients
+              recipeIngredients {
+                _id
+                name
+                unit
+                amount
+              }
               recipeSteps
               yields
               minutesEstimate
@@ -131,6 +140,7 @@ class RecipesPage extends Component {
           }
           return res.json()
         }).then(resData => {
+          console.log('resData:', resData)
           this.setState(prevState => {
             const updatedRecipes = [...prevState.recipes]
             updatedRecipes.push({
@@ -150,6 +160,7 @@ class RecipesPage extends Component {
             return {recipes: updatedRecipes}
           })
         }).catch(err => {
+          console.log('ERROR:', err)
           throw err
         })
   }
@@ -464,6 +475,8 @@ class RecipesPage extends Component {
           recipeNameValue={this.state.recipeToUpdate.recipeName} 
           dateEl={this.dateEl} 
           dateValue={this.state.recipeToUpdate.date} 
+          yieldsEl={this.yieldsEl}
+          yieldsValue={this.state.recipeToUpdate.yields}
           linkEl={this.linkEl} 
           linkValue={this.state.recipeToUpdate.link} minutesEstimateEl={this.minutesEstimateEl} minutesEstimateValue={this.state.recipeToUpdate.minutesEstimate} recipeDescriptionEl={this.recipeDescriptionEl} recipeDescriptionValue={this.state.recipeToUpdate.recipeDescription} recipeIngredientsEl={this.recipeIngredientsEl} recipeIngredientsValue={this.state.recipeToUpdate.recipeIngredients} recipeStepsEl={this.recipeStepsEl} recipeStepsValue={this.state.recipeToUpdate.recipeSteps} 
           onDrop = {this.imageUploadHandler}
