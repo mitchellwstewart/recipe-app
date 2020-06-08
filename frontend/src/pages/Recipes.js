@@ -16,6 +16,7 @@ class RecipesPage extends Component {
     isLoading: false,
     selectedRecipe: null,
     recipeToUpdate: null,
+    validationError: false,
     imageFile: null
   }
 
@@ -42,7 +43,6 @@ class RecipesPage extends Component {
     this.fetchRecipes()
   }
 
-
   startCreateOrUpdateRecipeHandler = (args) => {
     args === 'update'
       ? this.setState(prevState => {
@@ -56,7 +56,7 @@ class RecipesPage extends Component {
   }
 
   modalConfirmHandler = () => {
-    this.setState({creating: false})
+    
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
     const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
@@ -82,8 +82,13 @@ class RecipesPage extends Component {
       minutesEstimate <= 0 ||
       link.trim().length === 0 
     ){
+      this.setState({validationError: true})
+      setTimeout(()=> {
+        this.setState({validationError: false})
+      }, 3000)
       return;
     }
+    this.setState({creating: false})
       const requestBody = {
         query: `
           mutation CreateRecipe(
@@ -254,7 +259,7 @@ class RecipesPage extends Component {
   }
 
   modalUpdateRecipeHandler = () => {
-    this.setState({updating: false})
+    
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
     const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
@@ -280,9 +285,14 @@ class RecipesPage extends Component {
        yields <= 0 ||
        link.trim().length === 0 
      ){
-       console.log('something not validated')
+       console.log('validationerror')
+      this.setState({validationError: true})
+      setTimeout(()=> {
+        this.setState({validationError: false})
+      }, 3000)
        return;
      }
+     this.setState({updating: false})
        const requestBody = {
          query: `
            mutation UpdateRecipe(
@@ -425,8 +435,9 @@ class RecipesPage extends Component {
   componentWillUnmount = () => {
     this.isActive = false
   }
+
+
   render() {
-    
     return(
       <React.Fragment>
         {(this.state.creating || this.state.updating || this.state.selectedRecipe) && <Backdrop />}
@@ -440,6 +451,7 @@ class RecipesPage extends Component {
         confirmText="Confirm"
         onCancel={this.modalCancelHandler} 
         onConfirm={this.modalConfirmHandler}
+        validationError={this.state.validationError}
         >
           <InputForm 
           recipeNameEl={this.recipeNameEl} 
@@ -485,6 +497,7 @@ class RecipesPage extends Component {
           onCancel={this.modalCancelHandler.bind(this, 'update')} 
           onSaveChanges={this.modalUpdateRecipeHandler}
           selectedRecipe = {this.state.recipeToUpdate}
+          validationError={this.state.validationError}
         >
           <InputForm 
           recipeNameEl={this.recipeNameEl} 
