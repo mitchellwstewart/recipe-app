@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 import '../Modals.scss'
 import AuthContext from '../../../context/auth-context'
 
-
-
 class CreateAndUpdateModal extends Component {
   state = {
     viewing: 'description'

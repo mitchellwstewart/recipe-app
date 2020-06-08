@@ -34,7 +34,6 @@ module.exports = {
            let createdRecipe;
             const result = await recipe.save()
             createdRecipe = transformRecipe(result)
-            console.log("CREATED RECIUOE: ", createdRecipe)
             const creator = await User.findById(req.userId)
             if(!creator) { throw new Error ('USER NOT FOUND') }
             creator.createdRecipes.push(recipe)
@@ -42,7 +41,6 @@ module.exports = {
             return createdRecipe
         }
         catch(err) { 
-          console.log('ERROR: ', err)
           throw err 
         }
     },
@@ -68,12 +66,15 @@ module.exports = {
       catch(err) { throw err }
     },
     updateRecipe:  async (args, req) => {
-      console.log(args.recipeId)
+      console.log("ARGS FOR UPDATE: ", args)
       if(!req.isAuth) {
+        console.log(
+          'UNATHETINCATED'
+        )
         throw new Error ('Unauthenticated')
       }
       try{
-        
+        console.log('we tring')
        await Recipe.updateOne(
           {_id: args.recipeId},
           { $set: {
@@ -89,8 +90,9 @@ module.exports = {
            }}
        );
        const result =  await Recipe.findOne({_id: args.recipeId})
+       console.log("RESU:LT: ", result)
        updatedRecipe = transformRecipe(result)
-       console.log(updatedRecipe)
+       console.log("update recipe: ", updatedRecipe)
         const creator = await User.findById(req.userId)
             if(!creator) { throw new Error ('USER NOT FOUND') }
             console.log('creator is here: ', creator)

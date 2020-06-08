@@ -40,27 +40,22 @@ class RecipesPage extends Component {
 
   componentDidMount(){
     this.fetchRecipes()
-    console.log('component did mount')
   }
 
 
   startCreateOrUpdateRecipeHandler = (args) => {
-    args === 'update' ? console.log('UPDATING ') : console.log('CREATING')
     args === 'update'
       ? this.setState(prevState => {
         return {updating: true, recipeToUpdate: prevState.selectedRecipe, selectedRecipe: null}
       })
     : this.setState({creating: true})
-    console.log('startCreateOrUpdateRecipeHandler')
   }
 
   modalCancelHandler = (args) => {
-    console.log('modalCancelHandler')
     this.setState({creating: false, selectedRecipe: null, updating: false, recipeToUpdate: false})
   }
 
   modalConfirmHandler = () => {
-    console.log('modalConfirmHandler')
     this.setState({creating: false})
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
@@ -75,7 +70,6 @@ class RecipesPage extends Component {
       const stepInstruction = stepNode.querySelector('span.step-content').innerText
         return {stepNumber: stepNumber, stepInstruction: stepInstruction}
     })
-    console.log("recipeSteps: ", recipeSteps)
     const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
@@ -169,7 +163,6 @@ class RecipesPage extends Component {
             return {recipes: updatedRecipes}
           })
         }).catch(err => {
-          console.log('ERROR:', err)
           throw err
         })
   }
@@ -219,8 +212,6 @@ class RecipesPage extends Component {
   }
 
   modalDeleteRecipeHandler = () => {
-    console.log('deleteRecipeHandler')
-    console.log('recipe delete request by creator')
     if(!this.context.token) {
       this.setState({selectedRecipe: null})
       return;
@@ -263,25 +254,33 @@ class RecipesPage extends Component {
   }
 
   modalUpdateRecipeHandler = () => {
-    console.log('updateRecipeHandler')
-    console.log('recipe update request by creator')    
     this.setState({updating: false})
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
-    const recipeIngredients = this.recipeIngredientsEl.current.value
-    const recipeSteps = this.recipeStepsEl.current.value
+    const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
+      const ingredientName = ingredientNode.querySelector('[data-name]').dataset.name
+      const ingredientAmount = +ingredientNode.querySelector('[data-amount]').dataset.amount
+      const ingredientUnit = ingredientNode.querySelector('[data-unit]').dataset.unit
+        return {name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
+    })
+    const recipeSteps = Array.from(this.recipeStepsEl.current.children).map((stepNode, idx) => {
+      const stepNumber = +(idx+1)
+      const stepInstruction = stepNode.querySelector('span.step-content').innerText
+        return {stepNumber: stepNumber, stepInstruction: stepInstruction}
+    })
     const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
      if(
        recipeName.trim().length === 0 ||
        recipeDescription.trim().length === 0 ||
-       recipeIngredients.trim().length === 0 ||
-       recipeSteps.trim().length === 0 ||
+       recipeIngredients.length === 0 ||
+       recipeSteps.length === 0 ||
        minutesEstimate <= 0 ||
        yields <= 0 ||
        link.trim().length === 0 
      ){
+       console.log('something not validated')
        return;
      }
        const requestBody = {
@@ -290,8 +289,8 @@ class RecipesPage extends Component {
              $recipeId: ID!,
              $recipeName: String!,
              $recipeDescription: String!,
-             $recipeIngredients: String!,
-             $recipeSteps: String!,
+             $recipeIngredients: [IngredientInput!],
+             $recipeSteps: [StepInput!],
              $yields: Float!,
              $minutesEstimate: Float!,
              $date: String!,
@@ -301,8 +300,16 @@ class RecipesPage extends Component {
                _id
                recipeName
                recipeDescription
-               recipeIngredients
-               recipeSteps
+               recipeIngredients {
+                _id
+                name
+                unit
+                amount
+              }
+              recipeSteps {
+                stepNumber
+                stepInstruction
+              }
                yields
                minutesEstimate
                date
@@ -339,7 +346,6 @@ class RecipesPage extends Component {
        }).then(resData => {
          console.log('resData.data: ', resData.data)
          this.setState(prevState => {
-           console.log("PREV SATE: ", prevState)
            const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
            const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
            return {recipes: updatedRecipes, recipeToUpdate: null, updating: false}
@@ -350,7 +356,6 @@ class RecipesPage extends Component {
   }
 
   showDetailHandler = recipeId => {
-    console.log('showDetailHandler')
     this.setState(prevState => {
       const selectedRecipe = prevState.recipes.find(recipe => recipe._id === recipeId)
       return { selectedRecipe: selectedRecipe }
@@ -363,7 +368,6 @@ class RecipesPage extends Component {
   }
 
   fetchRecipes() {
-    console.log('fetchRecipes')
     this.setState({isLoading: true})
     const requestBody = {
       query: `
@@ -409,7 +413,6 @@ class RecipesPage extends Component {
         const recipes = resData.data.recipes
         if(this.isActive) {
           this.setState({recipes: recipes, isLoading: false})
-          console.log('state: ', this.state)
         }
       })
       
@@ -485,14 +488,19 @@ class RecipesPage extends Component {
         >
           <InputForm 
           recipeNameEl={this.recipeNameEl} 
-          recipeNameValue={this.state.recipeToUpdate.recipeName} 
           dateEl={this.dateEl} 
-          dateValue={this.state.recipeToUpdate.date} 
-          yieldsEl={this.yieldsEl}
-          yieldsValue={this.state.recipeToUpdate.yields}
           linkEl={this.linkEl} 
-          linkValue={this.state.recipeToUpdate.link} minutesEstimateEl={this.minutesEstimateEl} minutesEstimateValue={this.state.recipeToUpdate.minutesEstimate} recipeDescriptionEl={this.recipeDescriptionEl} recipeDescriptionValue={this.state.recipeToUpdate.recipeDescription} recipeIngredientsEl={this.recipeIngredientsEl} recipeIngredientsValue={this.state.recipeToUpdate.recipeIngredients} recipeStepsEl={this.recipeStepsEl} recipeStepsValue={this.state.recipeToUpdate.recipeSteps} 
+          minutesEstimateEl={this.minutesEstimateEl}
+          yieldsEl={this.yieldsEl}
+          recipeDescriptionEl={this.recipeDescriptionEl} 
+          recipeIngredientsEl={this.recipeIngredientsEl} 
+          recipeStepsEl={this.recipeStepsEl}
+          recipeStepEl={this.recipeStepEl}
+          ingredientAmountEl={this.ingredientAmountEl}
+          ingredientUnitEl={this.ingredientUnitEl}
+          ingredientNameEl={this.ingredientNameEl}
           onDrop = {this.imageUploadHandler}
+          recipeToUpdate = {this.state.recipeToUpdate}
           />
         </CreateAndUpdateModal>)}
         <div className="recipes-control">
