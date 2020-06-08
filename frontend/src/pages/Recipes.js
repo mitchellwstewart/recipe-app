@@ -7,6 +7,7 @@ import Backdrop from '../components/Backdrop/Backdrop'
 import AuthContext from '../context/auth-context'
 import RecipeList from '../components/Recipes/RecipeList/RecipeList'
 import Spinner from '../components/Spinner/Spinner'
+import {createRecipeMutation, updateRecipeMutation, fetchRecipesQuery} from '../graphqlQueries/queries'
 
 class RecipesPage extends Component {
   state = {
@@ -90,38 +91,7 @@ class RecipesPage extends Component {
     }
     this.setState({creating: false})
       const requestBody = {
-        query: `
-          mutation CreateRecipe(
-            $recipeName: String!,
-            $recipeDescription: String!,
-            $recipeIngredients: [IngredientInput!],
-            $recipeSteps: [StepInput!],
-            $yields: Float!,
-            $minutesEstimate: Float!,
-            $date: String!,
-            $link: String!) {
-            createRecipe(recipeInput: {recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields, minutesEstimate: $minutesEstimate, date: $date, link: $link 
-            }){
-              _id
-              recipeName
-              recipeDescription
-              recipeIngredients {
-                _id
-                name
-                unit
-                amount
-              }
-              recipeSteps {
-                stepNumber
-                stepInstruction
-              }
-              yields
-              minutesEstimate
-              date
-              link
-            }
-          }
-        `,
+        query: createRecipeMutation,
         variables: {
           recipeName: recipeName,
           recipeDescription: recipeDescription,
@@ -294,39 +264,7 @@ class RecipesPage extends Component {
      }
      this.setState({updating: false})
        const requestBody = {
-         query: `
-           mutation UpdateRecipe(
-             $recipeId: ID!,
-             $recipeName: String!,
-             $recipeDescription: String!,
-             $recipeIngredients: [IngredientInput!],
-             $recipeSteps: [StepInput!],
-             $yields: Float!,
-             $minutesEstimate: Float!,
-             $date: String!,
-             $link: String!) {
-             updateRecipe(recipeId: $recipeId, recipeInput: { recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields minutesEstimate: $minutesEstimate, date: $date, link: $link 
-             }){
-               _id
-               recipeName
-               recipeDescription
-               recipeIngredients {
-                _id
-                name
-                unit
-                amount
-              }
-              recipeSteps {
-                stepNumber
-                stepInstruction
-              }
-               yields
-               minutesEstimate
-               date
-               link
-             }
-           }
-         `,
+         query: updateRecipeMutation,
          variables: {
            recipeId: this.state.recipeToUpdate._id,
            recipeName: recipeName,
@@ -379,35 +317,7 @@ class RecipesPage extends Component {
 
   fetchRecipes() {
     this.setState({isLoading: true})
-    const requestBody = {
-      query: `
-        query {
-          recipes{
-            _id
-            recipeName
-            recipeDescription
-            recipeIngredients {
-              name
-              amount
-              unit
-            }
-            recipeSteps {
-              stepNumber
-              stepInstruction
-            }
-            yields
-            minutesEstimate
-            date
-            link
-            creator {
-              _id
-              email
-            }
-          }
-        }
-      `
-    }
-  
+    const requestBody = { query: fetchRecipesQuery }
       fetch('http://localhost:3001/graphql', {
         method: 'POST',
         body: JSON.stringify(requestBody),
