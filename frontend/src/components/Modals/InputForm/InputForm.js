@@ -11,6 +11,7 @@ class InputForm extends Component  {
     }
   }
   componentDidMount = () => {
+    this.props.recipeToUpdate && 
     this.setState({
       ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
       stepsAdded: this.props.recipeToUpdate.recipeSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}),
@@ -89,11 +90,11 @@ class InputForm extends Component  {
       <form encType="multipart/form-data">
         <div className="form-control">
           <label htmlFor="recipeName">Recipe Name</label>
-          <input ref={this.props.recipeNameEl} type="text" id="recipeName" defaultValue={this.props.recipeToUpdate.recipeName ? this.props.recipeToUpdate.recipeName : ""}/>
+          <input ref={this.props.recipeNameEl} type="text" id="recipeName" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeName : ""}/>
         </div>
         <div className="form-control">
           <label htmlFor="recipeDescription">Recipe Description</label>
-          <textarea ref={this.props.recipeDescriptionEl} type="text" id="recipeDescription" rows="4" defaultValue={this.props.recipeToUpdate.recipeDescription ? this.props.recipeToUpdate.recipeDescription : ""}/>
+          <textarea ref={this.props.recipeDescriptionEl} type="text" id="recipeDescription" rows="4" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeDescription : ""}/>
         </div>
         <div className="form-control">
           <div className="recipeIngredients_header f">
@@ -175,11 +176,11 @@ class InputForm extends Component  {
         </div>
         <div className="form-control">
           <label htmlFor="minutesEstimate">Estimated Minutes</label>
-          <input ref={this.props.minutesEstimateEl} type="number" id="minutesEstimate" defaultValue={this.props.recipeToUpdate.minutesEstimateValue ? this.props.recipeToUpdate.minutesEstimateValue : 1} />
+          <input ref={this.props.minutesEstimateEl} type="number" id="minutesEstimate" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.minutesEstimate : 1} />
         </div>
         <div className="form-control">
           <label htmlFor="recipeLink">Recipe Link</label>
-          <input ref={this.props.linkEl} type="url" id="recipeLink" defaultValue={this.props.recipeToUpdate.link ? this.props.recipeToUpdate.link : ""} />
+          <input ref={this.props.linkEl} type="url" id="recipeLink" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.link : ""} />
         </div>
         <div className="form-control">
           <label>Upload your image</label>
