@@ -104,7 +104,7 @@ class ViewModal extends Component {
                       showGraphic={true}
                       maxLine={2}
                       minLine={1}
-                      url={`https://${recipeLink}`}
+                      url={recipeLink.includes('http') ? recipeLink : `https://${recipeLink}`}
                       onError={() => this.setState({badLink: true})}
                     />
                   </div>
