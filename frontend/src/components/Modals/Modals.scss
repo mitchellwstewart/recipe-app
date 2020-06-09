@@ -20,7 +20,8 @@
     padding: 1rem;
     background: white(1, 10, 129);;
     color: black;
-    border: 1px solid black;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
     h1{
       margin: 0;
       font-size: 1.25rem;
@@ -31,22 +32,38 @@
   }
 
   &__content {
-    &_ingredients-nav {
+    &_ingredients {
       width: 20%;
       max-width: 200px;
-      .yield-count {
-        &_amount {
-          max-width: 20px;
-          max-height: 20px;
+      &_header {
+        font-size: 1.5em;
+        margin-bottom: 0;
+      }
+      &-list{
+        .yield-count {
+          font-weight: 600;
+          &_amount {
+            max-width: 25px;
+            max-height: 25px;
+            border: none;
+            border-bottom: 1px solid black;
+            text-align: center;
+            position: relative; 
+            bottom: 2px;
+          }
+        }
+        .ingredient-container {
+       
         }
       }
-      .ingredient-container {
-       
-      }
+      
+     
     }
     &_main {
       &_nav {
         &_item {
+          font-size: 1.5em;
+          margin-bottom: 0;
           &.active {
             border-bottom: 1px solid black;
           }
