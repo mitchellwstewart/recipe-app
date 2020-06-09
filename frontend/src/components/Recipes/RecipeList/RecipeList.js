@@ -16,7 +16,7 @@ const recipeList = props => {
     />
   })
   return (
-  <ul className="recipe__list f jcb fw">
+  <ul className="recipe__list f jcs fw">
   {recipes}
   </ul>
   )
