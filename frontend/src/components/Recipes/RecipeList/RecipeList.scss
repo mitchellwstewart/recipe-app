@@ -1,8 +1,14 @@
+@import '../../../styles/lib/breakpoints';
+
 .recipe{
   &__list{
-    width: 40rem;
-    max-width: 90%;
-    margin: 2rem auto;
+    max-width: 1500px;
+    width: 90%;
+    @media (min-width: $break-mob) {
+      width: 80%;
+    }
+    
+    margin: 0 auto 2rem;
     list-style: none;
     padding: 0;
   }

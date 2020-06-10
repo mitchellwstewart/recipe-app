@@ -12,5 +12,7 @@
 @import './styles/forms/forms.scss';
 
 .main-content {
-  margin: 4.5rem 2.5rem;
+  @media(min-width: $break-mob) {
+    margin: 4.5rem 2.5rem;
+  }
 }

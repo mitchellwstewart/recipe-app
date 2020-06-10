@@ -9,14 +9,14 @@ const recipeList = props => {
     key={recipe._id}
      recipeId={recipe._id} 
      recipeName={recipe.recipeName}
-      creatorId = {recipe.creator._id}
+      creator = {recipe.creator}
       minutesEstimate = {recipe.minutesEstimate}
       date = {recipe.date}
       onDetail={props.onViewDetail}
     />
   })
   return (
-  <ul className="recipe__list">
+  <ul className="recipe__list f jcs fw">
   {recipes}
   </ul>
   )

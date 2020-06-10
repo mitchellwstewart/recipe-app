@@ -1,0 +1,75 @@
+.modal {
+  width: 90%;
+  background: white;
+  border: 1px solid black;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+  position: fixed;
+  overflow: scroll;
+  top: 10vh;
+  bottom: 10vh;
+  left: 5%;
+  @media(min-width: 768px) {
+    width: 50rem;
+    left: calc((100% - 50rem) / 2)
+  }
+  &__nav {
+
+  }
+
+  &__header {
+    padding: 1rem;
+    background: white(1, 10, 129);;
+    color: black;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    h1{
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    &_actions {
+
+    }
+  }
+
+  &__content {
+    &_ingredients {
+      width: 20%;
+      max-width: 200px;
+      &_header {
+        font-size: 1.5em;
+        margin-bottom: 0;
+      }
+      &-list{
+        .yield-count {
+          font-weight: 600;
+          &_amount {
+            max-width: 25px;
+            max-height: 25px;
+            border: none;
+            border-bottom: 1px solid black;
+            text-align: center;
+            position: relative; 
+            bottom: 2px;
+          }
+        }
+        .ingredient-container {
+       
+        }
+      }
+      
+     
+    }
+    &_main {
+      &_nav {
+        &_item {
+          font-size: 1.5em;
+          margin-bottom: 0;
+          &.active {
+            border-bottom: 1px solid black;
+          }
+        }
+      }
+    }
+  }
+  
+}
