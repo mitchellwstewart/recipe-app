@@ -7,6 +7,8 @@ import RecipesPage from './pages/Recipes'
 import SubscriptionPage from './pages/Subscription'
 import MainNavigation from './components/Navigation/MainNavigation'
 import AuthContext from './context/auth-context';
+require('dotenv').config()
+console.log(process.env.REACT_CLOUDINARY)
 
 class App extends Component {
   state = {
