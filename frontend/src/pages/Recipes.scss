@@ -1,8 +1,20 @@
+@import '../styles/lib/breakpoints';
 .recipes-control {
-  border: 1px solid black;
-  padding: 3rem;
-  margin: 2rem auto;
-  width: 30rem;
-  max-width: 80%;
+  padding: 1rem;
+  width: 90%;
+  max-width: 1500px;
+  h1 {
+    text-align: left;
+  }
+  @media(min-width: $break-mob){
+    padding: 3rem;
+    width: 80%;
+    max-width: 1500px;
+    margin: 2rem auto 0;
+  }
+  margin: 4rem auto 0;
+  h1 {
+    font-size: 2em;
+  }
 }
 

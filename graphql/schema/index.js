@@ -7,7 +7,6 @@ type Subscription {
     user: User!
     createdAt: String!
     updatedAt: String!
-    
 }
 type User {
     _id: ID!
@@ -15,7 +14,6 @@ type User {
     password: String
     createdRecipes: [Recipe!]
 }
-
 type AuthData {
     userId: ID!
     token: String!
@@ -25,12 +23,26 @@ type Recipe {
     _id: ID!
     recipeName: String!
     recipeDescription: String!
-    recipeIngredients: String!
-    recipeSteps: String!
+    recipeIngredients: [Ingredient!]
+    recipeSteps: [Step]!
+    yields: Float!
     minutesEstimate: Float!
     date: String!
     link: String!
     creator: User!
+}
+
+type Ingredient {
+  _id: ID
+  name: String!
+  amount: Float!
+  unit: String
+}
+
+type Step {
+  _id: ID
+  stepInstruction: String!
+  stepNumber: Float!
 }
 
 input UserInput {
@@ -40,12 +52,27 @@ input UserInput {
 input RecipeInput {
     recipeName: String!
     recipeDescription: String!
-    recipeIngredients: String!
-    recipeSteps: String!
+    recipeIngredients: [IngredientInput!]
+    recipeSteps: [StepInput!]
+    yields: Float!
     minutesEstimate: Float!
     date: String!
     link: String!
 }
+
+input IngredientInput{
+  name: String!
+  amount: Float!
+  unit: String
+}
+
+
+
+input StepInput {
+  stepNumber: Float!
+  stepInstruction: String!
+}
+
 type RootQuery {
     recipes: [Recipe!]!
     subscriptions: [Subscription!]!
@@ -54,6 +81,8 @@ type RootQuery {
 type RootMutation {
     createUser(userInput: UserInput): User
     createRecipe(recipeInput: RecipeInput): Recipe
+    deleteRecipe(recipeId: ID!): Recipe
+    updateRecipe(recipeId: ID!, recipeInput: RecipeInput): Recipe
     subscribeToRecipe(recipeId: ID!): Subscription!
     unsubscribeFromRecipe(subscriptionId: ID!): Recipe!
 }
