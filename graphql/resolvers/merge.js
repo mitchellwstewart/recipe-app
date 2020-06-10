@@ -8,7 +8,6 @@ const recipeLoader = new DataLoader(recipeIds => {
 })
 
 const userLoader = new DataLoader(userIds => {
-  console.log('userIds: ', userIds)
   return User.find({_id: {$in: userIds}})
 })
 
@@ -45,7 +44,6 @@ const singleRecipe = async recipeId => {
         return recipe
     }
     catch (err) {
-      console.log('ERROR: ', err)
         throw err 
     }
 }
@@ -54,8 +52,6 @@ const recipes = async recipeIds => {
     try {
         const recipes = await Recipe.find({_id: {$in: recipeIds}})
         recipes.sort((a,b) => recipeIds.indexOf(a._id.toString()) - recipeIds.indexOf(b._id.toString()))
-        console.log('recipes: ', recipes)
-        console.log('recipeIds: ', recipeIds)
         return recipes.map(recipe => transformRecipe(recipe))
     }
     catch (err) {throw err}

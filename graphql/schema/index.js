@@ -17,6 +17,7 @@ type User {
 type AuthData {
     userId: ID!
     token: String!
+    email: String!
     tokenExpiration: Int!
 }
 type Recipe {

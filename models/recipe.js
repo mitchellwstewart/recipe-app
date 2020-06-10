@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const { ingredientSchema } = require('./ingredient')
 const Schema = mongoose.Schema
-console.log(ingredientSchema)
 
 const recipeSchema = new Schema({
     recipeName: {
