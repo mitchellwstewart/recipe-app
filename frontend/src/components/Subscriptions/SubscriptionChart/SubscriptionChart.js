@@ -36,7 +36,6 @@ const subscriptionChart = props => {
     values = [...values]
     values[values.length-1] = 0
   }
-  console.log('chartData: ', chartData)
   return(
     <React.Fragment>
       <h1>Subscriptions Chart</h1>

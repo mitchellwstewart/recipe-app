@@ -23,7 +23,6 @@ class SubscriptionsPage extends Component {
 
 
   fetchSubscriptions = () => {
-    console.log('fetchRecipes')
     this.setState({isLoading: true})
     const requestBody = {
       query: `
@@ -66,7 +65,6 @@ class SubscriptionsPage extends Component {
   }
 
   unsubscribeRecipeHandler = (subscriptionId) => {
-    console.log('fetchRecipes')
     this.setState({isLoading: true})
     const requestBody = {
       query: `
@@ -114,7 +112,6 @@ class SubscriptionsPage extends Component {
     outputType === "list" ? this.setState({outputType: 'list'}) : this.setState({outputType: 'chart'})
   }
     render() {
-      console.log('this.state: ', this.state)
       let content = <Spinner />
       if(!this.state.isLoading) {
         content = (

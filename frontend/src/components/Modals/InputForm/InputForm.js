@@ -39,8 +39,8 @@ class InputForm extends Component  {
       setTimeout(()=>{
         this.setState({ingredientValidation: false})
       }, 3000)
-    
     return
+
     }
     else {
       const ingredientObj = { 
@@ -54,19 +54,13 @@ class InputForm extends Component  {
      })
     }
   }
-
   addStepHandler = (e) => { 
-    console.log('this.props.recipeStepEl: ', this.props.recipeStepEl.current.value)
-    
      this.setState(prevState => {
        const updatedSteps = [...prevState.stepsAdded, {stepNumber: prevState.stepsAdded.length+1, stepInstruction: this.props.recipeStepEl.current.value}]
-       console.log('updatedSteps:' , updatedSteps)
        return {stepsAdded: updatedSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}), openStepsDropdown: false}
 
      })
-     console.log('this.state AFTER UPDATED; ', this.state)
   }
-
   removeIngredientHandler = (e) => {
    let deleteSelectionName = e.target.id
      this.setState(prevState => {
@@ -84,8 +78,6 @@ class InputForm extends Component  {
   }
 
   render() {
-    console.log('this.state: ', this.state)
-    console.log('this.props: ', this.props)
     return (
       <form encType="multipart/form-data">
         <div className="form-control">

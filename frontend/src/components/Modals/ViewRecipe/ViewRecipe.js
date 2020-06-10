@@ -16,7 +16,6 @@ class ViewModal extends Component {
   static contextType = AuthContext
 
   viewHandler = (e) => {
-    console.log('e.target', e.target)
     this.setState({ viewing: e.target.id })
   }
   yieldHandler = e => {
