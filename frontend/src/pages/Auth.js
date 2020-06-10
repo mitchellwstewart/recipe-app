@@ -34,6 +34,7 @@ let requestBody = {
     query Login($email: String!, $password: String! ) {
       login(email: $email, password: $password) {
         userId
+        email
         token
         tokenExpiration
       }
@@ -69,15 +70,13 @@ if(!this.state.isLogin) {
         'Content-Type': 'application/json'
       }
     }).then(res => {
-      console.log(res)
       if(res.status !== 200 && res.status !== 201) {
         throw new Error('Failed!')
       }
       return res.json()
     }).then(resData => {
-      console.log('resData: ', resData)
       if(resData.data.login && resData.data.login.token) {
-        this.context.login(resData.data.login.token, resData.data.login.userId, resData.data.login.tokenExpiration)
+        this.context.login(resData.data.login.token, resData.data.login.email, resData.data.login.userId, resData.data.login.tokenExpiration)
       }
     })
     
