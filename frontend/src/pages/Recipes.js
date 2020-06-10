@@ -118,7 +118,6 @@ class RecipesPage extends Component {
           }
           return res.json()
         }).then(resData => {
-          console.log('resData:', resData)
           this.setState(prevState => {
             const updatedRecipes = [...prevState.recipes]
             updatedRecipes.push({
@@ -143,12 +142,10 @@ class RecipesPage extends Component {
   }
 
   modalSubscribeToRecipeHandler = () => {
-    console.log('subscribeToRecipeHandler')
     if(!this.context.token) {
       this.setState({selectedRecipe: null})
       return;
     }
-    // this.setState({isLoading: true})
     const requestBody = {
       query: `
         mutation SubscripeToRecipe ($id: ID!) {
@@ -177,7 +174,6 @@ class RecipesPage extends Component {
         }
         return res.json()
       }).then(resData => {
-        console.log('resData: ', resData)
         this.setState({selectedRecipe: null})
       })
       
@@ -255,7 +251,6 @@ class RecipesPage extends Component {
        yields <= 0 ||
        link.trim().length === 0 
      ){
-       console.log('validationerror')
       this.setState({validationError: true})
       setTimeout(()=> {
         this.setState({validationError: false})
@@ -292,7 +287,6 @@ class RecipesPage extends Component {
          }
          return res.json()
        }).then(resData => {
-         console.log('resData.data: ', resData.data)
          this.setState(prevState => {
            const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
            const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
@@ -312,7 +306,6 @@ class RecipesPage extends Component {
 
   imageUploadHandler = async files => {
     this.setState({imageFile: files[0]})
-    console.log(this.state.imageFile)
   }
 
   fetchRecipes() {
