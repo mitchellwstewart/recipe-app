@@ -1,3 +1,4 @@
+
 import React, { Component } from 'react';
 import './Recipes.scss';
 import ViewModal from '../components/Modals/ViewRecipe/ViewRecipe';
@@ -8,6 +9,8 @@ import AuthContext from '../context/auth-context'
 import RecipeList from '../components/Recipes/RecipeList/RecipeList'
 import Spinner from '../components/Spinner/Spinner'
 import {createRecipeMutation, updateRecipeMutation, fetchRecipesQuery} from '../graphqlQueries/queries'
+import axios from 'axios'
+require('dotenv').config()
 
 class RecipesPage extends Component {
   state = {
@@ -38,6 +41,7 @@ class RecipesPage extends Component {
     this.ingredientAmountEl = React.createRef();
     this.ingredientUnitEl = React.createRef();
     this.ingredientNameEl = React.createRef();
+    this.imageEl = React.createRef();
   }
 
   componentDidMount(){
@@ -57,14 +61,13 @@ class RecipesPage extends Component {
   }
 
   modalConfirmHandler = () => {
-    
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
     const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
       const ingredientName = ingredientNode.querySelector('[data-name]').dataset.name
       const ingredientAmount = +ingredientNode.querySelector('[data-amount]').dataset.amount
       const ingredientUnit = ingredientNode.querySelector('[data-unit]').dataset.unit
-        return {name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
+      return { name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
     })
     const recipeSteps = Array.from(this.recipeStepsEl.current.children).map((stepNode, idx) => {
       const stepNumber = +(idx+1)
@@ -74,71 +77,93 @@ class RecipesPage extends Component {
     const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
-    if(
-      recipeName.trim().length === 0 ||
-      recipeDescription.trim().length === 0 ||
-      recipeIngredients.length === 0 ||
-      recipeSteps.length === 0 ||
-      yields <= 0 || 
-      minutesEstimate <= 0 ||
-      link.trim().length === 0 
-    ){
-      this.setState({validationError: true})
-      setTimeout(()=> {
-        this.setState({validationError: false})
-      }, 3000)
-      return;
-    }
-    this.setState({creating: false})
-      const requestBody = {
-        query: createRecipeMutation,
-        variables: {
-          recipeName: recipeName,
-          recipeDescription: recipeDescription,
-          recipeIngredients: recipeIngredients,
-          recipeSteps: recipeSteps,
-          yields: yields,
-          minutesEstimate: minutesEstimate,
-          date: new Date().toISOString(),
-          link: link
-        }
-      };
+    const imageFile = this.state.imageFile
+
+    const imageFormData = new FormData();
+    imageFormData.append('file', imageFile)
+    imageFormData.append('upload_preset', process.env.CLOUDINARY)
+    console.log(imageFile)
+
+    axios.post(``)
+    // fetch(`https://api.cloudinary.com/v1_1/sgzqgjzs/image/upload`, {
+    //        method: 'POST',
+    //        body: JSON.stringify(imageFormData),
+    //        headers: {
+    //          'Content-Type': 'application/json',
+    //        }
+    //      }).then(res => {
+    //         if(res.status !== 200 && res.status !== 201) {
+    //           throw new Error('Failed!')
+    //         }
+    //         return res.json()
+    //       }).then(resData => {
+    //         console.log('resData: '. resData)
+    //       })
+    // if(
+    //   recipeName.trim().length === 0 ||
+    //   recipeDescription.trim().length === 0 ||
+    //   recipeIngredients.length === 0 ||
+    //   recipeSteps.length === 0 ||
+    //   yields <= 0 || 
+    //   minutesEstimate <= 0 ||
+    //   link.trim().length === 0 
+    // ){
+    //   this.setState({validationError: true})
+    //   setTimeout(()=> {
+    //     this.setState({validationError: false})
+    //   }, 3000)
+    //   return;
+    // }
+    // this.setState({creating: false})
+    //   const requestBody = {
+    //     query: createRecipeMutation,
+    //     variables: {
+    //       recipeName: recipeName,
+    //       recipeDescription: recipeDescription,
+    //       recipeIngredients: recipeIngredients,
+    //       recipeSteps: recipeSteps,
+    //       yields: yields,
+    //       minutesEstimate: minutesEstimate,
+    //       date: new Date().toISOString(),
+    //       link: link
+    //     }
+    //   };
     
-        const token = this.context.token;
-        fetch('http://localhost:3001/graphql', {
-          method: 'POST',
-          body: JSON.stringify(requestBody),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          }
-        }).then(res => {
-          if(res.status !== 200 && res.status !== 201) {
-            throw new Error('Failed!')
-          }
-          return res.json()
-        }).then(resData => {
-          this.setState(prevState => {
-            const updatedRecipes = [...prevState.recipes]
-            updatedRecipes.push({
-              _id: resData.data.createRecipe._id,
-              recipeName: resData.data.createRecipe.recipeName,
-              recipeDescription: resData.data.createRecipe.recipeDescription,
-              recipeIngredients: resData.data.createRecipe.recipeIngredients,
-              recipeSteps: resData.data.createRecipe.recipeSteps,
-              yields: resData.data.createRecipe.yields,
-              minutesEstimate: resData.data.createRecipe.minutesEstimate,
-              date: resData.data.createRecipe.date,
-              link: resData.data.createRecipe.link,
-              creator: {
-                _id: this.context.userId,
-              }
-            })
-            return {recipes: updatedRecipes}
-          })
-        }).catch(err => {
-          throw err
-        })
+    //     const token = this.context.token;
+    //     fetch('http://localhost:3001/graphql', {
+    //       method: 'POST',
+    //       body: JSON.stringify(requestBody),
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //         'Authorization': 'Bearer ' + token
+    //       }
+    //     }).then(res => {
+    //       if(res.status !== 200 && res.status !== 201) {
+    //         throw new Error('Failed!')
+    //       }
+    //       return res.json()
+    //     }).then(resData => {
+    //       this.setState(prevState => {
+    //         const updatedRecipes = [...prevState.recipes]
+    //         updatedRecipes.push({
+    //           _id: resData.data.createRecipe._id,
+    //           recipeName: resData.data.createRecipe.recipeName,
+    //           recipeDescription: resData.data.createRecipe.recipeDescription,
+    //           recipeIngredients: resData.data.createRecipe.recipeIngredients,
+    //           recipeSteps: resData.data.createRecipe.recipeSteps,
+    //           yields: resData.data.createRecipe.yields,
+    //           minutesEstimate: resData.data.createRecipe.minutesEstimate,
+    //           date: resData.data.createRecipe.date,
+    //           link: resData.data.createRecipe.link,
+    //           creator: {
+    //             _id: this.context.userId,
+    //           }
+    //         })
+    //         return {recipes: updatedRecipes}
+    //       })
+    //     }).catch(err => {
+    //       throw err
+    //     })
   }
 
   modalSubscribeToRecipeHandler = () => {
@@ -225,7 +250,6 @@ class RecipesPage extends Component {
   }
 
   modalUpdateRecipeHandler = () => {
-    
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
     const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
@@ -304,8 +328,8 @@ class RecipesPage extends Component {
     })
   }
 
-  imageUploadHandler = async files => {
-    this.setState({imageFile: files[0]})
+  imageUploadHandler = e => {
+     this.setState({imageFile: e.target.files[0]})
   }
 
   fetchRecipes() {
@@ -369,7 +393,8 @@ class RecipesPage extends Component {
           ingredientAmountEl={this.ingredientAmountEl}
           ingredientUnitEl={this.ingredientUnitEl}
           ingredientNameEl={this.ingredientNameEl}
-          onDrop = {this.imageUploadHandler}
+          imageEl = {this.imageEl}
+          imageHandler = {this.imageUploadHandler}
           />
         </CreateAndUpdateModal>)}
         {this.state.selectedRecipe && 
@@ -415,7 +440,8 @@ class RecipesPage extends Component {
           ingredientAmountEl={this.ingredientAmountEl}
           ingredientUnitEl={this.ingredientUnitEl}
           ingredientNameEl={this.ingredientNameEl}
-          onDrop = {this.imageUploadHandler}
+          imageHandler = {this.imageUploadHandler}
+          imageEl = {this.imageEl}
           recipeToUpdate = {this.state.recipeToUpdate}
           />
         </CreateAndUpdateModal>)}
