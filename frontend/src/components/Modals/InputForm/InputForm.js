@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Dropzone from 'react-dropzone';
 class InputForm extends Component  {
   constructor(props) {
     super(props)
@@ -11,6 +12,7 @@ class InputForm extends Component  {
     }
   }
   componentDidMount = () => {
+    console.log('this.props: ', this.props)
     this.props.recipeToUpdate && 
     this.setState({
       ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
@@ -19,8 +21,6 @@ class InputForm extends Component  {
     })
   }
 
-  componentDidUpdate = () => { 
-  }
 
   openIngredientHandler = () => {
     this.props.ingredientAmountEl.current.value = 1
@@ -76,6 +76,7 @@ class InputForm extends Component  {
        return {stepsAdded: updatedSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}), openStepDropdown: false}
      })
   }
+
 
   render() {
     return (
@@ -161,7 +162,6 @@ class InputForm extends Component  {
               </div>
           </div>
         </div>
-
         <div className="form-control">
           <label htmlFor="yields">Yields</label>
           <input ref={this.props.yieldsEl} type="number" id="yields" defaultValue={this.state.updatedYield} />
@@ -176,7 +176,17 @@ class InputForm extends Component  {
         </div>
         <div className="form-control">
           <label>Upload your image</label>
-          <input type="file" name="Recipe Image" id="recipeImage" />
+          <input type="file" onChange={this.props.imageHandler}/>
+          {/* <Dropzone onDrop={acceptedFiles => this.props.imageHandler(acceptedFiles)}>
+            {({getRootProps, getInputProps}) => (
+              <section>
+                <div {...getRootProps()}>
+                  <input {...getInputProps()} />
+                  <p>Drag 'n' drop some files here, or click to select files</p>
+                </div>
+              </section>
+            )}
+          </Dropzone> */}
         </div>
         <div className="form-control">
         <label htmlFor="imageUpload">Use Link Image (first image found)</label>
