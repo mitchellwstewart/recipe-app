@@ -41,6 +41,7 @@ const recipeSchema = new Schema({
         required: true
     },
     link: String,
+    imageLink: String,
     creator: {
         type: Schema.Types.ObjectId,
         ref: 'User'

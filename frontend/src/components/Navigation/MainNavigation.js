@@ -50,7 +50,7 @@ class MainNavigation extends Component{
             <li>
               <div className="pointer account-welcome " >
                 <div className="f jcc aic ">
-                  <p className="m0 nowrap"> Wecome {this.props.email}</p>
+                  <p className="m0 nowrap"> Welcome {this.props.email}</p>
                   <div className="pl05">+</div>
                 </div>
                 <div className="account-dropdown abs">

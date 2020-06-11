@@ -26,6 +26,7 @@ module.exports = {
               minutesEstimate: +args.recipeInput.minutesEstimate,
               date: new Date(args.recipeInput.date),
               link: args.recipeInput.link,
+              imageLink: args.recipeInput.imageLink,
               creator: req.userId
            })
            
@@ -77,6 +78,7 @@ module.exports = {
               minutesEstimate: +args.recipeInput.minutesEstimate,
               date: new Date(args.recipeInput.date),
               link: args.recipeInput.link,
+              imageLink: args.recipeInput.imageLink,
               creator: req.userId
            }}
        );
