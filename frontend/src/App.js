@@ -8,7 +8,7 @@ import SubscriptionPage from './pages/Subscription'
 import MainNavigation from './components/Navigation/MainNavigation'
 import AuthContext from './context/auth-context';
 require('dotenv').config()
-console.log(process.env.REACT_CLOUDINARY)
+console.log(process.env)
 
 class App extends Component {
   state = {

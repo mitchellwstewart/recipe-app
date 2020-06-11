@@ -21,7 +21,8 @@ class RecipesPage extends Component {
     selectedRecipe: null,
     recipeToUpdate: null,
     validationError: false,
-    imageFile: null
+    imageFile: null,
+    uploadedImageLink: null
   }
 
   isActive = true
@@ -60,7 +61,7 @@ class RecipesPage extends Component {
     this.setState({creating: false, selectedRecipe: null, updating: false, recipeToUpdate: false})
   }
 
-  modalConfirmHandler = () => {
+  modalConfirmHandler = async () => {
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
     const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
@@ -81,89 +82,93 @@ class RecipesPage extends Component {
 
     const imageFormData = new FormData();
     imageFormData.append('file', imageFile)
-    imageFormData.append('upload_preset', process.env.CLOUDINARY)
+    imageFormData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
     console.log(imageFile)
+    console.log('cloud url: ', process.env.REACT_APP_IMAGE_UPLOAD_URL)
 
-    axios.post(``)
-    // fetch(`https://api.cloudinary.com/v1_1/sgzqgjzs/image/upload`, {
-    //        method: 'POST',
-    //        body: JSON.stringify(imageFormData),
-    //        headers: {
-    //          'Content-Type': 'application/json',
-    //        }
-    //      }).then(res => {
-    //         if(res.status !== 200 && res.status !== 201) {
-    //           throw new Error('Failed!')
-    //         }
-    //         return res.json()
-    //       }).then(resData => {
-    //         console.log('resData: '. resData)
-    //       })
-    // if(
-    //   recipeName.trim().length === 0 ||
-    //   recipeDescription.trim().length === 0 ||
-    //   recipeIngredients.length === 0 ||
-    //   recipeSteps.length === 0 ||
-    //   yields <= 0 || 
-    //   minutesEstimate <= 0 ||
-    //   link.trim().length === 0 
-    // ){
-    //   this.setState({validationError: true})
-    //   setTimeout(()=> {
-    //     this.setState({validationError: false})
-    //   }, 3000)
-    //   return;
-    // }
-    // this.setState({creating: false})
-    //   const requestBody = {
-    //     query: createRecipeMutation,
-    //     variables: {
-    //       recipeName: recipeName,
-    //       recipeDescription: recipeDescription,
-    //       recipeIngredients: recipeIngredients,
-    //       recipeSteps: recipeSteps,
-    //       yields: yields,
-    //       minutesEstimate: minutesEstimate,
-    //       date: new Date().toISOString(),
-    //       link: link
-    //     }
-    //   };
     
-    //     const token = this.context.token;
-    //     fetch('http://localhost:3001/graphql', {
-    //       method: 'POST',
-    //       body: JSON.stringify(requestBody),
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //         'Authorization': 'Bearer ' + token
-    //       }
-    //     }).then(res => {
-    //       if(res.status !== 200 && res.status !== 201) {
-    //         throw new Error('Failed!')
-    //       }
-    //       return res.json()
-    //     }).then(resData => {
-    //       this.setState(prevState => {
-    //         const updatedRecipes = [...prevState.recipes]
-    //         updatedRecipes.push({
-    //           _id: resData.data.createRecipe._id,
-    //           recipeName: resData.data.createRecipe.recipeName,
-    //           recipeDescription: resData.data.createRecipe.recipeDescription,
-    //           recipeIngredients: resData.data.createRecipe.recipeIngredients,
-    //           recipeSteps: resData.data.createRecipe.recipeSteps,
-    //           yields: resData.data.createRecipe.yields,
-    //           minutesEstimate: resData.data.createRecipe.minutesEstimate,
-    //           date: resData.data.createRecipe.date,
-    //           link: resData.data.createRecipe.link,
-    //           creator: {
-    //             _id: this.context.userId,
-    //           }
-    //         })
-    //         return {recipes: updatedRecipes}
-    //       })
-    //     }).catch(err => {
-    //       throw err
-    //     })
+         try {
+          const res = await axios({
+            url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: imageFormData
+          })
+          if(res.status !== 200 && res.status !== 201) {
+            throw new Error('Failed!')
+          }
+          console.log("RES: ", res)
+          await this.setState({uploadedImageLink: res.data.secure_url})
+         if(
+           recipeName.trim().length === 0 ||
+           recipeIngredients.length === 0 ||
+           recipeSteps.length === 0 ||
+           yields <= 0 || 
+           minutesEstimate <= 0 
+         ){
+           this.setState({validationError: true})
+           setTimeout(()=> {
+             this.setState({validationError: false})
+           }, 3000)
+           return;
+         }
+         this.setState({creating: false})
+           const requestBody = {
+             query: createRecipeMutation,
+             variables: {
+               recipeName: recipeName,
+               recipeDescription: recipeDescription,
+               recipeIngredients: recipeIngredients,
+               recipeSteps: recipeSteps,
+               yields: yields,
+               minutesEstimate: minutesEstimate,
+               date: new Date().toISOString(),
+               link: link,
+               imageLink: this.state.uploadedImageLink
+             }
+           };
+          
+             const token = this.context.token;
+           const mongoRes = await fetch('http://localhost:3001/graphql', {
+               method: 'POST',
+               body: JSON.stringify(requestBody),
+               headers: {
+                 'Content-Type': 'application/json',
+                 'Authorization': 'Bearer ' + token
+               }
+             })
+             
+               if(mongoRes.status !== 200 && mongoRes.status !== 201) {
+                 throw new Error('Failed!')
+               }
+              const resData =  await mongoRes.json()
+              console.log('resData: ', resData)
+               this.setState(prevState => {
+                 const updatedRecipes = [...prevState.recipes]
+                 updatedRecipes.push({
+                   _id: resData.data.createRecipe._id,
+                   recipeName: resData.data.createRecipe.recipeName,
+                   recipeDescription: resData.data.createRecipe.recipeDescription,
+                   recipeIngredients: resData.data.createRecipe.recipeIngredients,
+                   recipeSteps: resData.data.createRecipe.recipeSteps,
+                   yields: resData.data.createRecipe.yields,
+                   minutesEstimate: resData.data.createRecipe.minutesEstimate,
+                   date: resData.data.createRecipe.date,
+                   link: resData.data.createRecipe.link,
+                   imageLink: resData.data.createRecipe.imageLink,
+                   creator: {
+                     _id: this.context.userId,
+                   }
+                 })
+                 return {recipes: updatedRecipes}
+               })
+         }
+         catch(err) {
+           throw err
+         }
+     
   }
 
   modalSubscribeToRecipeHandler = () => {
@@ -266,14 +271,34 @@ class RecipesPage extends Component {
     const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
+    const imageFile = this.state.imageFile
+    const imageFormData = new FormData();
+    imageFormData.append('file', imageFile)
+    imageFormData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
+
+    axios({
+      url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      data: imageFormData
+    }).then(res => {
+      if(res.status !== 200 && res.status !== 201) {
+        throw new Error('Failed!')
+      }
+      console.log("RES: ", res)
+      this.setState({uploadedImageLink: res.data.secure_url})
+    }).then(resData => {
+      console.log('resData: ', resData)
+    })
+
      if(
        recipeName.trim().length === 0 ||
-       recipeDescription.trim().length === 0 ||
        recipeIngredients.length === 0 ||
        recipeSteps.length === 0 ||
        minutesEstimate <= 0 ||
-       yields <= 0 ||
-       link.trim().length === 0 
+       yields <= 0 
      ){
       this.setState({validationError: true})
       setTimeout(()=> {
@@ -293,7 +318,8 @@ class RecipesPage extends Component {
            yields: yields,
            minutesEstimate: minutesEstimate,
            date: new Date().toISOString(),
-           link: link
+           link: link,
+           imageLink: this.state.uploadedImageLink
          }
        };
     
