@@ -23,13 +23,14 @@ type AuthData {
 type Recipe {
     _id: ID!
     recipeName: String!
-    recipeDescription: String!
+    recipeDescription: String
     recipeIngredients: [Ingredient!]
     recipeSteps: [Step]!
     yields: Float!
     minutesEstimate: Float!
     date: String!
-    link: String!
+    link: String
+    imageLink: String
     creator: User!
 }
 
@@ -52,13 +53,14 @@ input UserInput {
 }
 input RecipeInput {
     recipeName: String!
-    recipeDescription: String!
+    recipeDescription: String
     recipeIngredients: [IngredientInput!]
     recipeSteps: [StepInput!]
     yields: Float!
     minutesEstimate: Float!
     date: String!
-    link: String!
+    link: String
+    imageLink: String
 }
 
 input IngredientInput{
