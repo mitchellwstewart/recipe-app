@@ -17,6 +17,8 @@ class RecipesPage extends Component {
     creating: false,
     updating: false,
     recipes: [],
+    recipesInSearch: [],
+    searchBy: 'name',
     isLoading: false,
     selectedRecipe: null,
     recipeToUpdate: null,
@@ -43,6 +45,8 @@ class RecipesPage extends Component {
     this.ingredientNameEl = React.createRef();
     this.imageEl = React.createRef();
     this.uploadedImageEl = React.createRef()
+    this.searchBarEl = React.createRef()
+    this.searchByEl = React.createRef()
 
     
   }
@@ -281,6 +285,23 @@ class RecipesPage extends Component {
      this.setState({imageFile: e.target.files[0]})
   }
 
+  handleSearch = e => {
+    console.log('search by: ', this.searchByEl.current.value)
+    let currentSearch = e.target.value
+    
+    this.setState(prevState => {
+      let newSearchedRecipes = prevState.recipes.filter(recipe => {
+        console.log(recipe.creator.email, "this.searchByEl.current.value.trim() === 'name'", this.searchByEl.current.value.trim() === 'name')
+        return this.searchByEl.current.value.trim() === 'user'
+        ? recipe.creator.email.toLowerCase().includes(currentSearch.toLowerCase())
+        : recipe.recipeName.toLowerCase().includes(currentSearch.toLowerCase())
+        
+        
+      })
+      return {recipesInSearch: newSearchedRecipes}
+    })
+  }
+
   fetchRecipes() {
     this.setState({isLoading: true})
     const requestBody = { query: fetchRecipesQuery }
@@ -298,9 +319,10 @@ class RecipesPage extends Component {
         }
         return res.json()
       }).then(resData => {
+        console.log(resData)
         const recipes = resData.data.recipes
         if(this.isActive) {
-          this.setState({recipes: recipes, isLoading: false})
+          this.setState({recipes: recipes, isLoading: false, recipesInSearch: recipes})
         }
       })
       
@@ -401,8 +423,18 @@ class RecipesPage extends Component {
         <div className="recipes-control">
           <h1 className="ac caps">The Recipes Page</h1> 
           {this.context.token && <button className="btn" onClick={this.startCreateOrUpdateRecipeHandler}>Create Recipe</button>}
+          <div className="search__container f fdc">
+            <label htmlFor="search">Search Recipes</label>
+            <div className="form-control">
+              <select className="search-by" ref={this.searchByEl} onChange={(e)=>this.setState({searchBy: e.target.value})} defaultValue="name">
+                <option value="name">Recipe Name</option>
+                <option value="user">User Email</option>
+              </select>
+            </div>
+            <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `Try "Thai" or "Shortbread"` : `Search by user email`} />
+          </div>
         </div>
-        {this.state.isLoading ? <Spinner /> : <RecipeList authUserId={this.context.userId} recipes={this.state.recipes} onViewDetail={this.showDetailHandler} />}
+        {this.state.isLoading ? <Spinner /> : <RecipeList authUserId={this.context.userId} recipes={this.state.recipesInSearch} onViewDetail={this.showDetailHandler} />}
       
       </React.Fragment>
     );
