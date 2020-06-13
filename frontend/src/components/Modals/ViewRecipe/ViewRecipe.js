@@ -97,7 +97,7 @@ class ViewModal extends Component {
                 {recipeImage
                 ? <div>
                     <p>recipe image</p>
-                    <img src={recipeImage} />
+                    <img className="uploaded-image" src={recipeImage} />
                 </div> 
                 : <div> NO IMAGE AVAILABLE</div>}
 
