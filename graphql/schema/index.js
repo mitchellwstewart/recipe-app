@@ -30,7 +30,7 @@ type Recipe {
     minutesEstimate: Float!
     date: String!
     link: String
-    imageLink: String
+    imageLinks: [String!]
     creator: User!
 }
 
@@ -60,7 +60,7 @@ input RecipeInput {
     minutesEstimate: Float!
     date: String!
     link: String
-    imageLink: String
+    imageLinks: [String!]
 }
 
 input IngredientInput{

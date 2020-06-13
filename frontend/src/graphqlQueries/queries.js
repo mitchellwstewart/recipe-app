@@ -10,8 +10,8 @@ const createRecipeMutation = `
         $minutesEstimate: Float!,
         $date: String!,
         $link: String,
-        $imageLink: String) {
-        createRecipe(recipeInput: {recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields, minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLink: $imageLink 
+        $imageLinks: [String!]) {
+        createRecipe(recipeInput: {recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields, minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLinks: $imageLinks
         }){
           _id
           recipeName
@@ -30,7 +30,7 @@ const createRecipeMutation = `
           minutesEstimate
           date
           link
-          imageLink
+          imageLinks
         }
       }
     `
@@ -47,8 +47,9 @@ const updateRecipeMutation = `
       $minutesEstimate: Float!,
       $date: String!,
       $link: String,
-      $imageLink: String) {
-      updateRecipe(recipeId: $recipeId, recipeInput: { recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLink: $imageLink
+      $imageLinks: [String!]
+      ) {
+      updateRecipe(recipeId: $recipeId, recipeInput: { recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLinks: $imageLinks
       }){
         _id
         recipeName
@@ -67,7 +68,7 @@ const updateRecipeMutation = `
         minutesEstimate
         date
         link
-        imageLink
+        imageLinks
       }
     }
   `
@@ -92,7 +93,7 @@ const fetchRecipesQuery = `
         minutesEstimate
         date
         link
-        imageLink
+        imageLinks
         creator {
           _id
           email

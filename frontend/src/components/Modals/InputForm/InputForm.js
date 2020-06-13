@@ -120,7 +120,7 @@ class InputForm extends Component  {
             </div>
             <div className="form-control">
               <label htmlFor="ingredientUnit">Unit</label>
-              <select defaultValue="cup" id="ingredientUnit" size="1" ref={this.props.ingredientUnitEl} >
+              <select id="ingredientUnit" size="1" ref={this.props.ingredientUnitEl} defaultValue="cup">
                 <option value="cup">cup</option>
                 <option value="tbsp">tbsp</option>
                 <option value="tsp">tsp</option>
@@ -180,26 +180,38 @@ class InputForm extends Component  {
           <label htmlFor="recipeLink">Recipe Link</label>
           <input ref={this.props.linkEl} type="url" id="recipeLink" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.link : ""} />
         </div>
-        {this.state.showImageUploader
-        ? <React.Fragment>
+        <React.Fragment>
+        { this.props.recipeToUpdate &&
+        <div className="form-control">
+        <label>Images</label>
+        <div className="edit-image pointer"  onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'Close X' : 'Update Image'}</div>
+        <div className="recipe-images" ref={this.props.uploadedImagesEl}>
+           {this.props.recipeToUpdate.imageLinks && this.props.recipeToUpdate.imageLinks.map((imageLink)=>{
+             return  <img className="uploaded-image" ref={this.props.uploadedImageEl} src={imageLink}/>
+           })}
+        </div> 
+      </div> 
+
+        }
+         
+
+
+          { this.state.showImageUploader && 
           <div className="form-control">
             <label>Upload your image</label>
             <div className="edit-image pointer" onClick={this.openImageUpdater}>{this.state.showImageUploader ? this.props.recipeToUpdate && 'Close X' : 'Update Image'}</div>
             <input type="file" onChange={this.props.imageHandler}/>
-          </div>
-          {/* <div className="form-control">
-          <label htmlFor="imageUpload">Use Link Image (first image found)</label>
-          <input ref={this.props.useLinkImageEl} type="checkbox" id="useLinkImage" defaultChecked={this.props.useLinkImage ? true : false} />
-        </div>   */}
+            <div className="upload-queue" >
+              <p>Ready For Upload</p>
+              <div className="images-for-upload f fdc">
+                {this.props.imageUploadQueue.map(image => {
+                  return (<p className="p0 m0" >- {image.name}</p>)
+                })}
+              </div>
+            </div>
+          </div>     
+          }
       </React.Fragment>
-      : 
-      this.props.recipeToUpdate &&
-      <div className="form-control">
-        <label>Featured Image</label>
-        <div className="edit-image pointer" onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'Close X' : 'Update Image'}</div>
-        <img className="uploaded-image" ref={this.props.uploadedImageEl} src={this.props.recipeToUpdate.imageLink}/>
-      </div>
-      }
 
         
       </form>

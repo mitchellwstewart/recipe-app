@@ -23,7 +23,8 @@ class RecipesPage extends Component {
     selectedRecipe: null,
     recipeToUpdate: null,
     validationError: false,
-    imageFile: null
+    imageFile: null,
+    imageUploadQueue: []
   }
 
   isActive = true
@@ -44,11 +45,9 @@ class RecipesPage extends Component {
     this.ingredientUnitEl = React.createRef();
     this.ingredientNameEl = React.createRef();
     this.imageEl = React.createRef();
-    this.uploadedImageEl = React.createRef()
+    this.uploadedImagesEl = React.createRef()
     this.searchBarEl = React.createRef()
     this.searchByEl = React.createRef()
-
-    
   }
 
   componentDidMount(){
@@ -81,28 +80,34 @@ class RecipesPage extends Component {
       const stepInstruction = stepNode.querySelector('span.step-content').innerText
         return {stepNumber: stepNumber, stepInstruction: stepInstruction}
     })
+    const currentRecipeImages = this.uploadedImagesEl.current ? Array.from(this.uploadedImagesEl.current.children).map(uploadedImage => {return uploadedImage.src}) : []
     const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
-    const imageFile = this.state.imageFile
-    const imageFormData = new FormData();
-    let newImageLink;
-    imageFormData.append('file', imageFile)
-    imageFormData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
+    const recipeImagesQueue = this.state.imageUploadQueue
+    let newImageLinks = [];
          try {
-           if(imageFile) {
-            const res = await axios({
-              url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
-              method: "POST",
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-              },
-              data: imageFormData
+           if(recipeImagesQueue.length) {
+            const imageUploaders = await recipeImagesQueue.map(image => {
+              const formData = new FormData();
+              formData.append('file', image)
+              formData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
+              return axios({
+                url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
+                method: "POST",
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: formData
+              }).then(res => {
+                if(res.status !== 200 && res.status !== 201) {
+                  throw new Error('Failed!')
+                }
+                newImageLinks.push(res.data.secure_url)
+              })
             })
-            if(res.status !== 200 && res.status !== 201) {
-              throw new Error('Failed!')
-            }
-            newImageLink =  res.data.secure_url
+            await axios.all(imageUploaders).then((res)=>{
+            })
            }
          if(
            recipeName.trim().length === 0 ||
@@ -129,7 +134,7 @@ class RecipesPage extends Component {
             minutesEstimate: minutesEstimate,
             date: new Date().toISOString(),
             link: link,
-            imageLink: newImageLink || this.uploadedImageEl.current.src
+            imageLinks: newImageLinks.length ? [...currentRecipeImages, ...newImageLinks] : currentRecipeImages
           }
 
           const updatedVariables = recipeId ? {...defaultVariables, recipeId} : defaultVariables
@@ -137,7 +142,6 @@ class RecipesPage extends Component {
              query: this.state.updating ? updateRecipeMutation : createRecipeMutation,
              variables: updatedVariables
            };
-          
           const token = this.context.token;
           const mongoRes = await fetch('http://localhost:3001/graphql', {
                method: 'POST',
@@ -153,7 +157,6 @@ class RecipesPage extends Component {
                }
               const resData =  await mongoRes.json()
 
-
               if(this.state.creating) {
                 this.setState(prevState => {
                   const updatedRecipes = [...prevState.recipes]
@@ -167,7 +170,7 @@ class RecipesPage extends Component {
                     minutesEstimate: resData.data.createRecipe.minutesEstimate,
                     date: resData.data.createRecipe.date,
                     link: resData.data.createRecipe.link,
-                    imageLink: resData.data.createRecipe.imageLink,
+                    imageLinks: resData.data.createRecipe.imageLinks,
                     creator: {
                       _id: this.context.userId,
                     }
@@ -262,10 +265,9 @@ class RecipesPage extends Component {
         }
         return res.json()
       }).then(resData => {
-        this.setState({creating: false, selectedRecipe: null})
         
         this.setState(prevState => {
-          return {recipes: prevState.recipes.filter(recipe => recipe._id !== resData.data.deleteRecipe._id)}
+          return {creating: false, selectedRecipe: null, recipes: prevState.recipes.filter(recipe => recipe._id !== resData.data.deleteRecipe._id)}
         })
       })
       .catch(err => {
@@ -282,16 +284,18 @@ class RecipesPage extends Component {
   }
 
   imageUploadHandler = e => {
-     this.setState({imageFile: e.target.files[0]})
+    const imageForUpload = e.target.files[0]
+    
+    this.setState(prevState => {
+      return {imageUploadQueue: [imageForUpload, ...prevState.imageUploadQueue]}
+    })
   }
 
   handleSearch = e => {
-    console.log('search by: ', this.searchByEl.current.value)
     let currentSearch = e.target.value
     
     this.setState(prevState => {
       let newSearchedRecipes = prevState.recipes.filter(recipe => {
-        console.log(recipe.creator.email, "this.searchByEl.current.value.trim() === 'name'", this.searchByEl.current.value.trim() === 'name')
         return this.searchByEl.current.value.trim() === 'user'
         ? recipe.creator.email.toLowerCase().includes(currentSearch.toLowerCase())
         : recipe.recipeName.toLowerCase().includes(currentSearch.toLowerCase())
@@ -319,7 +323,6 @@ class RecipesPage extends Component {
         }
         return res.json()
       }).then(resData => {
-        console.log(resData)
         const recipes = resData.data.recipes
         if(this.isActive) {
           this.setState({recipes: recipes, isLoading: false, recipesInSearch: recipes})
@@ -367,7 +370,7 @@ class RecipesPage extends Component {
           ingredientUnitEl={this.ingredientUnitEl}
           ingredientNameEl={this.ingredientNameEl}
           imageEl = {this.imageEl}
-          uploadedImageEl = {this.uploadedImageEl}
+          imageUploadQueue = {this.state.imageUploadQueue}
           imageHandler = {this.imageUploadHandler}
           />
         </CreateAndUpdateModal>)}
@@ -416,7 +419,8 @@ class RecipesPage extends Component {
           ingredientNameEl={this.ingredientNameEl}
           imageHandler = {this.imageUploadHandler}
           imageEl = {this.imageEl}
-          uploadedImageEl = {this.uploadedImageEl}
+          uploadedImagesEl = {this.uploadedImagesEl}
+          imageUploadQueue = {this.state.imageUploadQueue}
           recipeToUpdate = {this.state.recipeToUpdate}
           />
         </CreateAndUpdateModal>)}
