@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import Dropzone from 'react-dropzone';
+import './InputForm.scss'
 class InputForm extends Component  {
   constructor(props) {
     super(props)
@@ -8,6 +10,7 @@ class InputForm extends Component  {
       ingredientsAdded: [],
       stepsAdded: [],
       ingredientValidation: false,
+      showImageUploader: true
     }
   }
   componentDidMount = () => {
@@ -15,12 +18,11 @@ class InputForm extends Component  {
     this.setState({
       ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
       stepsAdded: this.props.recipeToUpdate.recipeSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}),
-      updatedYield: this.props.recipeToUpdate.yields
+      updatedYield: this.props.recipeToUpdate.yields,
+      showImageUploader: false
     })
   }
 
-  componentDidUpdate = () => { 
-  }
 
   openIngredientHandler = () => {
     this.props.ingredientAmountEl.current.value = 1
@@ -39,8 +41,8 @@ class InputForm extends Component  {
       setTimeout(()=>{
         this.setState({ingredientValidation: false})
       }, 3000)
-    
     return
+
     }
     else {
       const ingredientObj = { 
@@ -54,19 +56,13 @@ class InputForm extends Component  {
      })
     }
   }
-
   addStepHandler = (e) => { 
-    console.log('this.props.recipeStepEl: ', this.props.recipeStepEl.current.value)
-    
      this.setState(prevState => {
        const updatedSteps = [...prevState.stepsAdded, {stepNumber: prevState.stepsAdded.length+1, stepInstruction: this.props.recipeStepEl.current.value}]
-       console.log('updatedSteps:' , updatedSteps)
        return {stepsAdded: updatedSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}), openStepsDropdown: false}
 
      })
-     console.log('this.state AFTER UPDATED; ', this.state)
   }
-
   removeIngredientHandler = (e) => {
    let deleteSelectionName = e.target.id
      this.setState(prevState => {
@@ -83,9 +79,12 @@ class InputForm extends Component  {
      })
   }
 
+  openImageUpdater = () => {
+    this.setState({showImageUploader: !this.state.showImageUploader})
+  }
+
+
   render() {
-    console.log('this.state: ', this.state)
-    console.log('this.props: ', this.props)
     return (
       <form encType="multipart/form-data">
         <div className="form-control">
@@ -122,7 +121,7 @@ class InputForm extends Component  {
             <div className="form-control">
               <label htmlFor="ingredientUnit">Unit</label>
               <select defaultValue="cup" id="ingredientUnit" size="1" ref={this.props.ingredientUnitEl} >
-                <option value="cup" >cup</option>
+                <option value="cup">cup</option>
                 <option value="tbsp">tbsp</option>
                 <option value="tsp">tsp</option>
                 <option value="gram">gram</option>
@@ -169,7 +168,6 @@ class InputForm extends Component  {
               </div>
           </div>
         </div>
-
         <div className="form-control">
           <label htmlFor="yields">Yields</label>
           <input ref={this.props.yieldsEl} type="number" id="yields" defaultValue={this.state.updatedYield} />
@@ -182,14 +180,28 @@ class InputForm extends Component  {
           <label htmlFor="recipeLink">Recipe Link</label>
           <input ref={this.props.linkEl} type="url" id="recipeLink" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.link : ""} />
         </div>
-        <div className="form-control">
-          <label>Upload your image</label>
-          <input type="file" name="Recipe Image" id="recipeImage" />
-        </div>
-        <div className="form-control">
-        <label htmlFor="imageUpload">Use Link Image (first image found)</label>
-        <input ref={this.props.useLinkImageEl} type="checkbox" id="useLinkImage" defaultChecked={this.props.useLinkImage ? true : false} />
-        </div>
+        {this.state.showImageUploader
+        ? <React.Fragment>
+          <div className="form-control">
+            <label>Upload your image</label>
+            <div className="edit-image pointer" onClick={this.openImageUpdater}>{this.state.showImageUploader ? this.props.recipeToUpdate && 'Close X' : 'Update Image'}</div>
+            <input type="file" onChange={this.props.imageHandler}/>
+          </div>
+          {/* <div className="form-control">
+          <label htmlFor="imageUpload">Use Link Image (first image found)</label>
+          <input ref={this.props.useLinkImageEl} type="checkbox" id="useLinkImage" defaultChecked={this.props.useLinkImage ? true : false} />
+        </div>   */}
+      </React.Fragment>
+      : 
+      this.props.recipeToUpdate &&
+      <div className="form-control">
+        <label>Featured Image</label>
+        <div className="edit-image pointer" onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'Close X' : 'Update Image'}</div>
+        <img className="uploaded-image" ref={this.props.uploadedImageEl} src={this.props.recipeToUpdate.imageLink}/>
+      </div>
+      }
+
+        
       </form>
     )
   }

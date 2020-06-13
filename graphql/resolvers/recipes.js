@@ -3,8 +3,9 @@ const User = require('../../models/user')
 const {  transformRecipe } = require ('./merge')
 
 module.exports = {
-    recipes: async () => {
+    recipes: async (args, req, res) => {
         try {
+          res.hi = "hello"
             const recipes = await Recipe.find()
             return recipes.map(recipe =>  transformRecipe(recipe))
         }
@@ -13,12 +14,10 @@ module.exports = {
         }
     },
     createRecipe: async (args, req) => {
-      console.log('create recipe: ', args.recipeInput.recipeIngredients)
         if(!req.isAuth) {
             throw new Error('Unauthenticated!')
         }
         try {
-          console.log('WE ARE TRIYNG')
             const recipe = new Recipe ({
               recipeName: args.recipeInput.recipeName,
               recipeDescription: args.recipeInput.recipeDescription ,
@@ -28,6 +27,7 @@ module.exports = {
               minutesEstimate: +args.recipeInput.minutesEstimate,
               date: new Date(args.recipeInput.date),
               link: args.recipeInput.link,
+              imageLink: args.recipeInput.imageLink,
               creator: req.userId
            })
            
@@ -56,25 +56,18 @@ module.exports = {
 
         const creator = await User.findById(req.userId)
             if(!creator) { throw new Error ('USER NOT FOUND') }
-            console.log('creator is here: ', creator)
             creator.createdRecipes.filter(recipe => recipe != args.recipeId)
             await creator.save()
           const result = await fetchedRecipe.delete()
-          console.log('result after deltiing: ', result)
         return result._id
       }
       catch(err) { throw err }
     },
     updateRecipe:  async (args, req) => {
-      console.log("ARGS FOR UPDATE: ", args)
       if(!req.isAuth) {
-        console.log(
-          'UNATHETINCATED'
-        )
         throw new Error ('Unauthenticated')
       }
       try{
-        console.log('we tring')
        await Recipe.updateOne(
           {_id: args.recipeId},
           { $set: {
@@ -86,25 +79,20 @@ module.exports = {
               minutesEstimate: +args.recipeInput.minutesEstimate,
               date: new Date(args.recipeInput.date),
               link: args.recipeInput.link,
+              imageLink: args.recipeInput.imageLink,
               creator: req.userId
            }}
        );
        const result =  await Recipe.findOne({_id: args.recipeId})
-       console.log("RESU:LT: ", result)
        updatedRecipe = transformRecipe(result)
-       console.log("update recipe: ", updatedRecipe)
         const creator = await User.findById(req.userId)
             if(!creator) { throw new Error ('USER NOT FOUND') }
-            console.log('creator is here: ', creator)
             const updatedRecipes = [...creator.createdRecipes.filter(recipe => recipe != args.recipeId), updatedRecipe]
             creator.createdRecipes = updatedRecipes 
             await creator.save()
-          
-          console.log('result after updating: ', updatedRecipe)
         return updatedRecipe
       }
       catch(err) { 
-        console.log('error: ', err)
         throw err 
       }
     }

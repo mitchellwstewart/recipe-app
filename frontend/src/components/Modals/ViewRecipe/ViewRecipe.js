@@ -16,7 +16,6 @@ class ViewModal extends Component {
   static contextType = AuthContext
 
   viewHandler = (e) => {
-    console.log('e.target', e.target)
     this.setState({ viewing: e.target.id })
   }
   yieldHandler = e => {
@@ -32,6 +31,7 @@ class ViewModal extends Component {
     const estimateTime = this.props.selectedRecipe.minutesEstimate
     const dateAdded = new Date(this.props.selectedRecipe.date).toLocaleDateString()
     const recipeLink = this.props.selectedRecipe.link
+    const recipeImage = this.props.selectedRecipe.imageLink
     return (
       <div className="modal z2">
         <nav className="modal__nav pointer bcbl p0 m0 f" onClick={this.props.onCancel}><p>{`<- Back To Recipes`}</p></nav>
@@ -94,6 +94,14 @@ class ViewModal extends Component {
                 <p>
                   {description}
                 </p>
+                {recipeImage
+                ? <div>
+                    <p>recipe image</p>
+                    <img className="uploaded-image" src={recipeImage} />
+                </div> 
+                : <div> NO IMAGE AVAILABLE</div>}
+
+
                 {recipeLink && !this.state.badLink &&
                 // <a href={recipeLink} target="_blank">{`View Original Recipe`}</a>
                 <React.Fragment>

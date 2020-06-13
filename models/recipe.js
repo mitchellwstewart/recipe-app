@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const { ingredientSchema } = require('./ingredient')
 const Schema = mongoose.Schema
-console.log(ingredientSchema)
 
 const recipeSchema = new Schema({
     recipeName: {
@@ -42,6 +41,7 @@ const recipeSchema = new Schema({
         required: true
     },
     link: String,
+    imageLink: String,
     creator: {
         type: Schema.Types.ObjectId,
         ref: 'User'

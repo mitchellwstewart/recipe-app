@@ -14,20 +14,9 @@ class MainNavigation extends Component{
   }
 
   handleHamburgerMenu = () => {
-    if(!this.state.open) {
-      this.setState({ open: true , mobileMenuVisible: true})
-      
-      
-      
-    } 
-    else {
-      
-      
-        this.setState({ open: false, mobileMenuVisible: false })  
-      
-    }
-    
-
+    !this.state.open
+      ? this.setState({ open: true , mobileMenuVisible: true})
+      : this.setState({ open: false, mobileMenuVisible: false })  
   }
 
   static contextType = AuthContext
@@ -58,10 +47,18 @@ class MainNavigation extends Component{
           this.context.token && 
           <React.Fragment>
             <li><NavLink to="/subscriptions">Subscriptions</NavLink></li>
-            <li><div className="pointer" onClick={this.context.logout}>Log Out</div></li>
+            <li>
+              <div className="pointer account-welcome " >
+                <div className="f jcc aic ">
+                  <p className="m0 nowrap"> Welcome {this.props.email}</p>
+                  <div className="pl05">+</div>
+                </div>
+                <div className="account-dropdown abs">
+                  <div className="pointer" onClick={this.context.logout}>Log Out</div>
+                </div>
+              </div>
+            </li>
           </React.Fragment>
-          
-          
           }
           {!this.context.token && <li><NavLink to="/auth">Log In</NavLink></li>}
           </ul>

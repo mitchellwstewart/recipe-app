@@ -11,7 +11,7 @@ const recipeItem = props => {
       </div>
       <div className="recipe__list-item_inner f fdc jcb x y">
         <div className="recipe__list-item_inner_image f aic jcc">
-          <img className="x y" src={testImage}/>
+          <img className="x y" src={props.recipeImage || testImage}/>
         </div>
         <div className="recipe__list-item_inner_container">
           <h1 className="recipe__list-item_inner_title cdbl">{props.recipeName}</h1>
