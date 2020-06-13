@@ -3,8 +3,9 @@ const User = require('../../models/user')
 const {  transformRecipe } = require ('./merge')
 
 module.exports = {
-    recipes: async () => {
+    recipes: async (args, req, res) => {
         try {
+          res.hi = "hello"
             const recipes = await Recipe.find()
             return recipes.map(recipe =>  transformRecipe(recipe))
         }

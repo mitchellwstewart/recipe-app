@@ -21,8 +21,7 @@ class RecipesPage extends Component {
     selectedRecipe: null,
     recipeToUpdate: null,
     validationError: false,
-    imageFile: null,
-    uploadedImageLink: null
+    imageFile: null
   }
 
   isActive = true
@@ -43,6 +42,9 @@ class RecipesPage extends Component {
     this.ingredientUnitEl = React.createRef();
     this.ingredientNameEl = React.createRef();
     this.imageEl = React.createRef();
+    this.uploadedImageEl = React.createRef()
+
+    
   }
 
   componentDidMount(){
@@ -52,7 +54,7 @@ class RecipesPage extends Component {
   startCreateOrUpdateRecipeHandler = (args) => {
     args === 'update'
       ? this.setState(prevState => {
-        return {updating: true, recipeToUpdate: prevState.selectedRecipe, selectedRecipe: null}
+        return {updating: true, recipeToUpdate: prevState.selectedRecipe}
       })
     : this.setState({creating: true})
   }
@@ -79,28 +81,25 @@ class RecipesPage extends Component {
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
     const imageFile = this.state.imageFile
-
     const imageFormData = new FormData();
+    let newImageLink;
     imageFormData.append('file', imageFile)
     imageFormData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
-    console.log(imageFile)
-    console.log('cloud url: ', process.env.REACT_APP_IMAGE_UPLOAD_URL)
-
-    
          try {
-          const res = await axios({
-            url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
-            method: "POST",
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: imageFormData
-          })
-          if(res.status !== 200 && res.status !== 201) {
-            throw new Error('Failed!')
-          }
-          console.log("RES: ", res)
-          await this.setState({uploadedImageLink: res.data.secure_url})
+           if(imageFile) {
+            const res = await axios({
+              url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
+              method: "POST",
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              data: imageFormData
+            })
+            if(res.status !== 200 && res.status !== 201) {
+              throw new Error('Failed!')
+            }
+            newImageLink =  res.data.secure_url
+           }
          if(
            recipeName.trim().length === 0 ||
            recipeIngredients.length === 0 ||
@@ -114,24 +113,29 @@ class RecipesPage extends Component {
            }, 3000)
            return;
          }
-         this.setState({creating: false})
+         
+
+          const recipeId = this.state.updating ? this.state.recipeToUpdate._id : null
+          const defaultVariables = {
+            recipeName: recipeName,
+            recipeDescription: recipeDescription,
+            recipeIngredients: recipeIngredients,
+            recipeSteps: recipeSteps,
+            yields: yields,
+            minutesEstimate: minutesEstimate,
+            date: new Date().toISOString(),
+            link: link,
+            imageLink: newImageLink || this.uploadedImageEl.current.src
+          }
+
+          const updatedVariables = recipeId ? {...defaultVariables, recipeId} : defaultVariables
            const requestBody = {
-             query: createRecipeMutation,
-             variables: {
-               recipeName: recipeName,
-               recipeDescription: recipeDescription,
-               recipeIngredients: recipeIngredients,
-               recipeSteps: recipeSteps,
-               yields: yields,
-               minutesEstimate: minutesEstimate,
-               date: new Date().toISOString(),
-               link: link,
-               imageLink: this.state.uploadedImageLink
-             }
+             query: this.state.updating ? updateRecipeMutation : createRecipeMutation,
+             variables: updatedVariables
            };
           
-             const token = this.context.token;
-           const mongoRes = await fetch('http://localhost:3001/graphql', {
+          const token = this.context.token;
+          const mongoRes = await fetch('http://localhost:3001/graphql', {
                method: 'POST',
                body: JSON.stringify(requestBody),
                headers: {
@@ -144,26 +148,37 @@ class RecipesPage extends Component {
                  throw new Error('Failed!')
                }
               const resData =  await mongoRes.json()
-              console.log('resData: ', resData)
-               this.setState(prevState => {
-                 const updatedRecipes = [...prevState.recipes]
-                 updatedRecipes.push({
-                   _id: resData.data.createRecipe._id,
-                   recipeName: resData.data.createRecipe.recipeName,
-                   recipeDescription: resData.data.createRecipe.recipeDescription,
-                   recipeIngredients: resData.data.createRecipe.recipeIngredients,
-                   recipeSteps: resData.data.createRecipe.recipeSteps,
-                   yields: resData.data.createRecipe.yields,
-                   minutesEstimate: resData.data.createRecipe.minutesEstimate,
-                   date: resData.data.createRecipe.date,
-                   link: resData.data.createRecipe.link,
-                   imageLink: resData.data.createRecipe.imageLink,
-                   creator: {
-                     _id: this.context.userId,
-                   }
-                 })
-                 return {recipes: updatedRecipes}
-               })
+
+
+              if(this.state.creating) {
+                this.setState(prevState => {
+                  const updatedRecipes = [...prevState.recipes]
+                  updatedRecipes.push({
+                    _id: resData.data.createRecipe._id,
+                    recipeName: resData.data.createRecipe.recipeName,
+                    recipeDescription: resData.data.createRecipe.recipeDescription,
+                    recipeIngredients: resData.data.createRecipe.recipeIngredients,
+                    recipeSteps: resData.data.createRecipe.recipeSteps,
+                    yields: resData.data.createRecipe.yields,
+                    minutesEstimate: resData.data.createRecipe.minutesEstimate,
+                    date: resData.data.createRecipe.date,
+                    link: resData.data.createRecipe.link,
+                    imageLink: resData.data.createRecipe.imageLink,
+                    creator: {
+                      _id: this.context.userId,
+                    }
+                  })
+                  return {recipes: updatedRecipes, selectedRecipe: {...resData.data.createRecipe,creator: {_id: this.context.userId} }}})
+              }
+              else if (this.state.updating) {
+                this.setState(prevState => {
+                  const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
+                  const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
+                  return {recipes: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false}
+                })
+              } 
+              
+            this.setState({creating: false, updating: false})   
          }
          catch(err) {
            throw err
@@ -254,98 +269,6 @@ class RecipesPage extends Component {
       })
   }
 
-  modalUpdateRecipeHandler = () => {
-    const recipeName = this.recipeNameEl.current.value
-    const recipeDescription = this.recipeDescriptionEl.current.value
-    const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
-      const ingredientName = ingredientNode.querySelector('[data-name]').dataset.name
-      const ingredientAmount = +ingredientNode.querySelector('[data-amount]').dataset.amount
-      const ingredientUnit = ingredientNode.querySelector('[data-unit]').dataset.unit
-        return {name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
-    })
-    const recipeSteps = Array.from(this.recipeStepsEl.current.children).map((stepNode, idx) => {
-      const stepNumber = +(idx+1)
-      const stepInstruction = stepNode.querySelector('span.step-content').innerText
-        return {stepNumber: stepNumber, stepInstruction: stepInstruction}
-    })
-    const yields = +this.yieldsEl.current.value
-    const minutesEstimate = +this.minutesEstimateEl.current.value
-    const link = this.linkEl.current.value
-    const imageFile = this.state.imageFile
-    const imageFormData = new FormData();
-    imageFormData.append('file', imageFile)
-    imageFormData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
-
-    axios({
-      url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      data: imageFormData
-    }).then(res => {
-      if(res.status !== 200 && res.status !== 201) {
-        throw new Error('Failed!')
-      }
-      console.log("RES: ", res)
-      this.setState({uploadedImageLink: res.data.secure_url})
-    }).then(resData => {
-      console.log('resData: ', resData)
-    })
-
-     if(
-       recipeName.trim().length === 0 ||
-       recipeIngredients.length === 0 ||
-       recipeSteps.length === 0 ||
-       minutesEstimate <= 0 ||
-       yields <= 0 
-     ){
-      this.setState({validationError: true})
-      setTimeout(()=> {
-        this.setState({validationError: false})
-      }, 3000)
-       return;
-     }
-     this.setState({updating: false})
-       const requestBody = {
-         query: updateRecipeMutation,
-         variables: {
-           recipeId: this.state.recipeToUpdate._id,
-           recipeName: recipeName,
-           recipeDescription: recipeDescription,
-           recipeIngredients: recipeIngredients,
-           recipeSteps: recipeSteps,
-           yields: yields,
-           minutesEstimate: minutesEstimate,
-           date: new Date().toISOString(),
-           link: link,
-           imageLink: this.state.uploadedImageLink
-         }
-       };
-    
-       const token = this.context.token;
-       fetch('http://localhost:3001/graphql', {
-         method: 'POST',
-         body: JSON.stringify(requestBody),
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': 'Bearer ' + token
-         }
-       }).then(res => {
-         if(res.status !== 200 && res.status !== 201) {
-           throw new Error('Failed!')
-         }
-         return res.json()
-       }).then(resData => {
-         this.setState(prevState => {
-           const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
-           const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
-           return {recipes: updatedRecipes, recipeToUpdate: null, updating: false}
-         })
-       }).catch(err => {
-         throw err
-       })
-  }
 
   showDetailHandler = recipeId => {
     this.setState(prevState => {
@@ -361,11 +284,13 @@ class RecipesPage extends Component {
   fetchRecipes() {
     this.setState({isLoading: true})
     const requestBody = { query: fetchRecipesQuery }
+    const token = this.context.token;
       fetch('http://localhost:3001/graphql', {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
         }
       }).then(res => {
         if(res.status !== 200 && res.status !== 201) {
@@ -420,6 +345,7 @@ class RecipesPage extends Component {
           ingredientUnitEl={this.ingredientUnitEl}
           ingredientNameEl={this.ingredientNameEl}
           imageEl = {this.imageEl}
+          uploadedImageEl = {this.uploadedImageEl}
           imageHandler = {this.imageUploadHandler}
           />
         </CreateAndUpdateModal>)}
@@ -449,7 +375,7 @@ class RecipesPage extends Component {
           canSaveChanges 
           saveText={this.context.token && "Save Changes" }
           onCancel={this.modalCancelHandler.bind(this, 'update')} 
-          onSaveChanges={this.modalUpdateRecipeHandler}
+          onSaveChanges={this.modalConfirmHandler}
           selectedRecipe = {this.state.recipeToUpdate}
           validationError={this.state.validationError}
         >
@@ -468,6 +394,7 @@ class RecipesPage extends Component {
           ingredientNameEl={this.ingredientNameEl}
           imageHandler = {this.imageUploadHandler}
           imageEl = {this.imageEl}
+          uploadedImageEl = {this.uploadedImageEl}
           recipeToUpdate = {this.state.recipeToUpdate}
           />
         </CreateAndUpdateModal>)}
