@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Dropzone from 'react-dropzone';
+import './InputForm.scss'
 class InputForm extends Component  {
   constructor(props) {
     super(props)
@@ -9,15 +10,16 @@ class InputForm extends Component  {
       ingredientsAdded: [],
       stepsAdded: [],
       ingredientValidation: false,
+      showImageUploader: true
     }
   }
   componentDidMount = () => {
-    console.log('this.props: ', this.props)
     this.props.recipeToUpdate && 
     this.setState({
       ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
       stepsAdded: this.props.recipeToUpdate.recipeSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}),
-      updatedYield: this.props.recipeToUpdate.yields
+      updatedYield: this.props.recipeToUpdate.yields,
+      showImageUploader: false
     })
   }
 
@@ -77,6 +79,10 @@ class InputForm extends Component  {
      })
   }
 
+  openImageUpdater = () => {
+    this.setState({showImageUploader: !this.state.showImageUploader})
+  }
+
 
   render() {
     return (
@@ -115,7 +121,7 @@ class InputForm extends Component  {
             <div className="form-control">
               <label htmlFor="ingredientUnit">Unit</label>
               <select defaultValue="cup" id="ingredientUnit" size="1" ref={this.props.ingredientUnitEl} >
-                <option value="cup" >cup</option>
+                <option value="cup">cup</option>
                 <option value="tbsp">tbsp</option>
                 <option value="tsp">tsp</option>
                 <option value="gram">gram</option>
@@ -174,24 +180,28 @@ class InputForm extends Component  {
           <label htmlFor="recipeLink">Recipe Link</label>
           <input ref={this.props.linkEl} type="url" id="recipeLink" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.link : ""} />
         </div>
-        <div className="form-control">
-          <label>Upload your image</label>
-          <input type="file" onChange={this.props.imageHandler}/>
-          {/* <Dropzone onDrop={acceptedFiles => this.props.imageHandler(acceptedFiles)}>
-            {({getRootProps, getInputProps}) => (
-              <section>
-                <div {...getRootProps()}>
-                  <input {...getInputProps()} />
-                  <p>Drag 'n' drop some files here, or click to select files</p>
-                </div>
-              </section>
-            )}
-          </Dropzone> */}
-        </div>
-        <div className="form-control">
-        <label htmlFor="imageUpload">Use Link Image (first image found)</label>
-        <input ref={this.props.useLinkImageEl} type="checkbox" id="useLinkImage" defaultChecked={this.props.useLinkImage ? true : false} />
-        </div>
+        {this.state.showImageUploader
+        ? <React.Fragment>
+          <div className="form-control">
+            <label>Upload your image</label>
+            <div className="edit-image pointer" onClick={this.openImageUpdater}>{this.state.showImageUploader ? this.props.recipeToUpdate && 'Close X' : 'Update Image'}</div>
+            <input type="file" onChange={this.props.imageHandler}/>
+          </div>
+          {/* <div className="form-control">
+          <label htmlFor="imageUpload">Use Link Image (first image found)</label>
+          <input ref={this.props.useLinkImageEl} type="checkbox" id="useLinkImage" defaultChecked={this.props.useLinkImage ? true : false} />
+        </div>   */}
+      </React.Fragment>
+      : 
+      this.props.recipeToUpdate &&
+      <div className="form-control">
+        <label>Featured Image</label>
+        <div className="edit-image pointer" onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'Close X' : 'Update Image'}</div>
+        <img className="uploaded-image" ref={this.props.uploadedImageEl} src={this.props.recipeToUpdate.imageLink}/>
+      </div>
+      }
+
+        
       </form>
     )
   }

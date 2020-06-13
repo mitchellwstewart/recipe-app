@@ -8,23 +8,28 @@ import SubscriptionPage from './pages/Subscription'
 import MainNavigation from './components/Navigation/MainNavigation'
 import AuthContext from './context/auth-context';
 require('dotenv').config()
-console.log(process.env)
 
 class App extends Component {
   state = {
     token: null,
+    tokenExpiration: null,
     userId: null,
     email: null,
   }
   login = (token, email, userId, tokenExpiration) => {
-    this.setState({token: token, email: email, userId: userId})
+    
+    this.setState({token: token, tokenExpiration: tokenExpiration, email: email, userId: userId})
     localStorage.setItem('jwt', token)
+    localStorage.setItem('jwtExpiration', tokenExpiration)
+    localStorage.setItem('loginTime', new Date().toISOString())
     localStorage.setItem('userId', userId)
     localStorage.setItem('email', email)
   }
 
   logout = () => {
     localStorage.removeItem('jwt')
+    localStorage.removeItem('jwtExpiration')
+    localStorage.removeItem('loginTime', new Date().toISOString())
     localStorage.removeItem('userId')
     localStorage.removeItem('email')
     this.setState({token: null, userId: null})
@@ -34,7 +39,21 @@ class App extends Component {
     let LStoken = localStorage.getItem('jwt')
     let LSuser = localStorage.getItem('userId')
     let LSemail = localStorage.getItem('email')
-    LStoken && LSuser && this.setState({token: LStoken, userId: LSuser , email: LSemail})
+    let LSloginTime = localStorage.getItem('loginTime')
+    let LStokenExpiration = localStorage.getItem('jwtExpiration')
+    let currentTime = new Date().getTime()
+    console.log('currentTime: ', currentTime)
+    console.log('LStokenExpiration: ', LStokenExpiration)
+    console.log('currentTime - new Date(LSloginTime).getTime(): ', currentTime - new Date(LSloginTime).getTime())
+    console.log(' +LStokenExpiration * 60 * 60 * 1000: ',  +LStokenExpiration * 60 * 60 * 1000)
+
+    if(currentTime - new Date(LSloginTime).getTime() > +LStokenExpiration * 60 * 60 * 1000) {
+      this.logout()
+    }
+    else {
+      LStoken && LSuser && this.setState({token: LStoken, userId: LSuser , email: LSemail})
+    }
+    
   }
   render (){
     return (

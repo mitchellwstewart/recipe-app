@@ -9,6 +9,7 @@ const recipeList = props => {
     key={recipe._id}
      recipeId={recipe._id} 
      recipeName={recipe.recipeName}
+     recipeImage = {recipe.imageLink}
       creator = {recipe.creator}
       minutesEstimate = {recipe.minutesEstimate}
       date = {recipe.date}
