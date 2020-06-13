@@ -5,6 +5,19 @@
     max-width: 1600px;
     width: 90%;
     margin: auto;
+    .account-welcome {
+      &:hover {
+        .account-dropdown {
+          transition: opacity 0.5s;
+          opacity: 1;
+        }
+      }
+      .account-dropdown {
+        opacity: 0;
+        transition: opacity 0.5s;
+      }
+    }
+    
     .hamburger-menu {
       @media(min-width: $break-mob) {
         display: none;
@@ -25,6 +38,7 @@
           // opacity: 1;
           transition: all 0.5s;
         }
+      
       }
     }
   }
