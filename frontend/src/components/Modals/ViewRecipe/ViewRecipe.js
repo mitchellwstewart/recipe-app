@@ -31,7 +31,7 @@ class ViewModal extends Component {
     const estimateTime = this.props.selectedRecipe.minutesEstimate
     const dateAdded = new Date(this.props.selectedRecipe.date).toLocaleDateString()
     const recipeLink = this.props.selectedRecipe.link
-    const recipeImage = this.props.selectedRecipe.imageLink
+    const recipeImages = this.props.selectedRecipe.imageLinks
     return (
       <div className="modal z2">
         <nav className="modal__nav pointer bcbl p0 m0 f" onClick={this.props.onCancel}><p>{`<- Back To Recipes`}</p></nav>
@@ -42,12 +42,12 @@ class ViewModal extends Component {
           </div>
           <section className="modal__header_actions f fdc jce p1">
             {this.props.canConfirm && <button className="btn" onClick={this.props.onConfirm}> {this.props.confirmText} </button>}
-            {this.props.canSubscribe &&
+            {/* {this.props.canSubscribe &&
               <button className="btn"
                 onClick={this.props.onSubscribe}>
                 {this.props.subscribeText}
               </button>
-            }
+            } */}
             {this.props.canDelete && <button className="btn"
               onClick={this.props.onDelete}>
               {this.props.deleteText}
@@ -91,17 +91,16 @@ class ViewModal extends Component {
             </ul>
             {this.state.viewing === "description" && 
             <div>
-                <p>
-                  {description}
-                </p>
-                {recipeImage
-                ? <div>
-                    <p>recipe image</p>
-                    <img className="uploaded-image" src={recipeImage} />
-                </div> 
+                <p>{description}</p>
+                {recipeImages && recipeImages.length
+                ?
+                <div>
+                    <p>recipe images</p>
+                    {recipeImages.map(imageLink => {
+                      return (<img className="uploaded-image" src={imageLink} />)
+                    })}
+                  </div>  
                 : <div> NO IMAGE AVAILABLE</div>}
-
-
                 {recipeLink && !this.state.badLink &&
                 // <a href={recipeLink} target="_blank">{`View Original Recipe`}</a>
                 <React.Fragment>
@@ -116,9 +115,7 @@ class ViewModal extends Component {
                       onError={() => this.setState({badLink: true})}
                     />
                   </div>
-                 
                 </React.Fragment>
-                
                 }
             </div>
             }

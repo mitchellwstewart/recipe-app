@@ -7,13 +7,13 @@ const recipeList = props => {
     return <RecipeItem 
     userId={props.authUserId} 
     key={recipe._id}
-     recipeId={recipe._id} 
-     recipeName={recipe.recipeName}
-     recipeImage = {recipe.imageLink}
-      creator = {recipe.creator}
-      minutesEstimate = {recipe.minutesEstimate}
-      date = {recipe.date}
-      onDetail={props.onViewDetail}
+    recipeId={recipe._id} 
+    recipeName={recipe.recipeName}
+    recipeImage = {recipe.imageLinks[0]}
+    creator = {recipe.creator}
+    minutesEstimate = {recipe.minutesEstimate}
+    date = {recipe.date}
+    onDetail={props.onViewDetail}
     />
   })
   return (
