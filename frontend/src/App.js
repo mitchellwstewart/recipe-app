@@ -61,7 +61,7 @@ class App extends Component {
         <React.Fragment>
           <AuthContext.Provider value={{token: this.state.token, email: this.state.email, userId: this.state.userId, login: this.login, logout: this.logout}}>
           <MainNavigation email={this.state.email} />
-            <main className="main-content">
+            <main className="main-content f fdc aic">
               <Switch>
                 {this.state.token && <Redirect from="/" to="/recipes" exact />}
                 {this.state.token && <Redirect from="/auth" to="/recipes" exact />}
