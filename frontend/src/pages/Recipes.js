@@ -67,6 +67,7 @@ class RecipesPage extends Component {
   }
 
   modalConfirmHandler = async () => {
+    console.log('context: ', this.context)
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
     const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
