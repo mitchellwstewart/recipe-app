@@ -7,7 +7,7 @@
   overflow: scroll;
   top: 10vh;
   bottom: 10vh;
-  left: 5%;
+  // left: 5%;
   @media(min-width: 768px) {
     width: 50rem;
     left: calc((100% - 50rem) / 2)
@@ -32,37 +32,20 @@
   }
 
   &__content {
-    &_ingredients {
-      width: 20%;
-      max-width: 200px;
-      &_header {
-        font-size: 1.5em;
-        margin-bottom: 0;
-      }
-      &-list{
-        .yield-count {
-          font-weight: 600;
-          &_amount {
-            max-width: 25px;
-            max-height: 25px;
-            border: none;
-            border-bottom: 1px solid black;
-            text-align: center;
-            position: relative; 
-            bottom: 2px;
-          }
-        }
-        .ingredient-container {
-       
-        }
-      }
-      
-     
-    }
+   
     &_main {
+      @media(max-width: 767px) {
+        width: 100%;
+      }
       &_nav {
+        @media(max-width: 767px) {
+          justify-content: space-around;
+        }
         &_item {
-          font-size: 1.5em;
+          font-size: 0.875em;
+          @media(min-width: 768px) {
+            font-size: 1.5em;
+          }
           margin-bottom: 0;
           &.active {
             border-bottom: 1px solid black;
