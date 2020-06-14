@@ -70,7 +70,7 @@ class ViewModal extends Component {
             <ul className="modal__content_ingredients-list f fdc pl1">
               <div className="yield-count f">
                 <p className="pr05 m0">Yields</p>
-              <input className="yield-count_amount" type="text" onChange={this.yieldHandler} defaultValue={this.state.updatedYield} />
+              <input className="yield-count_amount" type="number" onChange={this.yieldHandler} defaultValue={this.state.updatedYield} />
               </div>
               {ingredients.map((ingredient, idx) => {
                 return (
