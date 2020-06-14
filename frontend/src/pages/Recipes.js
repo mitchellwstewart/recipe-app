@@ -107,6 +107,7 @@ class RecipesPage extends Component {
               })
             })
             await axios.all(imageUploaders).then((res)=>{
+              this.setState({imageUploadQueue: []})
             })
            }
          if(
@@ -175,14 +176,17 @@ class RecipesPage extends Component {
                       _id: this.context.userId,
                     }
                   })
-                  return {recipes: updatedRecipes, selectedRecipe: {...resData.data.createRecipe,creator: {_id: this.context.userId} }}})
+                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, selectedRecipe: {...resData.data.createRecipe,creator: {_id: this.context.userId} }}
+                })
+                this.searchBarEl.current.value = ""
               }
               else if (this.state.updating) {
                 this.setState(prevState => {
                   const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
                   const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
-                  return {recipes: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false}
+                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false}
                 })
+                this.searchBarEl.current.value = ""
               } 
               
             this.setState({creating: false, updating: false})   
@@ -267,8 +271,14 @@ class RecipesPage extends Component {
       }).then(resData => {
         
         this.setState(prevState => {
+          console.log('prevState:', prevState)
           return {creating: false, selectedRecipe: null, recipes: prevState.recipes.filter(recipe => recipe._id !== resData.data.deleteRecipe._id)}
+
         })
+
+        this.setState({recipesInSearch: this.state.recipes})
+        this.searchBarEl.current.value = ""
+        console.log('this.state: ', this.state)
       })
       .catch(err => {
         throw err
