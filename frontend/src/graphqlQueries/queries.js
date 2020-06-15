@@ -10,8 +10,9 @@ const createRecipeMutation = `
         $minutesEstimate: Float!,
         $date: String!,
         $link: String,
-        $imageLinks: [String!]) {
-        createRecipe(recipeInput: {recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields, minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLinks: $imageLinks
+        $imageLinks: [String!],
+        $tags: [TagInput!]) {
+        createRecipe(recipeInput: {recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields, minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLinks: $imageLinks, tags: $tags
         }){
           _id
           recipeName
@@ -31,6 +32,9 @@ const createRecipeMutation = `
           date
           link
           imageLinks
+          tags {
+            _id
+          }
         }
       }
     `
@@ -48,8 +52,9 @@ const updateRecipeMutation = `
       $date: String!,
       $link: String,
       $imageLinks: [String!]
+      $tags:  [String!]
       ) {
-      updateRecipe(recipeId: $recipeId, recipeInput: { recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLinks: $imageLinks
+      updateRecipe(recipeId: $recipeId, recipeInput: { recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLinks: $imageLinks, tags: $tags
       }){
         _id
         recipeName
@@ -69,6 +74,9 @@ const updateRecipeMutation = `
         date
         link
         imageLinks
+        tags {
+          _id
+        }
       }
     }
   `
@@ -94,12 +102,38 @@ const fetchRecipesQuery = `
         date
         link
         imageLinks
+        tags {
+          tag
+          ref
+        }
         creator {
           _id
           email
         }
       }
+      tags {
+        tag
+        _id
+        recipesWithTag {
+          _id
+        }
+      }
     }
+  
+  `
+
+  const addTagToRecipe = `
+  mutation AddTagToRecipe(
+    $tag: String!
+    ) {
+    addTagToRecipe(tag: $tag){
+      _id
+      tag
+      recipesWithTag {
+        _id
+      }
+    }
+  }
   `
 
 

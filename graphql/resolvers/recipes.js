@@ -1,5 +1,6 @@
 const Recipe = require('../../models/recipe')
 const User = require('../../models/user')
+const Tag = require('../../models/tag')
 const {  transformRecipe } = require ('./merge')
 
 module.exports = {
@@ -31,15 +32,49 @@ module.exports = {
            })
            
            let createdRecipe;
-            const result = await recipe.save()
-            createdRecipe = transformRecipe(result)
-            const creator = await User.findById(req.userId)
-            if(!creator) { throw new Error ('USER NOT FOUND') }
-            creator.createdRecipes.push(recipe)
-            await creator.save()
-            return createdRecipe
+             const result = await recipe.save()
+             createdRecipe = transformRecipe(result)
+             const creator = await User.findById(req.userId)
+             if(!creator) { throw new Error ('USER NOT FOUND') }
+             creator.createdRecipes.push(recipe)
+             await creator.save()
+             let tags = [];
+             async function asyncForEach(array, callback) {
+              for (let index = 0; index < array.length; index++) {
+                await callback(array[index], index, array);
+              }
+            }
+             const getTags = async (recipeId) => {
+              await asyncForEach(args.recipeInput.tags, async ({ tag }) => {
+                let tagObj = await Tag.findOne({tag: tag});
+                if(!tagObj) {
+                  let newTag = await new Tag ({
+                    tag: tag,
+                    recipesWithTag: [createdRecipe]
+                  })
+                  await newTag.save()
+                  tags.push({tag: tag, ref: newTag._id})
+                } else {
+                  Tag.updateOne({_id: tagObj._id}, {$set: {
+                    recipesWithTag: tagObj.recipesWithTag.push(createdRecipe)
+                  }})
+                 tags.push({tag: tag, ref: tagObj._id})
+                } 
+              });
+            }
+            await getTags(createdRecipe._id);
+            await Recipe.updateOne(
+              {_id: createdRecipe._id},
+              { $set: {
+                  tags: tags
+               }}
+           );
+           const recipeWithTags =  await Recipe.findOne({_id: createdRecipe._id})
+             console.log("createdRecipe with tags: ", recipeWithTags)
+             return recipeWithTags
         }
         catch(err) { 
+          console.log('err: ', err)
           throw err 
         }
     },

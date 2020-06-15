@@ -24,7 +24,8 @@ class RecipesPage extends Component {
     recipeToUpdate: null,
     validationError: false,
     imageFile: null,
-    imageUploadQueue: []
+    imageUploadQueue: [],
+    allTags: {}
   }
 
   isActive = true
@@ -46,6 +47,8 @@ class RecipesPage extends Component {
     this.ingredientNameEl = React.createRef();
     this.imageEl = React.createRef();
     this.uploadedImagesEl = React.createRef()
+    this.tagsEl = React.createRef();
+    this.newTagEl = React.createRef();
     this.searchBarEl = React.createRef()
     this.searchByEl = React.createRef()
   }
@@ -68,24 +71,43 @@ class RecipesPage extends Component {
 
   modalConfirmHandler = async () => {
     console.log('context: ', this.context)
-    const recipeName = this.recipeNameEl.current.value
-    const recipeDescription = this.recipeDescriptionEl.current.value
-    const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
-      const ingredientName = ingredientNode.querySelector('[data-name]').dataset.name
-      const ingredientAmount = +ingredientNode.querySelector('[data-amount]').dataset.amount
-      const ingredientUnit = ingredientNode.querySelector('[data-unit]').dataset.unit
-      return { name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
-    })
-    const recipeSteps = Array.from(this.recipeStepsEl.current.children).map((stepNode, idx) => {
-      const stepNumber = +(idx+1)
-      const stepInstruction = stepNode.querySelector('span.step-content').innerText
-        return {stepNumber: stepNumber, stepInstruction: stepInstruction}
-    })
-    const currentRecipeImages = this.uploadedImagesEl.current ? Array.from(this.uploadedImagesEl.current.children).map(uploadedImage => {return uploadedImage.src}) : []
-    const yields = +this.yieldsEl.current.value
-    const minutesEstimate = +this.minutesEstimateEl.current.value
-    const link = this.linkEl.current.value
-    const recipeImagesQueue = this.state.imageUploadQueue
+    // const recipeName = this.recipeNameEl.current.value
+    // const recipeDescription = this.recipeDescriptionEl.current.value
+    // const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
+    //   const ingredientName = ingredientNode.querySelector('[data-name]').dataset.name
+    //   const ingredientAmount = +ingredientNode.querySelector('[data-amount]').dataset.amount
+    //   const ingredientUnit = ingredientNode.querySelector('[data-unit]').dataset.unit
+    //   return { name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
+    // })
+    // const recipeSteps = Array.from(this.recipeStepsEl.current.children).map((stepNode, idx) => {
+    //   const stepNumber = +(idx+1)
+    //   const stepInstruction = stepNode.querySelector('span.step-content').innerText
+    //     return {stepNumber: stepNumber, stepInstruction: stepInstruction}
+    // })
+    
+    // // const tags = Array.from(this.tagsEl.current.children).map(tag => {
+    // //   return {tag: tag.dataset.value}
+    // // })
+    // const currentRecipeImages = this.uploadedImagesEl.current ? Array.from(this.uploadedImagesEl.current.children).map(uploadedImage => {return uploadedImage.src}) : []
+    // const yields = +this.yieldsEl.current.value
+    // const minutesEstimate = +this.minutesEstimateEl.current.value
+    // const link = this.linkEl.current.value
+    // const recipeImagesQueue = this.state.imageUploadQueue
+
+
+
+    const recipeName = "Test Name"
+    const recipeDescription = "description"
+    const recipeIngredients = [
+      { name: 'ingredientName', amount: 5, unit: 'cups'}
+    ]
+    const recipeSteps = [{stepNumber: 1, stepInstruction: "test instruction"}]
+    const currentRecipeImages = []
+    const yields = 5
+    const minutesEstimate = 5
+    const link = ""
+    const recipeImagesQueue = []
+    const tags = [{tag: "Thai"}, {tag: "easy"}, {tag: "test-tags"}]
     let newImageLinks = [];
          try {
            if(recipeImagesQueue.length) {
@@ -136,7 +158,8 @@ class RecipesPage extends Component {
             minutesEstimate: minutesEstimate,
             date: new Date().toISOString(),
             link: link,
-            imageLinks: newImageLinks.length ? [...currentRecipeImages, ...newImageLinks] : currentRecipeImages
+            imageLinks: newImageLinks.length ? [...currentRecipeImages, ...newImageLinks] : currentRecipeImages,
+            tags: tags,
           }
 
           const updatedVariables = recipeId ? {...defaultVariables, recipeId} : defaultVariables
@@ -153,33 +176,32 @@ class RecipesPage extends Component {
                  'Authorization': 'Bearer ' + token
                }
              })
-             
                if(mongoRes.status !== 200 && mongoRes.status !== 201) {
                  throw new Error('Failed!')
                }
               const resData =  await mongoRes.json()
-
               if(this.state.creating) {
-                this.setState(prevState => {
-                  const updatedRecipes = [...prevState.recipes]
-                  updatedRecipes.push({
-                    _id: resData.data.createRecipe._id,
-                    recipeName: resData.data.createRecipe.recipeName,
-                    recipeDescription: resData.data.createRecipe.recipeDescription,
-                    recipeIngredients: resData.data.createRecipe.recipeIngredients,
-                    recipeSteps: resData.data.createRecipe.recipeSteps,
-                    yields: resData.data.createRecipe.yields,
-                    minutesEstimate: resData.data.createRecipe.minutesEstimate,
-                    date: resData.data.createRecipe.date,
-                    link: resData.data.createRecipe.link,
-                    imageLinks: resData.data.createRecipe.imageLinks,
-                    creator: {
-                      _id: this.context.userId,
-                    }
-                  })
-                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, selectedRecipe: {...resData.data.createRecipe,creator: {_id: this.context.userId} }}
-                })
-                this.searchBarEl.current.value = ""
+                // this.setState(prevState => {
+                //   const updatedRecipes = [...prevState.recipes]
+                //   updatedRecipes.push({
+                //     _id: resData.data.createRecipe._id,
+                //     recipeName: resData.data.createRecipe.recipeName,
+                //     recipeDescription: resData.data.createRecipe.recipeDescription,
+                //     recipeIngredients: resData.data.createRecipe.recipeIngredients,
+                //     recipeSteps: resData.data.createRecipe.recipeSteps,
+                //     yields: resData.data.createRecipe.yields,
+                //     minutesEstimate: resData.data.createRecipe.minutesEstimate,
+                //     date: resData.data.createRecipe.date,
+                //     link: resData.data.createRecipe.link,
+                //     imageLinks: resData.data.createRecipe.imageLinks,
+                //     tags: resData.data.createRecipe.tags,
+                //     creator: {
+                //       _id: this.context.userId,
+                //     }
+                //   })
+                //   return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, selectedRecipe: {...resData.data.createRecipe,creator: {_id: this.context.userId} }}
+                // })
+                // this.searchBarEl.current.value = ""
               }
               else if (this.state.updating) {
                 this.setState(prevState => {
@@ -272,14 +294,12 @@ class RecipesPage extends Component {
       }).then(resData => {
         
         this.setState(prevState => {
-          console.log('prevState:', prevState)
           return {creating: false, selectedRecipe: null, recipes: prevState.recipes.filter(recipe => recipe._id !== resData.data.deleteRecipe._id)}
 
         })
 
         this.setState({recipesInSearch: this.state.recipes})
         this.searchBarEl.current.value = ""
-        console.log('this.state: ', this.state)
       })
       .catch(err => {
         throw err
@@ -304,7 +324,6 @@ class RecipesPage extends Component {
 
   handleSearch = e => {
     let currentSearch = e.target.value
-    
     this.setState(prevState => {
       let newSearchedRecipes = prevState.recipes.filter(recipe => {
         return this.searchByEl.current.value.trim() === 'user'
@@ -329,22 +348,25 @@ class RecipesPage extends Component {
           'Authorization': 'Bearer ' + token
         }
       }).then(res => {
+        
         if(res.status !== 200 && res.status !== 201) {
           throw new Error('Failed!')
         }
         return res.json()
       }).then(resData => {
         const recipes = resData.data.recipes
+        const tags = resData.data.tags
         if(this.isActive) {
-          this.setState({recipes: recipes, isLoading: false, recipesInSearch: recipes})
+          this.setState({recipes: recipes, isLoading: false, recipesInSearch: recipes, allTags: tags})
         }
       })
-      
       .catch(err => {
         this.setState({isLoading: false})
         throw err
       })
   }
+
+
 
   componentWillUnmount = () => {
     this.isActive = false
@@ -383,6 +405,8 @@ class RecipesPage extends Component {
           imageEl = {this.imageEl}
           imageUploadQueue = {this.state.imageUploadQueue}
           imageHandler = {this.imageUploadHandler}
+          tagsEl = {this.tagsEl}
+          newTagEl = {this.newTagEl}
           />
         </CreateAndUpdateModal>)}
         {this.state.selectedRecipe && 
@@ -432,7 +456,10 @@ class RecipesPage extends Component {
           imageEl = {this.imageEl}
           uploadedImagesEl = {this.uploadedImagesEl}
           imageUploadQueue = {this.state.imageUploadQueue}
+          tagsEl = {this.tagsEl}
+          newTagEl = {this.newTagEl}
           recipeToUpdate = {this.state.recipeToUpdate}
+          allTags={this.state.allTags}
           />
         </CreateAndUpdateModal>)}
         <div className="recipes-control">
