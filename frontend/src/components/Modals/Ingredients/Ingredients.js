@@ -15,7 +15,6 @@ state = {
     !Number.isNaN(value) && this.setState({ updatedYield: value })
   }
   render() {
-    console.log('this.props: ', this.props)
     return (
       <div className="modal__content_ingredients f fdc my1 mr2 ml1 ">
 

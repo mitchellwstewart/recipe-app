@@ -1,5 +1,6 @@
 const { buildSchema } = require('graphql')
 
+
 module.exports = buildSchema(`
 type Subscription {
     _id: ID!
@@ -31,6 +32,7 @@ type Recipe {
     date: String!
     link: String
     imageLinks: [String!]
+    tags: [Tag!]
     creator: User!
 }
 
@@ -39,6 +41,13 @@ type Ingredient {
   name: String!
   amount: Float!
   unit: String
+}
+
+type Tag {
+  _id: ID!
+  tag: String!
+  ref: ID!
+  recipesWithTag: [Recipe!]
 }
 
 type Step {
@@ -51,6 +60,11 @@ input UserInput {
     email: String!
     password: String!
 }
+
+input TagInput {
+  tag: String!
+}
+
 input RecipeInput {
     recipeName: String!
     recipeDescription: String
@@ -61,6 +75,7 @@ input RecipeInput {
     date: String!
     link: String
     imageLinks: [String!]
+    tags: [TagInput!]
 }
 
 input IngredientInput{
@@ -68,8 +83,6 @@ input IngredientInput{
   amount: Float!
   unit: String
 }
-
-
 
 input StepInput {
   stepNumber: Float!
@@ -79,10 +92,12 @@ input StepInput {
 type RootQuery {
     recipes: [Recipe!]!
     subscriptions: [Subscription!]!
+    tags: [Tag!]
     login(email: String!, password: String!): AuthData!
 }
 type RootMutation {
     createUser(userInput: UserInput): User
+    addTagToRecipe(tagInput: TagInput): Tag
     createRecipe(recipeInput: RecipeInput): Recipe
     deleteRecipe(recipeId: ID!): Recipe
     updateRecipe(recipeId: ID!, recipeInput: RecipeInput): Recipe

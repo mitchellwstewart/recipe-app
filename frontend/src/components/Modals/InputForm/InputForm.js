@@ -9,17 +9,24 @@ class InputForm extends Component  {
       openStepsDropdown: false,
       ingredientsAdded: [],
       stepsAdded: [],
+      tagsAdded: [],
       ingredientValidation: false,
-      showImageUploader: true
+      showImageUploader: true,
+      showTagAdder: false,
+      tagSuggestions: []
     }
+
+
+    this.tagSuggestionsEl = React.createRef();
   }
   componentDidMount = () => {
     this.props.recipeToUpdate && 
-    this.setState({
+     this.setState({
       ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
       stepsAdded: this.props.recipeToUpdate.recipeSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}),
       updatedYield: this.props.recipeToUpdate.yields,
-      showImageUploader: false
+      showImageUploader: false,
+      tagsAdded: this.props.recipeToUpdate.tags.map(tagObj => tagObj.tag )
     })
   }
 
@@ -83,6 +90,38 @@ class InputForm extends Component  {
     this.setState({showImageUploader: !this.state.showImageUploader})
   }
 
+  addTagHandler = () => {
+    this.setState({showTagAdder: !this.state.showTagAdder})
+  }
+
+  handleTagOnChange = (e) => {
+    if(e.target.value.includes(" ")){
+      this.props.newTagEl.current.value = this.props.newTagEl.current.value.replace(" ", '')
+    } 
+    let currentInput = e.target.value
+    let recommendedTags = currentInput ? this.props.allTags.filter(tagObj => tagObj.tag.toLowerCase().includes(currentInput)).map(tagObj => tagObj.tag) : []
+    this.setState({tagSuggestions: recommendedTags})
+  }
+
+  submitTagHandler = (e) => {
+    let newTag = e.target.classList.contains('tag-suggestion') ? e.target.dataset.suggestion : this.props.newTagEl.current.value
+    this.setState(prevState => {
+      if(!prevState.tagsAdded.includes(newTag)) {
+        let updatedTags = [...prevState.tagsAdded, newTag]
+        return {tagsAdded: updatedTags, showTagAdder: false}
+      }
+      else {
+        alert ('Tag already exists on recipe')
+      }
+    })
+  }
+
+  removeTagHandler = (e) => {
+    const tagToRemove = e.target.dataset.value
+    this.setState(prevState => {
+      return{tagsAdded: prevState.tagsAdded.filter(tag => tag != tagToRemove)}
+    })
+  }
 
   render() {
     return (
@@ -212,7 +251,36 @@ class InputForm extends Component  {
           </div>     
           }
       </React.Fragment>
-
+      <div className="tag-container">
+        <p className="fw6"> Tags: </p>
+        <div className="tag-list f" ref={this.props.tagsEl}>
+        {this.state.tagsAdded.map(tag => {
+          return (<div className="recipe-tag mr05 f aic jcc bcbl" key={tag}>
+              <p className="pr025">{tag}</p>
+              <div className="remove-tag pointer" data-value={tag} onClick={this.removeTagHandler}>X</div>
+              </div>)
+        })}
+          
+        </div>
+        <div className="add-tag pointer" onClick={this.addTagHandler}>ADD TAG</div>
+        <div className={!this.state.showTagAdder ? 'hidden' : ''}>
+          <input type="text" ref={this.props.newTagEl} onChange={this.handleTagOnChange}/>
+          <div className="pointer" onClick={this.submitTagHandler}>Submit</div>
+          {this.state.tagSuggestions.length ? 
+          <div className="tag-suggestions">
+          <p>Tag Suggestions</p>
+          <ul ref={this.tagSuggestionsEl}>
+          
+            {this.state.tagSuggestions.map((suggestion, idx) => {
+              return <li className="tag-suggestion" onClick={this.submitTagHandler} key={idx} data-suggestion={suggestion}>{suggestion}</li>
+            })}
+          </ul>
+          </div>
+          : ""}
+        </div>
+        
+        
+      </div>
         
       </form>
     )

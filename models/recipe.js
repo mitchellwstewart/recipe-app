@@ -45,7 +45,19 @@ const recipeSchema = new Schema({
     creator: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    tags: [
+      {
+        tag: {
+          type: String
+        },
+        ref: {
+          type: Schema.Types.ObjectId,
+          ref: 'Tag'
+      }
+      }
+      
+    ]
 });
 
 module.exports = mongoose.model('Recipe', recipeSchema);
