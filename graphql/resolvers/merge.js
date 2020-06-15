@@ -2,6 +2,7 @@ const Recipe = require ('../../models/recipe')
 const User = require ('../../models/user')
 const { dateToString } = require('../../helpers/date')
 const DataLoader = require('dataloader')
+const Tag = require('../../models/tag')
 
 const recipeLoader = new DataLoader(recipeIds => {
   return recipes(recipeIds)
@@ -19,6 +20,10 @@ const transformRecipe = recipe => {
         creator: user.bind(this, recipe._doc.creator)    
     };
 };
+
+const transformTag = tag => {
+  return tag
+}
 
 const transformSubscription = subscription => {
     return {
@@ -57,8 +62,11 @@ const recipes = async recipeIds => {
     catch (err) {throw err}
 }
 
+
+
 // exports.user = user;
 // exports.singleRecipe = singleRecipe;
 // exports.recipes = recipes;
 exports.transformRecipe = transformRecipe
+exports.transformTag = transformTag
 exports.transformSubscription = transformSubscription

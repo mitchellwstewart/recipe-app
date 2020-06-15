@@ -21,6 +21,7 @@ class ViewModal extends Component {
   }
 
   render() {
+    console.log('this.props.selected: ', this.props.selectedRecipe)
     const recipeName = this.props.selectedRecipe.recipeName
     const description = this.props.selectedRecipe.recipeDescription
     const ingredients = this.props.selectedRecipe.recipeIngredients
@@ -35,7 +36,14 @@ class ViewModal extends Component {
           <div className="f fdc">
             <h1>{recipeName}</h1>
             <p>Time: {estimateTime} {estimateTime > 1 ? " mins" : ' min'}</p>
+            <div className="tag-container">
+             <p className="fw6"> Tags: </p>
+              <div className="tag-list f">
+              {this.props.selectedRecipe.tags.map(tag => <div className="recipe-tag pr05" key={tag.tag}>{tag.tag}</div>)}
+              </div>
+            </div>
           </div>
+
           <section className="modal__header_actions f fdc jce p1">
             {this.props.canConfirm && <button className="btn" onClick={this.props.onConfirm}> {this.props.confirmText} </button>}
             {/* {this.props.canSubscribe &&
