@@ -33,6 +33,7 @@ const createRecipeMutation = `
           link
           imageLinks
           tags {
+            tag
             _id
           }
         }
@@ -52,7 +53,7 @@ const updateRecipeMutation = `
       $date: String!,
       $link: String,
       $imageLinks: [String!]
-      $tags:  [String!]
+      $tags:  [TagInput!]
       ) {
       updateRecipe(recipeId: $recipeId, recipeInput: { recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLinks: $imageLinks, tags: $tags
       }){
@@ -75,6 +76,7 @@ const updateRecipeMutation = `
         link
         imageLinks
         tags {
+          tag
           _id
         }
       }
