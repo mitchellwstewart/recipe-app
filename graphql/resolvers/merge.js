@@ -13,11 +13,12 @@ const userLoader = new DataLoader(userIds => {
 })
 
 const transformRecipe = recipe => {
+  console.log("recipe._doc: ", recipe._doc)
     return {
         ...recipe._doc,
         _id: recipe._doc._id.toString() ,
         date: dateToString(recipe._doc.date),
-        creator: user.bind(this, recipe._doc.creator)    
+        creator: user.bind(this, recipe._doc.creator),
     };
 };
 
