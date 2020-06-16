@@ -15,7 +15,6 @@ module.exports = {
     }
   },
   addTagToRecipe: async (args, req) => {
-    
       if(!req.isAuth) {
           throw new Error('Unauthenticated!')
       }

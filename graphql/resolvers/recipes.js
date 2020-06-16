@@ -63,6 +63,7 @@ module.exports = {
               });
             }
             await getTags(createdRecipe._id);
+            console.log("tags: ", tags)
             await Recipe.updateOne(
               {_id: createdRecipe._id},
               { $set: {
@@ -70,8 +71,8 @@ module.exports = {
                }}
            );
            const recipeWithTags =  await Recipe.findOne({_id: createdRecipe._id})
-             console.log("createdRecipe with tags: ", recipeWithTags)
-             return recipeWithTags
+             console.log("createdRecipe with tags: ", transformRecipe(recipeWithTags))
+             return transformRecipe(recipeWithTags)
         }
         catch(err) { 
           console.log('err: ', err)
@@ -98,6 +99,7 @@ module.exports = {
       catch(err) { throw err }
     },
     updateRecipe:  async (args, req) => {
+      
       if(!req.isAuth) {
         throw new Error ('Unauthenticated')
       }
@@ -114,7 +116,8 @@ module.exports = {
               date: new Date(args.recipeInput.date),
               link: args.recipeInput.link,
               imageLinks: args.recipeInput.imageLinks,
-              creator: req.userId
+              creator: req.userId,
+              tags: args.recipeInput.tags
            }}
        );
        const result =  await Recipe.findOne({_id: args.recipeId})
