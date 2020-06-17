@@ -7,7 +7,8 @@ module.exports = {
   tags: async (args, req) => {
     try {
       const tags = await Tag.find()
-      return tags.map(tag => transformTag(tag))
+      return tags
+//      return tags.map(tag => transformTag(tag))
     }
     catch (err) {
       console.log("Err: ", err)

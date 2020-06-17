@@ -89,8 +89,8 @@ class ViewModal extends Component {
                 ?
                 <div className="m1r">
                     <p>recipe images</p>
-                    {recipeImages.map(imageLink => {
-                      return (<img className="uploaded-image" src={imageLink} />)
+                    {recipeImages.map((imageLink, idx) => {
+                      return (<img key={idx} className="uploaded-image" src={imageLink} />)
                     })}
                   </div>  
                 : <div> NO IMAGE AVAILABLE</div>}

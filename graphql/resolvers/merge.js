@@ -2,7 +2,6 @@ const Recipe = require ('../../models/recipe')
 const User = require ('../../models/user')
 const { dateToString } = require('../../helpers/date')
 const DataLoader = require('dataloader')
-const Tag = require('../../models/tag')
 
 const recipeLoader = new DataLoader(recipeIds => {
   return recipes(recipeIds)
@@ -13,7 +12,6 @@ const userLoader = new DataLoader(userIds => {
 })
 
 const transformRecipe = recipe => {
-  console.log("recipe._doc: ", recipe._doc)
     return {
         ...recipe._doc,
         _id: recipe._doc._id.toString() ,
@@ -22,8 +20,13 @@ const transformRecipe = recipe => {
     };
 };
 
-const transformTag = tag => {
-  return tag
+const transformTag =  tag => {
+  const transformedTag = {
+    ...tag._doc,
+    _id: tag._doc._id.toString(),
+    recipesWithTag: () => recipeLoader.loadMany(tag._doc.recipesWithTag) 
+  }
+  return transformedTag
 }
 
 const transformSubscription = subscription => {
@@ -39,7 +42,8 @@ const transformSubscription = subscription => {
 const user = async userId => {
     try {
         const user = await userLoader.load(userId.toString())
-        return {...user._doc, _id: user.id, createdRecipes: () => recipeLoader.loadMany(user._doc.createdRecipes )}
+        const userObj = {...user._doc, _id: user.id, createdRecipes: () => recipeLoader.loadMany(user._doc.createdRecipes )}
+        return userObj
     }
     catch(err) {throw err}
 }
@@ -62,6 +66,7 @@ const recipes = async recipeIds => {
     }
     catch (err) {throw err}
 }
+
 
 
 
