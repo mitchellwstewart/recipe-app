@@ -190,7 +190,16 @@ class RecipesPage extends Component {
                       _id: this.context.userId,
                     }
                   })
-                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, selectedRecipe: {...resData.data.createRecipe,creator: {_id: this.context.userId}, allTags: updatedAllTags }}
+                  return {recipes: updatedRecipes, 
+                    recipesInSearch: updatedRecipes, 
+                    creating: false, 
+                    updating: false,
+                    selectedRecipe: {
+                      ...resData.data.createRecipe,
+                      creator: {_id: this.context.userId}, 
+                      allTags: updatedAllTags, 
+                    }
+                  }
                 })
                 this.searchBarEl.current.value = ""
               }
@@ -200,13 +209,17 @@ class RecipesPage extends Component {
                   const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
                   const previousAllTags = {}
                   prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
+                  console.log('allTags: ', previousAllTags)
                   const updatedAllTags = resData.data.updateRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
-                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false, allTags: updatedAllTags}
+                  console.log('newTags: ', updatedAllTags)
+                  console.log('updated: ', [...prevState.allTags, ...updatedAllTags])
+                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false, allTags: [...prevState.allTags, ...updatedAllTags], creating: false, updating: false}
                 })
+                console.log('this.state.allTags: ', this.state.allTags)
                 this.searchBarEl.current.value = ""
               } 
               
-            this.setState({creating: false, updating: false})   
+            
          }
          catch(err) {
            throw err
@@ -286,7 +299,7 @@ class RecipesPage extends Component {
         }
         return res.json()
       }).then(resData => {
-        
+        console.log("resData delete: ", resData)
         this.setState(prevState => {
           return {creating: false, selectedRecipe: null, recipes: prevState.recipes.filter(recipe => recipe._id !== resData.data.deleteRecipe._id)}
         })
@@ -332,7 +345,6 @@ class RecipesPage extends Component {
 
 
   handleTagSelection = e => {
-    console.log('this.state: ', this.state)
     if(e.target.dataset.clear) {
       this.setState({recipesInSearch: this.state.recipes})
     }
@@ -343,11 +355,8 @@ class RecipesPage extends Component {
         recipe.tags.forEach(tag => { if(tag.tag === e.target.innerText) recipeHasTag = true })
         if(recipeHasTag) return recipe
       })
-      console.log('recipesWithTag: ', recipesWithTag)
       this.setState({recipesInSearch: recipesWithTag})
     }
-    console.log('e.target.value: ', e.target.dataset.clear)
-    console.log('e.target.value: ', e.target.innerText)
   }
 
   fetchRecipes() {
@@ -500,7 +509,7 @@ class RecipesPage extends Component {
                 <ul className="tag-container f container--5 fw">
                  <li onClick={this.handleTagSelection} className="pr05 fw6" data-clear="clear">Clear</li> 
                   {this.state.allTags.map((tag, idx )=> {
-                    console.log(tag.tag, ': ', tag.recipesWithTag, "length: ", tag.recipesWithTag && tag.recipesWithTag.length)
+                    console.log("STATE ALL TAGS: ", this.state.allTags)
                     if(tag.recipesWithTag && tag.recipesWithTag.length > 0) {
                       return <li key={idx} className="pointer pr05" onClick={this.handleTagSelection}>{tag.tag}</li>
                     }

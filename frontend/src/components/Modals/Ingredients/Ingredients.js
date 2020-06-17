@@ -11,7 +11,6 @@ state = {
 
   yieldHandler = e => {
     const value = parseInt(e.target.value)
-    console.log('value')
     !Number.isNaN(value) && this.setState({ updatedYield: value })
   }
   render() {
