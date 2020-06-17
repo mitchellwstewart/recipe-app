@@ -74,12 +74,10 @@ class ViewModal extends Component {
 
           {/* Main Content */}
           <div className="modal__content_main f fdc">
-
             <ul className="modal__content_main_nav f jcs pl0">
               <li className={`modal__content_main_nav_item pointer mr1 fw5 ${this.state.viewing === "description" ? "active" : ""}`} id="description" onClick={this.viewHandler}>Description</li>
               <li className={`modal__content_main_nav_item pointer mr1 fw5 ${this.state.viewing === "steps" ? "active" : ""}`} id="steps" onClick={this.viewHandler}>Steps</li>
               <li className={`modal__content_main_nav_item pointer mr1 fw5 mobile-only ${this.state.viewing === "ingredients" ? "active" : ""}`} id="ingredients" onClick={this.viewHandler}>Ingredients</li>
-              
               {/* <li className={`modal__content_main_nav_item pointer mr1 fw5 ${this.state.viewing === "creator-notes" ? "active" : ""}`} id="creator-notes" onClick={this.viewHandler}>Creator Notes</li> */}
             </ul>
             {this.state.viewing === "description" && 

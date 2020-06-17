@@ -95,7 +95,7 @@ class InputForm extends Component  {
   }
 
   handleTagOnChange = (e) => {
-    console.log('this.props: ', this.props)
+    
     if(e.target.value.includes(" ")){
       this.props.newTagEl.current.value = this.props.newTagEl.current.value.replace(" ", '')
     } 
