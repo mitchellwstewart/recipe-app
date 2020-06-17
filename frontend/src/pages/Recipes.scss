@@ -1,11 +1,12 @@
 @import '../styles/lib/breakpoints';
+h1 {
+  text-align: left;
+  font-size: 2em;
+}
 .recipes-control {
   padding: 1rem;
   width: 90%;
   max-width: 1500px;
-  h1 {
-    text-align: left;
-  }
   @media(min-width: $break-mob){
     padding: 3rem;
     width: 80%;
@@ -13,9 +14,7 @@
     margin: 2rem auto 0;
   }
   margin: 4rem auto 0;
-  h1 {
-    font-size: 2em;
-  }
+  
 
   .search__container {
     #search {

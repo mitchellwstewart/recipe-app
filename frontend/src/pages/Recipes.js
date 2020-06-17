@@ -25,7 +25,7 @@ class RecipesPage extends Component {
     validationError: false,
     imageFile: null,
     imageUploadQueue: [],
-    allTags: {}
+    allTags: []
   }
 
   isActive = true
@@ -55,6 +55,7 @@ class RecipesPage extends Component {
 
   componentDidMount(){
     this.fetchRecipes()
+    console.log(this.context)
   }
 
   startCreateOrUpdateRecipeHandler = (args) => {
@@ -89,7 +90,6 @@ class RecipesPage extends Component {
       const tag = tagNode.querySelector('p').innerText
       return {tag: tag}
     })
-    console.log("tags: ", tags)
     const currentRecipeImages = this.uploadedImagesEl.current ? Array.from(this.uploadedImagesEl.current.children).map(uploadedImage => {return uploadedImage.src}) : []
     const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
@@ -171,6 +171,9 @@ class RecipesPage extends Component {
               if(this.state.creating) {
                 this.setState(prevState => {
                   const updatedRecipes = [...prevState.recipes]
+                  const previousAllTags = {}
+                  prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj)
+                  const updatedAllTags = resData.data.createRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
                   updatedRecipes.push({
                     _id: resData.data.createRecipe._id,
                     recipeName: resData.data.createRecipe.recipeName,
@@ -187,7 +190,7 @@ class RecipesPage extends Component {
                       _id: this.context.userId,
                     }
                   })
-                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, selectedRecipe: {...resData.data.createRecipe,creator: {_id: this.context.userId} }}
+                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, selectedRecipe: {...resData.data.createRecipe,creator: {_id: this.context.userId}, allTags: updatedAllTags }}
                 })
                 this.searchBarEl.current.value = ""
               }
@@ -195,7 +198,10 @@ class RecipesPage extends Component {
                 this.setState(prevState => {
                   const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
                   const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
-                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false}
+                  const previousAllTags = {}
+                  prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
+                  const updatedAllTags = resData.data.updateRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
+                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false, allTags: updatedAllTags}
                 })
                 this.searchBarEl.current.value = ""
               } 
@@ -323,6 +329,27 @@ class RecipesPage extends Component {
     })
   }
 
+
+
+  handleTagSelection = e => {
+    console.log('this.state: ', this.state)
+    if(e.target.dataset.clear) {
+      this.setState({recipesInSearch: this.state.recipes})
+    }
+    else {
+      
+      const recipesWithTag = this.state.recipes.filter(recipe => {
+        let recipeHasTag = false
+        recipe.tags.forEach(tag => { if(tag.tag === e.target.innerText) recipeHasTag = true })
+        if(recipeHasTag) return recipe
+      })
+      console.log('recipesWithTag: ', recipesWithTag)
+      this.setState({recipesInSearch: recipesWithTag})
+    }
+    console.log('e.target.value: ', e.target.dataset.clear)
+    console.log('e.target.value: ', e.target.innerText)
+  }
+
   fetchRecipes() {
     this.setState({isLoading: true})
     const requestBody = { query: fetchRecipesQuery }
@@ -355,10 +382,10 @@ class RecipesPage extends Component {
   }
 
 
-
   componentWillUnmount = () => {
     this.isActive = false
   }
+
 
 
   render() {
@@ -451,20 +478,39 @@ class RecipesPage extends Component {
           allTags={this.state.allTags}
           />
         </CreateAndUpdateModal>)}
-        <div className="recipes-control">
           <h1 className="ac caps">The Recipes Page</h1> 
-          {this.context.token && <button className="btn" onClick={this.startCreateOrUpdateRecipeHandler}>Create Recipe</button>}
-          <div className="search__container f fdc">
-            <label htmlFor="search">Search Recipes</label>
-            <div className="form-control">
-              <select className="search-by" ref={this.searchByEl} onChange={(e)=>this.setState({searchBy: e.target.value})} defaultValue="name">
-                <option value="name">Recipe Name</option>
-                <option value="user">User Email</option>
-              </select>
+        <div className="recipes-control f jcb container--5">
+          <div className="left-control">
+            {this.context.token && <button className="btn" onClick={this.startCreateOrUpdateRecipeHandler}>Create Recipe</button>}
+            <div className="search__container f fdc">
+              <label htmlFor="search">Search Recipes</label>
+              <div className="form-control">
+                <select className="search-by" ref={this.searchByEl} onChange={(e)=>this.setState({searchBy: e.target.value})} defaultValue="name">
+                  <option value="name">Recipe Name</option>
+                  <option value="user">User Email</option>
+                </select>
+              </div>
+              <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `Try "Thai" or "Shortbread"` : `Search by user email`} />
             </div>
-            <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `Try "Thai" or "Shortbread"` : `Search by user email`} />
+          </div>
+          <div className="right-control">
+          {this.state.allTags.length ?
+            <div className="filterByTag mr2">
+                <h4>Filter by Tags</h4>
+                <ul className="tag-container f container--5 fw">
+                 <li onClick={this.handleTagSelection} className="pr05 fw6" data-clear="clear">Clear</li> 
+                  {this.state.allTags.map((tag, idx )=> {
+                    console.log(tag.tag, ': ', tag.recipesWithTag, "length: ", tag.recipesWithTag && tag.recipesWithTag.length)
+                    if(tag.recipesWithTag && tag.recipesWithTag.length > 0) {
+                      return <li key={idx} className="pointer pr05" onClick={this.handleTagSelection}>{tag.tag}</li>
+                    }
+                  })}
+                </ul>
+            </div>
+          : ''}
           </div>
         </div>
+          
         {this.state.isLoading ? <Spinner /> : <RecipeList authUserId={this.context.userId} recipes={this.state.recipesInSearch} onViewDetail={this.showDetailHandler} />}
       
       </React.Fragment>
