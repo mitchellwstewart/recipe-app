@@ -34,6 +34,9 @@ const createRecipeMutation = `
           imageLinks
           tags {
             tag
+            recipesWithTag {
+              _id
+            }
             _id
           }
         }
@@ -77,6 +80,9 @@ const updateRecipeMutation = `
         imageLinks
         tags {
           tag
+          recipesWithTag {
+            _id
+          }
           _id
         }
       }
