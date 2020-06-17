@@ -106,7 +106,6 @@ const fetchRecipesQuery = `
         imageLinks
         tags {
           tag
-          ref
         }
         creator {
           _id
