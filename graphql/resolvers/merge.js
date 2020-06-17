@@ -16,9 +16,18 @@ const transformRecipe = recipe => {
         ...recipe._doc,
         _id: recipe._doc._id.toString() ,
         date: dateToString(recipe._doc.date),
-        creator: user.bind(this, recipe._doc.creator)    
+        creator: user.bind(this, recipe._doc.creator),
     };
 };
+
+const transformTag =  tag => {
+  const transformedTag = {
+    ...tag._doc,
+    _id: tag._doc._id.toString(),
+    recipesWithTag: () => recipeLoader.loadMany(tag._doc.recipesWithTag) 
+  }
+  return transformedTag
+}
 
 const transformSubscription = subscription => {
     return {
@@ -33,7 +42,8 @@ const transformSubscription = subscription => {
 const user = async userId => {
     try {
         const user = await userLoader.load(userId.toString())
-        return {...user._doc, _id: user.id, createdRecipes: () => recipeLoader.loadMany(user._doc.createdRecipes )}
+        const userObj = {...user._doc, _id: user.id, createdRecipes: () => recipeLoader.loadMany(user._doc.createdRecipes )}
+        return userObj
     }
     catch(err) {throw err}
 }
@@ -57,8 +67,12 @@ const recipes = async recipeIds => {
     catch (err) {throw err}
 }
 
+
+
+
 // exports.user = user;
 // exports.singleRecipe = singleRecipe;
 // exports.recipes = recipes;
 exports.transformRecipe = transformRecipe
+exports.transformTag = transformTag
 exports.transformSubscription = transformSubscription

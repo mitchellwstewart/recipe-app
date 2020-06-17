@@ -9,17 +9,24 @@ class InputForm extends Component  {
       openStepsDropdown: false,
       ingredientsAdded: [],
       stepsAdded: [],
+      tagsAdded: [],
       ingredientValidation: false,
-      showImageUploader: true
+      showImageUploader: true,
+      showTagAdder: false,
+      tagSuggestions: []
     }
+
+
+    this.tagSuggestionsEl = React.createRef();
   }
   componentDidMount = () => {
     this.props.recipeToUpdate && 
-    this.setState({
+     this.setState({
       ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
       stepsAdded: this.props.recipeToUpdate.recipeSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}),
       updatedYield: this.props.recipeToUpdate.yields,
-      showImageUploader: false
+      showImageUploader: false,
+      tagsAdded: this.props.recipeToUpdate.tags.map(tagObj => tagObj.tag )
     })
   }
 
@@ -83,6 +90,39 @@ class InputForm extends Component  {
     this.setState({showImageUploader: !this.state.showImageUploader})
   }
 
+  addTagHandler = () => {
+    this.setState({showTagAdder: !this.state.showTagAdder})
+  }
+
+  handleTagOnChange = (e) => {
+    console.log('this.props: ', this.props)
+    if(e.target.value.includes(" ")){
+      this.props.newTagEl.current.value = this.props.newTagEl.current.value.replace(" ", '')
+    } 
+    let currentInput = e.target.value
+    let recommendedTags = currentInput ? this.props.allTags.filter(tagObj => tagObj.tag.toLowerCase().includes(currentInput)).map(tagObj => tagObj.tag) : []
+    this.setState({tagSuggestions: recommendedTags})
+  }
+
+  submitTagHandler = (e) => {
+    let newTag = e.target.classList.contains('tag-suggestion') ? e.target.dataset.suggestion : this.props.newTagEl.current.value
+    this.setState(prevState => {
+      if(!prevState.tagsAdded.includes(newTag)) {
+        let updatedTags = [...prevState.tagsAdded, newTag]
+        return {tagsAdded: updatedTags, showTagAdder: false}
+      }
+      else {
+        alert ('Tag already exists on recipe')
+      }
+    })
+  }
+
+  removeTagHandler = (e) => {
+    const tagToRemove = e.target.dataset.value
+    this.setState(prevState => {
+      return{tagsAdded: prevState.tagsAdded.filter(tag => tag != tagToRemove)}
+    })
+  }
 
   render() {
     return (
@@ -120,7 +160,7 @@ class InputForm extends Component  {
             </div>
             <div className="form-control">
               <label htmlFor="ingredientUnit">Unit</label>
-              <select defaultValue="cup" id="ingredientUnit" size="1" ref={this.props.ingredientUnitEl} >
+              <select id="ingredientUnit" size="1" ref={this.props.ingredientUnitEl} defaultValue="cup">
                 <option value="cup">cup</option>
                 <option value="tbsp">tbsp</option>
                 <option value="tsp">tsp</option>
@@ -180,27 +220,68 @@ class InputForm extends Component  {
           <label htmlFor="recipeLink">Recipe Link</label>
           <input ref={this.props.linkEl} type="url" id="recipeLink" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.link : ""} />
         </div>
-        {this.state.showImageUploader
-        ? <React.Fragment>
+        <React.Fragment>
+        { this.props.recipeToUpdate &&
+        <div className="form-control">
+        <label>Images</label>
+        <div className="edit-image pointer"  onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'Close X' : 'Update Image'}</div>
+        <div className="recipe-images" ref={this.props.uploadedImagesEl}>
+           {this.props.recipeToUpdate.imageLinks && this.props.recipeToUpdate.imageLinks.map((imageLink)=>{
+             return  <img className="uploaded-image" ref={this.props.uploadedImageEl} src={imageLink}/>
+           })}
+        </div> 
+      </div> 
+
+        }
+         
+
+
+          { this.state.showImageUploader && 
           <div className="form-control">
             <label>Upload your image</label>
             <div className="edit-image pointer" onClick={this.openImageUpdater}>{this.state.showImageUploader ? this.props.recipeToUpdate && 'Close X' : 'Update Image'}</div>
             <input type="file" onChange={this.props.imageHandler}/>
-          </div>
-          {/* <div className="form-control">
-          <label htmlFor="imageUpload">Use Link Image (first image found)</label>
-          <input ref={this.props.useLinkImageEl} type="checkbox" id="useLinkImage" defaultChecked={this.props.useLinkImage ? true : false} />
-        </div>   */}
+            <div className="upload-queue" >
+              <p>Ready For Upload</p>
+              <div className="images-for-upload f fdc">
+                {this.props.imageUploadQueue.map(image => {
+                  return (<p className="p0 m0" >- {image.name}</p>)
+                })}
+              </div>
+            </div>
+          </div>     
+          }
       </React.Fragment>
-      : 
-      this.props.recipeToUpdate &&
-      <div className="form-control">
-        <label>Featured Image</label>
-        <div className="edit-image pointer" onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'Close X' : 'Update Image'}</div>
-        <img className="uploaded-image" ref={this.props.uploadedImageEl} src={this.props.recipeToUpdate.imageLink}/>
+      <div className="tag-container">
+        <p className="fw6"> Tags: </p>
+        <div className="tag-list f" ref={this.props.tagsEl}>
+        {this.state.tagsAdded.map(tag => {
+          return (<div className="recipe-tag mr05 f aic jcc bcbl" key={tag}>
+              <p className="pr025">{tag}</p>
+              <div className="remove-tag pointer" data-value={tag} onClick={this.removeTagHandler}>X</div>
+              </div>)
+        })}
+          
+        </div>
+        <div className="add-tag pointer" onClick={this.addTagHandler}>ADD TAG</div>
+        <div className={!this.state.showTagAdder ? 'hidden' : ''}>
+          <input type="text" ref={this.props.newTagEl} onChange={this.handleTagOnChange}/>
+          <div className="pointer" onClick={this.submitTagHandler}>Submit</div>
+          {this.state.tagSuggestions.length ? 
+          <div className="tag-suggestions">
+          <p>Tag Suggestions</p>
+          <ul ref={this.tagSuggestionsEl}>
+          
+            {this.state.tagSuggestions.map((suggestion, idx) => {
+              return <li className="tag-suggestion" onClick={this.submitTagHandler} key={idx} data-suggestion={suggestion}>{suggestion}</li>
+            })}
+          </ul>
+          </div>
+          : ""}
+        </div>
+        
+        
       </div>
-      }
-
         
       </form>
     )

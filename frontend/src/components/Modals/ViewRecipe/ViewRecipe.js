@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import { ReactTinyLink } from 'react-tiny-link'
 import '../Modals.scss'
+import '../../../styles/lib/_display.scss'
 import AuthContext from '../../../context/auth-context'
+import Ingredients from '../Ingredients/Ingredients'
 
 class ViewModal extends Component {
   state = {
     viewing: 'description',
-    updatedYield: this.props.selectedRecipe.yields,
     badLink: false
   }
   constructor(props) {
@@ -18,20 +19,16 @@ class ViewModal extends Component {
   viewHandler = (e) => {
     this.setState({ viewing: e.target.id })
   }
-  yieldHandler = e => {
-    const value = parseInt(e.target.value)
-    !Number.isNaN(value) && this.setState({ updatedYield: value })
-  }
 
   render() {
+    console.log('this.props.selected: ', this.props.selectedRecipe)
     const recipeName = this.props.selectedRecipe.recipeName
     const description = this.props.selectedRecipe.recipeDescription
     const ingredients = this.props.selectedRecipe.recipeIngredients
     const steps = this.props.selectedRecipe.recipeSteps
     const estimateTime = this.props.selectedRecipe.minutesEstimate
-    const dateAdded = new Date(this.props.selectedRecipe.date).toLocaleDateString()
     const recipeLink = this.props.selectedRecipe.link
-    const recipeImage = this.props.selectedRecipe.imageLink
+    const recipeImages = this.props.selectedRecipe.imageLinks
     return (
       <div className="modal z2">
         <nav className="modal__nav pointer bcbl p0 m0 f" onClick={this.props.onCancel}><p>{`<- Back To Recipes`}</p></nav>
@@ -39,15 +36,22 @@ class ViewModal extends Component {
           <div className="f fdc">
             <h1>{recipeName}</h1>
             <p>Time: {estimateTime} {estimateTime > 1 ? " mins" : ' min'}</p>
+            <div className="tag-container">
+             <p className="fw6"> Tags: </p>
+              <div className="tag-list f">
+              {this.props.selectedRecipe.tags.map(tag => <div className="recipe-tag pr05" key={tag.tag}>{tag.tag}</div>)}
+              </div>
+            </div>
           </div>
+
           <section className="modal__header_actions f fdc jce p1">
             {this.props.canConfirm && <button className="btn" onClick={this.props.onConfirm}> {this.props.confirmText} </button>}
-            {this.props.canSubscribe &&
+            {/* {this.props.canSubscribe &&
               <button className="btn"
                 onClick={this.props.onSubscribe}>
                 {this.props.subscribeText}
               </button>
-            }
+            } */}
             {this.props.canDelete && <button className="btn"
               onClick={this.props.onDelete}>
               {this.props.deleteText}
@@ -63,45 +67,33 @@ class ViewModal extends Component {
         </header>
         <section className="modal__content f">
           {/* Ingredients */}
-          <div className="modal__content_ingredients f fdc my1 mr2 ml1">
-            <header className="modal__content_ingredients_header fw5">
-              Ingredients
-            </header>
-            <ul className="modal__content_ingredients-list f fdc pl1">
-              <div className="yield-count f">
-                <p className="pr05 m0">Yields</p>
-              <input className="yield-count_amount" type="text" onChange={this.yieldHandler} defaultValue={this.state.updatedYield} />
-              </div>
-              {ingredients.map((ingredient, idx) => {
-                return (
-                  <li key={idx} className="ingredient-container f aic">
-                    <p className="ingredient-container_amount" >{parseFloat((ingredient.amount * this.state.updatedYield / this.props.selectedRecipe.yields).toFixed(2))} {ingredient.unit} - {ingredient.name}</p>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
+          <div className="desktop-only"> 
+          <header className="modal__content_ingredients_header fw5">Ingredients</header>
+            <Ingredients  ingredients = {ingredients} selectedRecipe={this.props.selectedRecipe}/>
+         </div>
 
           {/* Main Content */}
           <div className="modal__content_main f fdc">
+
             <ul className="modal__content_main_nav f jcs pl0">
               <li className={`modal__content_main_nav_item pointer mr1 fw5 ${this.state.viewing === "description" ? "active" : ""}`} id="description" onClick={this.viewHandler}>Description</li>
               <li className={`modal__content_main_nav_item pointer mr1 fw5 ${this.state.viewing === "steps" ? "active" : ""}`} id="steps" onClick={this.viewHandler}>Steps</li>
+              <li className={`modal__content_main_nav_item pointer mr1 fw5 mobile-only ${this.state.viewing === "ingredients" ? "active" : ""}`} id="ingredients" onClick={this.viewHandler}>Ingredients</li>
+              
               {/* <li className={`modal__content_main_nav_item pointer mr1 fw5 ${this.state.viewing === "creator-notes" ? "active" : ""}`} id="creator-notes" onClick={this.viewHandler}>Creator Notes</li> */}
             </ul>
             {this.state.viewing === "description" && 
             <div>
-                <p>
-                  {description}
-                </p>
-                {recipeImage
-                ? <div>
-                    <p>recipe image</p>
-                    <img className="uploaded-image" src={recipeImage} />
-                </div> 
+                <p>{description}</p>
+                {recipeImages && recipeImages.length
+                ?
+                <div className="m1r">
+                    <p>recipe images</p>
+                    {recipeImages.map((imageLink, idx) => {
+                      return (<img key={idx} className="uploaded-image" src={imageLink} />)
+                    })}
+                  </div>  
                 : <div> NO IMAGE AVAILABLE</div>}
-
-
                 {recipeLink && !this.state.badLink &&
                 // <a href={recipeLink} target="_blank">{`View Original Recipe`}</a>
                 <React.Fragment>
@@ -116,17 +108,20 @@ class ViewModal extends Component {
                       onError={() => this.setState({badLink: true})}
                     />
                   </div>
-                 
                 </React.Fragment>
-                
                 }
             </div>
             }
             {this.state.viewing === "steps" && (
-              steps.map(step => {
+              
+              <div className="steps-container m1r">
+                
+              {steps.map(step => {
                 return <p key={step.stepNumber}>{step.stepNumber}. {step.stepInstruction}</p>
-              })
-            )}
+              })}
+              </div>)
+            }
+            {this.state.viewing === "ingredients" && <div className="mobile-only"><Ingredients className="mobile-only" ingredients = {ingredients} selectedRecipe={this.props.selectedRecipe}/></div>}
             {/* {this.state.viewing === "creator-notes" && <p>{dateAdded}</p>} */}
           </div>
         </section>

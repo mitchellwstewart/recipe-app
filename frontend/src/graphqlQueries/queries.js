@@ -10,8 +10,9 @@ const createRecipeMutation = `
         $minutesEstimate: Float!,
         $date: String!,
         $link: String,
-        $imageLink: String) {
-        createRecipe(recipeInput: {recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields, minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLink: $imageLink 
+        $imageLinks: [String!],
+        $tags: [TagInput!]) {
+        createRecipe(recipeInput: {recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields, minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLinks: $imageLinks, tags: $tags
         }){
           _id
           recipeName
@@ -30,7 +31,11 @@ const createRecipeMutation = `
           minutesEstimate
           date
           link
-          imageLink
+          imageLinks
+          tags {
+            tag
+            _id
+          }
         }
       }
     `
@@ -47,8 +52,10 @@ const updateRecipeMutation = `
       $minutesEstimate: Float!,
       $date: String!,
       $link: String,
-      $imageLink: String) {
-      updateRecipe(recipeId: $recipeId, recipeInput: { recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLink: $imageLink
+      $imageLinks: [String!]
+      $tags:  [TagInput!]
+      ) {
+      updateRecipe(recipeId: $recipeId, recipeInput: { recipeName: $recipeName, recipeDescription: $recipeDescription, recipeIngredients: $recipeIngredients, recipeSteps: $recipeSteps, yields: $yields minutesEstimate: $minutesEstimate, date: $date, link: $link, imageLinks: $imageLinks, tags: $tags
       }){
         _id
         recipeName
@@ -67,7 +74,11 @@ const updateRecipeMutation = `
         minutesEstimate
         date
         link
-        imageLink
+        imageLinks
+        tags {
+          tag
+          _id
+        }
       }
     }
   `
@@ -92,13 +103,38 @@ const fetchRecipesQuery = `
         minutesEstimate
         date
         link
-        imageLink
+        imageLinks
+        tags {
+          tag
+        }
         creator {
           _id
           email
         }
       }
+      tags {
+        tag
+        _id
+        recipesWithTag {
+          _id
+        }
+      }
     }
+  
+  `
+
+  const addTagToRecipe = `
+  mutation AddTagToRecipe(
+    $tag: String!
+    ) {
+    addTagToRecipe(tag: $tag){
+      _id
+      tag
+      recipesWithTag {
+        _id
+      }
+    }
+  }
   `
 
 
