@@ -21,7 +21,7 @@ form {
 .btn {
   cursor: pointer;
   transition: all 0.25s;
-  background: white;
+  background: white!important;
   font: inherit;
   color: black;
   border: 1px solid black;
@@ -30,7 +30,7 @@ form {
   margin-right: 1rem;
   // box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.26);
   &:active, &:hover {
-    background: #53879e;
+    background: #53879e!important;
     color: white;
     font-weight: 600;
     border: 1px solid black;
