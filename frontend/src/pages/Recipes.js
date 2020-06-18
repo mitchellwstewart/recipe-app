@@ -1,5 +1,7 @@
 
 import React, { Component } from 'react';
+import Button from '@material-ui/core/Button';
+import ClearIcon from '@material-ui/icons/Clear';
 import './Recipes.scss';
 import ViewModal from '../components/Modals/ViewRecipe/ViewRecipe';
 import CreateAndUpdateModal from '../components/Modals/CreateAndUpdateRecipe/CreateAndUpdateRecipe';
@@ -25,7 +27,8 @@ class RecipesPage extends Component {
     validationError: false,
     imageFile: null,
     imageUploadQueue: [],
-    allTags: []
+    allTags: [],
+    filterOpen: false,
   }
 
   isActive = true
@@ -390,6 +393,10 @@ class RecipesPage extends Component {
       })
   }
 
+  handleFilterIcon = e => {
+    this.setState({filterOpen: !this.state.filterOpen})
+  }
+
 
   componentWillUnmount = () => {
     this.isActive = false
@@ -487,36 +494,46 @@ class RecipesPage extends Component {
           allTags={this.state.allTags}
           />
         </CreateAndUpdateModal>)}
-          <h1 className="ac caps">The Recipes Page</h1> 
-        <div className="recipes-control f jcb container--5">
-          <div className="left-control">
-            {this.context.token && <button className="btn" onClick={this.startCreateOrUpdateRecipeHandler}>Create Recipe</button>}
-            <div className="search__container f fdc">
-              <label htmlFor="search">Search Recipes</label>
-              <div className="form-control">
-                <select className="search-by" ref={this.searchByEl} onChange={(e)=>this.setState({searchBy: e.target.value})} defaultValue="name">
+          <h1 className="ac caps ls2 fw4">The Recipes Page</h1> 
+        <div className="recipes-control f fdc jcb container--5">
+          <div className="left-control f fdc">
+            {this.context.token && <Button className="btn mr05" variant="contained" color="" onClick={this.startCreateOrUpdateRecipeHandler}>Create Recipe</Button>}
+            <div className="f fdc">
+            <div className="search__container f fdc x">
+              {/* <label htmlFor="search">Search Recipes</label> */}
+              <div className="form-control f aic caps ls1 pt025 mb05">
+                <div class="search-by_label">Search By: </div>
+                <select className="search-by_select caps fw6 ls1" ref={this.searchByEl} onChange={(e)=>this.setState({searchBy: e.target.value})} defaultValue="name">
                   <option value="name">Recipe Name</option>
                   <option value="user">User Email</option>
                 </select>
               </div>
-              <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `Try "Thai" or "Shortbread"` : `Search by user email`} />
+        
             </div>
-          </div>
-          <div className="right-control">
-          {this.state.allTags.length ?
-            <div className="filterByTag mr2">
-                <h4>Filter by Tags</h4>
-                <ul className="tag-container f container--5 fw">
-                 <li onClick={this.handleTagSelection} className="pr05 fw6" data-clear="clear">Clear</li> 
+              <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `Search (Try "Thai" or "Shortbread")` : `Search by user email`} />
+            
+            {this.state.allTags.length ?
+            <div className="filterByTag mr2 mt05">
+                <div className="filter-title f aic pointer" onClick={this.handleFilterIcon }>
+                  <h4 className="pr025 caps ls1 fw6 mt025 mb0">filter by tags </h4>
+                  <div className={`plus-icon f ${this.state.filterOpen ? 'active' : ""}`} ><ClearIcon /></div>
+                </div>
+                
+                <ul className={`tag-container f container--5 fw p0 ${this.state.filterOpen ? 'active' : ''}`}>
                   {this.state.allTags.map((tag, idx )=> {
-                    console.log("STATE ALL TAGS: ", this.state.allTags)
                     if(tag.recipesWithTag && tag.recipesWithTag.length > 0) {
-                      return <li key={idx} className="pointer pr05" onClick={this.handleTagSelection}>{tag.tag}</li>
+                      return <li key={idx} className="pointer pr05 tag f jcc aic py025 px075 mr025 mb025" onClick={this.handleTagSelection}>{tag.tag}</li>
                     }
                   })}
+                  <li onClick={this.handleTagSelection} className="px05 fw6 pointer f jcc aic clear-tags" data-clear="clear"><p className="caps ">clear</p> <ClearIcon /></li> 
                 </ul>
             </div>
           : ''}
+            </div>
+    
+          </div>
+          <div className="right-control">
+          
           </div>
         </div>
           
