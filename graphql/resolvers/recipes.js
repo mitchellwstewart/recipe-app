@@ -113,7 +113,7 @@ module.exports = {
         await removeRecipeFromTag(recipeTags, args.recipeId)
         const creator = await User.findById(req.userId)
         if(!creator) { throw new Error ('USER NOT FOUND') }
-        creator.createdRecipes.filter(recipe => recipe != args.recipeId)
+        creator.createdRecipes = creator.createdRecipes.filter(recipe => recipe != args.recipeId)
         await creator.save()
         const result = await fetchedRecipe.delete()
         return result._id
