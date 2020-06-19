@@ -1,30 +1,24 @@
 @import '../styles/lib/breakpoints';
 h1 {
   text-align: left;
-  font-size: 2em;
+  font-size: 3em;
+  margin-top: 2em;
 }
 .recipes-control {
   padding: 1rem;
   width: 90%;
   max-width: 1500px;
   @media(min-width: $break-mob){
-    padding: 3rem;
     width: 80%;
     max-width: 1500px;
-    margin: 2rem auto 0;
+    margin: 1rem auto 0;
   }
   margin: 4rem auto 0;
   
   .left-control {
     // max-height: 30px;
     width: 50%;
-    .btn, .btn:hover { 
-      margin-right: 1em; 
-      width: 150px;
-      height: 100%;
-      border: 1px solid #7ca7b9;
-      margin-bottom: 0.25em;
-    }
+   
     .search__container {
       #search {
         width: 95%;
@@ -78,11 +72,11 @@ h1 {
           &:hover {
             // font-weight: 500;
            p {
-            color: black;
+            color: #4a4a4a;
            } 
            svg {
-             fill: black;
-             stroke: black;
+             fill: #4a4a4a;
+             stroke: #4a4a4a;
            }
           }
           p {
@@ -101,7 +95,7 @@ h1 {
           }
         }
         .tag {
-          border: 1px solid black;
+          border: 1px solid #4a4a4a;
           border-radius: 25px;
           transition: all 0.25s;
           background: #7ca7b9 !important;
@@ -118,7 +112,18 @@ h1 {
   }
   .right-control {
     width: 50%;
- 
+    .btn { 
+      margin-right: 1em; 
+      width: 150px;
+      height: 100%;
+      max-height: 30px;
+      color: white ;
+      border: 1px solid #7ca7b9;
+      margin-bottom: 0.25em;
+      &:hover {
+        color: #7ca7b9;
+      }
+    }
   }
 }
 

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { ReactTinyLink } from 'react-tiny-link'
+import ClearIcon from '@material-ui/icons/Clear';
 import '../Modals.scss'
 import '../../../styles/lib/_display.scss'
 import AuthContext from '../../../context/auth-context'
@@ -31,7 +32,7 @@ class ViewModal extends Component {
     const recipeImages = this.props.selectedRecipe.imageLinks
     return (
       <div className="modal z2">
-        <nav className="modal__nav pointer bcbl p0 m0 f" onClick={this.props.onCancel}><p>{`<- Back To Recipes`}</p></nav>
+        <nav className="modal__nav pointer bcbl p0 m0 f" onClick={this.props.onCancel}><div className="p05 f"><ClearIcon /></div></nav>
         <header className="modal__header f jcb">
           <div className="f fdc">
             <h1>{recipeName}</h1>
@@ -87,8 +88,8 @@ class ViewModal extends Component {
                 ?
                 <div className="m1r">
                     <p>recipe images</p>
-                    {recipeImages.map((imageLink, idx) => {
-                      return (<img key={idx} className="uploaded-image" src={imageLink} />)
+                    {recipeImages.map((image, idx) => {
+                      return (<img key={idx} className="uploaded-image" src={image.link} />)
                     })}
                   </div>  
                 : <div> NO IMAGE AVAILABLE</div>}

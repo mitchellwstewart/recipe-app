@@ -21,18 +21,17 @@ form {
 .btn {
   cursor: pointer;
   transition: all 0.25s;
-  background: white!important;
+  background: #7ca7b9!important;
   font: inherit;
-  color: black;
-  border: 1px solid black;
+  color: white!important;
+  border: 1px solid #628492!important;
   border-radius: 2px;
   padding: 0.25rem 1rem;
   margin-right: 1rem;
-  // box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.26);
+   box-shadow: none!important;
   &:active, &:hover {
-    background: #53879e!important;
-    color: white;
-    font-weight: 600;
-    border: 1px solid black;
+    background: white!important;
+    color: #7ca7b9!important;
+    border: 1px solid #7ca7b9!important;
   }
 }

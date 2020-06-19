@@ -1,3 +1,23 @@
 .uploaded-image {
-  max-width: 200px;
+  .image-container {
+    width: 200px;
+    height: 200px;
+  }
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.images-for-upload {
+  .clear-file {
+    padding-left: 0.25em;
+    svg {
+      position: relative;
+      top: 1px;
+      width: 15px;
+      height: 15px;
+    }
+    
+  }
 }
