@@ -14,7 +14,8 @@ class InputForm extends Component  {
       showImageUploader: true,
       showTagAdder: false,
       tagSuggestions: [],
-      featuredImage: null
+      featuredImage: null,
+      confirmDelete: false,
     }
 
 
@@ -138,6 +139,23 @@ class InputForm extends Component  {
     this.props.removeFromQueue(e)
   }
 
+  handleDeleteImage = e => {
+    console.log('handle delete: ', e.currentTarget.dataset.confirm)
+    let imageForDeletion = e.currentTarget
+    if(imageForDeletion.dataset.confirm) {
+      console.log('remove this image from images')
+      e.currentTarget.dataset.state = true
+    }
+    else {
+      imageForDeletion.dataset.confirm = true
+    }
+       
+        
+        
+      
+     
+  }
+
  
 
   render() {
@@ -241,20 +259,23 @@ class InputForm extends Component  {
         <div className="form-control">
         <label>Images</label>
         
-        <div className="recipe-images f" ref={this.props.uploadedImagesEl}>
+        <div className="recipe-images f edit" ref={this.props.uploadedImagesEl}>
            {this.props.recipeToUpdate.imageLinks && this.props.recipeToUpdate.imageLinks.map((imageLink, idx)=>{
-             this.state.featuredImage && console.log('featured: ', this.state.featuredImage._id)
-             console.log('imageLink :', imageLink)
-             return  (<div className="uploaded-image f fdc" data-featured={this.state.featuredImage === imageLink} key={idx}>
+             return  (<div className="uploaded-image f fdc aic rel" data-featured={this.state.featuredImage === imageLink} key={idx}>
+                        <div className="delete-image abs right" data-confirm={false} onClick={this.handleDeleteImage}>
+                          {this.state.confirmDelete ? <div className="confirm-delete">Confirm Delete</div> : <ClearIcon />}
+                        
+                        </div>
+                        
                         <div className="image-container f aic">
                           <img className="img" ref={this.props.uploadedImageEl} src={imageLink.link}/>
                         </div>
                         {this.state.featuredImage != imageLink 
-                        ? <div className="featured-image-control">
-                            <label htmlFor={imageLink} className="select-featured caps small sl2 underline">Set as featured photo</label>
-                            <input type="radio" name="upload-queue" value={imageLink._id} onChange={this.handleFeaturedImage} checked={this.state.featuredImage === imageLink.link ? true : false }/>
+                        ? <div className="featured-image-control f aic">
+                            <label htmlFor='featured-selection' className="select-featured caps small sl2">Set as featured</label>
+                            <input type="radio" name="featured-selection" value={imageLink._id} onChange={this.handleFeaturedImage} checked={this.state.featuredImage === imageLink.link ? true : false }/>
                           </div>
-                        : <div className="featured-label caps small sl2 underline">Featured Image</div>
+                        : <div className="featured-label caps small sl2 abs">Featured</div>
                         }
                     </div>)
            })}
