@@ -25,7 +25,7 @@ class MainNavigation extends Component{
     <header className="main-navigation x top left fix f jcc z1 rel">
       <div className={`main-navigation__inner f aic jcc x y jcb ${this.state.open ? "open" : ""} ${this.state.open ? "visible" : ""} `}>
         <div className="main-navigation__logo">
-          <h1 className="m0 caps italic">Recipals</h1>
+          <h1 className="m0 caps italic"> - Recipals - </h1>
         </div>
         <HamburgerMenu
           isOpen={this.state.open}
@@ -46,7 +46,7 @@ class MainNavigation extends Component{
           {
           this.context.token && 
           <React.Fragment>
-            <li><NavLink to="/subscriptions">Subscriptions</NavLink></li>
+            {/* <li><NavLink to="/subscriptions">Subscriptions</NavLink></li> */}
             <li>
               <div className="pointer account-welcome " >
                 <div className="f jcc aic ">

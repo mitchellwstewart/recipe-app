@@ -9,7 +9,7 @@ const recipeList = props => {
     key={recipe._id}
     recipeId={recipe._id} 
     recipeName={recipe.recipeName}
-    recipeImage = {recipe.imageLinks[0]}
+    recipeImage = {recipe.imageLinks.find(image => image.featured)}
     creator = {recipe.creator}
     minutesEstimate = {recipe.minutesEstimate}
     date = {recipe.date}
@@ -17,7 +17,7 @@ const recipeList = props => {
     />
   })
   return (
-  <ul className="recipe__list f jcs fw">
+  <ul className="recipe__list f jcb fw">
   {recipes}
   </ul>
   )

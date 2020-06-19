@@ -25,7 +25,7 @@ class RecipesPage extends Component {
     selectedRecipe: null,
     recipeToUpdate: null,
     validationError: false,
-    imageFile: null,
+    featuredImage: null,
     imageUploadQueue: [],
     allTags: [],
     filterOpen: false,
@@ -75,6 +75,7 @@ class RecipesPage extends Component {
 
   modalConfirmHandler = async () => {
     console.log('context: ', this.context)
+    console.log('this.uploadedImagesEl.current: ', this.uploadedImagesEl.current)
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
     const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
@@ -93,38 +94,48 @@ class RecipesPage extends Component {
       const tag = tagNode.querySelector('p').innerText
       return {tag: tag}
     })
-    const currentRecipeImages = this.uploadedImagesEl.current ? Array.from(this.uploadedImagesEl.current.children).map(uploadedImage => {return uploadedImage.src}) : []
+    const currentRecipeImages = this.uploadedImagesEl.current ? Array.from(this.uploadedImagesEl.current.children).map(uploadedImage => {      
+      let imageSrc = uploadedImage.querySelector('img').src
+      console.log('uploadedImage: ', uploadedImage.dataset.featured)
+      let featured = uploadedImage.dataset.featured === "true" ? true : false
+      console.log('currentImage obj: ', {link: imageSrc, featured: featured})
+      return {link: imageSrc, featured: featured}
+    }) : []
     const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
     const recipeImagesQueue = this.state.imageUploadQueue
 
     let newImageLinks = [];
-         try {
-           if(recipeImagesQueue.length) {
-            const imageUploaders = await recipeImagesQueue.map(image => {
-              const formData = new FormData();
-              formData.append('file', image)
-              formData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
-              return axios({
-                url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
-                method: "POST",
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: formData
-              }).then(res => {
-                if(res.status !== 200 && res.status !== 201) {
-                  throw new Error('Failed!')
-                }
-                newImageLinks.push(res.data.secure_url)
-              })
-            })
-            await axios.all(imageUploaders).then((res)=>{
-              this.setState({imageUploadQueue: []})
-            })
-           }
-         if(
+          try {
+          if(recipeImagesQueue.length) {
+           const imageUploaders = await recipeImagesQueue.map(image => {
+             const formData = new FormData();
+             formData.append('file', image)
+             formData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
+             return axios({
+               url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
+               method: "POST",
+               headers: {
+                 'Content-Type': 'application/x-www-form-urlencoded'
+               },
+               data: formData
+             }).then(res => {
+               if(res.status !== 200 && res.status !== 201) {
+                 throw new Error('Failed!')
+               }
+                 
+               !currentRecipeImages.length && !newImageLinks.length  //this is the first image, set as featured
+                ? newImageLinks.push({link: res.data.secure_url, featured: true})
+                : newImageLinks.push({link: res.data.secure_url, featured: false})
+             })
+           })
+           await axios.all(imageUploaders).then((res)=>{
+             this.setState({imageUploadQueue: []})
+           })
+          }
+         if(link.trim().length > 0 && recipeName.trim().length > 0) { this.setState({validationError: false}) }
+         else if(
            recipeName.trim().length === 0 ||
            recipeIngredients.length === 0 ||
            recipeSteps.length === 0 ||
@@ -138,95 +149,96 @@ class RecipesPage extends Component {
            return;
          }
          
-          const recipeId = this.state.updating ? this.state.recipeToUpdate._id : null
-          const defaultVariables = {
-            recipeName: recipeName,
-            recipeDescription: recipeDescription,
-            recipeIngredients: recipeIngredients,
-            recipeSteps: recipeSteps,
-            yields: yields,
-            minutesEstimate: minutesEstimate,
-            date: new Date().toISOString(),
-            link: link,
-            imageLinks: newImageLinks.length ? [...currentRecipeImages, ...newImageLinks] : currentRecipeImages,
-            tags: tags,
-          }
+         const recipeId = this.state.updating ? this.state.recipeToUpdate._id : null
+         const defaultVariables = {
+           recipeName: recipeName,
+           recipeDescription: recipeDescription,
+           recipeIngredients: recipeIngredients,
+           recipeSteps: recipeSteps,
+           yields: yields,
+           minutesEstimate: minutesEstimate,
+           date: new Date().toISOString(),
+           link: link,
+           imageLinks: newImageLinks.length ? [...currentRecipeImages, ...newImageLinks] : currentRecipeImages,
+           tags: tags,
+         }
 
-          const updatedVariables = recipeId ? {...defaultVariables, recipeId} : defaultVariables
-           const requestBody = {
-             query: this.state.updating ? updateRecipeMutation : createRecipeMutation,
-             variables: updatedVariables
-           };
-          const token = this.context.token;
-          const mongoRes = await fetch('http://localhost:3001/graphql', {
-               method: 'POST',
-               body: JSON.stringify(requestBody),
-               headers: {
-                 'Content-Type': 'application/json',
-                 'Authorization': 'Bearer ' + token
-               }
-             })
-               if(mongoRes.status !== 200 && mongoRes.status !== 201) {
-                 throw new Error('Failed!')
-               }
-              const resData =  await mongoRes.json()
-              console.log("resData from create/update: ", resData)
-              if(this.state.creating) {
-                this.setState(prevState => {
-                  const updatedRecipes = [...prevState.recipes]
-                  const previousAllTags = {}
-                  prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj)
-                  const updatedAllTags = resData.data.createRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
-                  updatedRecipes.push({
-                    _id: resData.data.createRecipe._id,
-                    recipeName: resData.data.createRecipe.recipeName,
-                    recipeDescription: resData.data.createRecipe.recipeDescription,
-                    recipeIngredients: resData.data.createRecipe.recipeIngredients,
-                    recipeSteps: resData.data.createRecipe.recipeSteps,
-                    yields: resData.data.createRecipe.yields,
-                    minutesEstimate: resData.data.createRecipe.minutesEstimate,
-                    date: resData.data.createRecipe.date,
-                    link: resData.data.createRecipe.link,
-                    imageLinks: resData.data.createRecipe.imageLinks,
-                    tags: resData.data.createRecipe.tags,
-                    creator: {
-                      _id: this.context.userId,
-                    }
-                  })
-                  return {recipes: updatedRecipes, 
-                    recipesInSearch: updatedRecipes, 
-                    creating: false, 
-                    updating: false,
-                    selectedRecipe: {
-                      ...resData.data.createRecipe,
-                      creator: {_id: this.context.userId}, 
-                      allTags: updatedAllTags, 
-                    }
-                  }
-                })
-                this.searchBarEl.current.value = ""
+         const updatedVariables = recipeId ? {...defaultVariables, recipeId} : defaultVariables
+          const requestBody = {
+            query: this.state.updating ? updateRecipeMutation : createRecipeMutation,
+            variables: updatedVariables
+          };
+         const token = this.context.token;
+         console.log('REQUEST BODY: ', requestBody)
+         const mongoRes = await fetch('http://localhost:3001/graphql', {
+              method: 'POST',
+              body: JSON.stringify(requestBody),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
               }
-              else if (this.state.updating) {
-                this.setState(prevState => {
-                  const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
-                  const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
-                  const previousAllTags = {}
-                  prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
-                  console.log('allTags: ', previousAllTags)
-                  const updatedAllTags = resData.data.updateRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
-                  console.log('newTags: ', updatedAllTags)
-                  console.log('updated: ', [...prevState.allTags, ...updatedAllTags])
-                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false, allTags: [...prevState.allTags, ...updatedAllTags], creating: false, updating: false}
-                })
-                console.log('this.state.allTags: ', this.state.allTags)
-                this.searchBarEl.current.value = ""
-              } 
+            })
+              if(mongoRes.status !== 200 && mongoRes.status !== 201) {
+                throw new Error('Failed!')
+              }
+             const resData =  await mongoRes.json()
+             console.log("resData from create/update: ", resData)
+             if(this.state.creating) {
+               this.setState(prevState => {
+                 const updatedRecipes = [...prevState.recipes]
+                 const previousAllTags = {}
+                 prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj)
+                 const updatedAllTags = resData.data.createRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
+                 updatedRecipes.push({
+                   _id: resData.data.createRecipe._id,
+                   recipeName: resData.data.createRecipe.recipeName,
+                   recipeDescription: resData.data.createRecipe.recipeDescription,
+                   recipeIngredients: resData.data.createRecipe.recipeIngredients,
+                   recipeSteps: resData.data.createRecipe.recipeSteps,
+                   yields: resData.data.createRecipe.yields,
+                   minutesEstimate: resData.data.createRecipe.minutesEstimate,
+                   date: resData.data.createRecipe.date,
+                   link: resData.data.createRecipe.link,
+                   imageLinks: resData.data.createRecipe.imageLinks,
+                   tags: resData.data.createRecipe.tags,
+                   creator: {
+                     _id: this.context.userId,
+                   }
+                 })
+                 return {recipes: updatedRecipes, 
+                   recipesInSearch: updatedRecipes, 
+                   creating: false, 
+                   updating: false,
+                   selectedRecipe: {
+                     ...resData.data.createRecipe,
+                     creator: {_id: this.context.userId}, 
+                     allTags: updatedAllTags, 
+                   }
+                 }
+               })
+               this.searchBarEl.current.value = ""
+             }
+             else if (this.state.updating) {
+               this.setState(prevState => {
+                 const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
+                 const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
+                 const previousAllTags = {}
+                 prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
+                 console.log('allTags: ', previousAllTags)
+                 const updatedAllTags = resData.data.updateRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
+                 console.log('newTags: ', updatedAllTags)
+                 console.log('updated: ', [...prevState.allTags, ...updatedAllTags])
+                 return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false, allTags: [...prevState.allTags, ...updatedAllTags], creating: false, updating: false}
+               })
+               console.log('this.state.allTags: ', this.state.allTags)
+               this.searchBarEl.current.value = ""
+             } 
               
             
-         }
-         catch(err) {
-           throw err
-         }
+          }
+          catch(err) {
+            throw err
+          }
      
   }
 
@@ -304,7 +316,11 @@ class RecipesPage extends Component {
       }).then(resData => {
         console.log("resData delete: ", resData)
         this.setState(prevState => {
-          return {creating: false, selectedRecipe: null, recipes: prevState.recipes.filter(recipe => recipe._id !== resData.data.deleteRecipe._id)}
+          return {  
+                    creating: false,
+                    selectedRecipe: null,
+                    recipes: prevState.recipes.filter(recipe => recipe._id !== resData.data.deleteRecipe._id)
+                }
         })
 
         this.setState({recipesInSearch: this.state.recipes})
@@ -331,6 +347,14 @@ class RecipesPage extends Component {
     })
   }
 
+  removeImageFromQueue = e => {
+    let imageToRemove = e.currentTarget.dataset.image
+    this.setState(prevState => {
+      let newImageQueue = prevState.imageUploadQueue.filter(image => image.name != imageToRemove )
+      return {imageUploadQueue: newImageQueue}
+    })
+  }
+
   handleSearch = e => {
     let currentSearch = e.target.value
     this.setState(prevState => {
@@ -348,7 +372,7 @@ class RecipesPage extends Component {
 
 
   handleTagSelection = e => {
-    if(e.target.dataset.clear) {
+    if(e.currentTarget.dataset.clear) {
       this.setState({recipesInSearch: this.state.recipes})
     }
     else {
@@ -436,6 +460,7 @@ class RecipesPage extends Component {
           imageEl = {this.imageEl}
           imageUploadQueue = {this.state.imageUploadQueue}
           imageHandler = {this.imageUploadHandler}
+          removeFromQueue = {this.removeImageFromQueue}
           tagsEl = {this.tagsEl}
           newTagEl = {this.newTagEl}
           allTags={this.state.allTags}
@@ -486,6 +511,7 @@ class RecipesPage extends Component {
           ingredientNameEl={this.ingredientNameEl}
           imageHandler = {this.imageUploadHandler}
           imageEl = {this.imageEl}
+          removeFromQueue = {this.removeImageFromQueue}
           uploadedImagesEl = {this.uploadedImagesEl}
           imageUploadQueue = {this.state.imageUploadQueue}
           tagsEl = {this.tagsEl}
@@ -494,26 +520,23 @@ class RecipesPage extends Component {
           allTags={this.state.allTags}
           />
         </CreateAndUpdateModal>)}
-          <h1 className="ac caps ls2 fw4">The Recipes Page</h1> 
-        <div className="recipes-control f fdc jcb container--5">
-          <div className="left-control f fdc">
-            {this.context.token && <Button className="btn mr05" variant="contained" color="" onClick={this.startCreateOrUpdateRecipeHandler}>Create Recipe</Button>}
+          <h1 className="ac  fw5 suiz  fw7 italic">All Recipes</h1> 
+        <div className="recipes-control f jcb container--5">
+          <div className="left-control f fdc ">
             <div className="f fdc">
-            <div className="search__container f fdc x">
-              {/* <label htmlFor="search">Search Recipes</label> */}
-              <div className="form-control f aic caps ls1 pt025 mb05">
-                <div class="search-by_label">Search By: </div>
-                <select className="search-by_select caps fw6 ls1" ref={this.searchByEl} onChange={(e)=>this.setState({searchBy: e.target.value})} defaultValue="name">
-                  <option value="name">Recipe Name</option>
-                  <option value="user">User Email</option>
-                </select>
+              <div className="search__container f fdc x">
+                {/* <label htmlFor="search">Search Recipes</label> */}
+                <div className="form-control f aic caps ls1 pt025 mb05">
+                  <div className="search-by_label">Search By: </div>
+                  <select className="search-by_select caps fw6 ls1" ref={this.searchByEl} onChange={(e)=>this.setState({searchBy: e.target.value})} defaultValue="name">
+                    <option value="name">Recipe Name</option>
+                    <option value="user">User Email</option>
+                  </select>
+                </div>
               </div>
-        
-            </div>
               <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `Search (Try "Thai" or "Shortbread")` : `Search by user email`} />
-            
-            {this.state.allTags.length ?
-            <div className="filterByTag mr2 mt05">
+              {this.state.allTags.length ?
+              <div className="filterByTag mr2 mt05">
                 <div className="filter-title f aic pointer" onClick={this.handleFilterIcon }>
                   <h4 className="pr025 caps ls1 fw6 mt025 mb0">filter by tags </h4>
                   <div className={`plus-icon f ${this.state.filterOpen ? 'active' : ""}`} ><ClearIcon /></div>
@@ -527,13 +550,13 @@ class RecipesPage extends Component {
                   })}
                   <li onClick={this.handleTagSelection} className="px05 fw6 pointer f jcc aic clear-tags" data-clear="clear"><p className="caps ">clear</p> <ClearIcon /></li> 
                 </ul>
+              </div>
+              : ''}
             </div>
-          : ''}
-            </div>
-    
+            
           </div>
-          <div className="right-control">
-          
+          <div className="right-control f jce aie">
+          {this.context.token && <Button className="btn mr05" variant="contained" onClick={this.startCreateOrUpdateRecipeHandler}>Create Recipe</Button>}
           </div>
         </div>
           

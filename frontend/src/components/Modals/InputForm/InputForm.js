@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import Dropzone from 'react-dropzone';
+import ClearIcon from '@material-ui/icons/Clear';
 import './InputForm.scss'
 class InputForm extends Component  {
   constructor(props) {
@@ -13,21 +13,25 @@ class InputForm extends Component  {
       ingredientValidation: false,
       showImageUploader: true,
       showTagAdder: false,
-      tagSuggestions: []
+      tagSuggestions: [],
+      featuredImage: null
     }
 
 
     this.tagSuggestionsEl = React.createRef();
+    this.imageFileInputEl = React.createRef();
   }
-  componentDidMount = () => {
-    this.props.recipeToUpdate && 
-     this.setState({
-      ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
-      stepsAdded: this.props.recipeToUpdate.recipeSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}),
-      updatedYield: this.props.recipeToUpdate.yields,
-      showImageUploader: false,
-      tagsAdded: this.props.recipeToUpdate.tags.map(tagObj => tagObj.tag )
-    })
+  componentDidMount = async () => {
+    if(this.props.recipeToUpdate) {
+      await this.setState({
+       ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
+       stepsAdded: this.props.recipeToUpdate.recipeSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}),
+       updatedYield: this.props.recipeToUpdate.yields,
+       showImageUploader: false,
+       tagsAdded: this.props.recipeToUpdate.tags.map(tagObj => tagObj.tag ),
+       featuredImage: this.props.recipeToUpdate.imageLinks.find(image => image.featured === true)
+     })
+    } 
   }
 
 
@@ -123,6 +127,18 @@ class InputForm extends Component  {
       return{tagsAdded: prevState.tagsAdded.filter(tag => tag != tagToRemove)}
     })
   }
+
+  handleFeaturedImage = (e) => {
+    let selectedImageObj = this.props.recipeToUpdate.imageLinks.find(image => image._id === e.target.value)
+    this.setState({featuredImage: selectedImageObj})
+  }
+
+  removeFromQueue = e => {
+    this.imageFileInputEl.current.value = ''
+    this.props.removeFromQueue(e)
+  }
+
+ 
 
   render() {
     return (
@@ -224,10 +240,23 @@ class InputForm extends Component  {
         { this.props.recipeToUpdate &&
         <div className="form-control">
         <label>Images</label>
-        <div className="edit-image pointer"  onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'Close X' : 'Update Image'}</div>
-        <div className="recipe-images" ref={this.props.uploadedImagesEl}>
-           {this.props.recipeToUpdate.imageLinks && this.props.recipeToUpdate.imageLinks.map((imageLink)=>{
-             return  <img className="uploaded-image" ref={this.props.uploadedImageEl} src={imageLink}/>
+        
+        <div className="recipe-images f" ref={this.props.uploadedImagesEl}>
+           {this.props.recipeToUpdate.imageLinks && this.props.recipeToUpdate.imageLinks.map((imageLink, idx)=>{
+             this.state.featuredImage && console.log('featured: ', this.state.featuredImage._id)
+             console.log('imageLink :', imageLink)
+             return  (<div className="uploaded-image f fdc" data-featured={this.state.featuredImage === imageLink} key={idx}>
+                        <div className="image-container f aic">
+                          <img className="img" ref={this.props.uploadedImageEl} src={imageLink.link}/>
+                        </div>
+                        {this.state.featuredImage != imageLink 
+                        ? <div className="featured-image-control">
+                            <label htmlFor={imageLink} className="select-featured caps small sl2 underline">Set as featured photo</label>
+                            <input type="radio" name="upload-queue" value={imageLink._id} onChange={this.handleFeaturedImage} checked={this.state.featuredImage === imageLink.link ? true : false }/>
+                          </div>
+                        : <div className="featured-label caps small sl2 underline">Featured Image</div>
+                        }
+                    </div>)
            })}
         </div> 
       </div> 
@@ -235,20 +264,21 @@ class InputForm extends Component  {
         }
          
 
-
+         <div className="edit-image pointer"  onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'Close X' : 'Upload Image'}</div>
           { this.state.showImageUploader && 
+          
           <div className="form-control">
-            <label>Upload your image</label>
-            <div className="edit-image pointer" onClick={this.openImageUpdater}>{this.state.showImageUploader ? this.props.recipeToUpdate && 'Close X' : 'Update Image'}</div>
-            <input type="file" onChange={this.props.imageHandler}/>
+            <input type="file" ref={this.imageFileInputEl} onChange={this.props.imageHandler}/>
+            {this.props.imageUploadQueue.length > 0 && 
             <div className="upload-queue" >
               <p>Ready For Upload</p>
               <div className="images-for-upload f fdc">
                 {this.props.imageUploadQueue.map(image => {
-                  return (<p className="p0 m0" >- {image.name}</p>)
+                  return (<div className="p0 m0 f" key={image.name}>- {image.name} <div className="clear-file f aic pointer" data-image={image.name} onClick={this.removeFromQueue}><ClearIcon /></div></div>)
                 })}
               </div>
             </div>
+            }
           </div>     
           }
       </React.Fragment>

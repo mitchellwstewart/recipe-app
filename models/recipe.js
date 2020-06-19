@@ -32,8 +32,7 @@ const recipeSchema = new Schema({
       }
     }],
     yields: {
-      type: Number,
-      required: true
+      type: Number
     },
     minutesEstimate: Number,
     date: {
@@ -41,7 +40,16 @@ const recipeSchema = new Schema({
         required: true
     },
     link: String,
-    imageLinks: [String],
+    imageLinks: [{
+      link:  {
+        type: String,
+        required: true
+      }, 
+      featured: {
+        type: Boolean,
+        default: false
+      } 
+    }],
     creator: {
         type: Schema.Types.ObjectId,
         ref: 'User'

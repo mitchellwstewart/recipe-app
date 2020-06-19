@@ -31,7 +31,7 @@ type Recipe {
     minutesEstimate: Float!
     date: String!
     link: String
-    imageLinks: [String!]
+    imageLinks: [ImageLink!]
     tags: [Tag!]
     creator: User!
 }
@@ -41,6 +41,12 @@ type Ingredient {
   name: String!
   amount: Float!
   unit: String
+}
+
+type ImageLink {
+  _id: ID
+  link: String!
+  featured: Boolean!
 }
 
 type Tag {
@@ -70,11 +76,11 @@ input RecipeInput {
     recipeDescription: String
     recipeIngredients: [IngredientInput!]
     recipeSteps: [StepInput!]
-    yields: Float!
-    minutesEstimate: Float!
+    yields: Float
+    minutesEstimate: Float
     date: String!
     link: String
-    imageLinks: [String!]
+    imageLinks: [ImageLinkInput!]
     tags: [TagInput!]
 }
 
@@ -82,6 +88,11 @@ input IngredientInput{
   name: String!
   amount: Float!
   unit: String
+}
+
+input ImageLinkInput {
+  link: String!
+  featured: Boolean!
 }
 
 input StepInput {

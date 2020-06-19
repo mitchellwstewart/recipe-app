@@ -1,3 +1,7 @@
+
+h1, h2, h3, h4, h5, p {
+  color: #4a4a4a
+}
 .ls05{
   letter-spacing: 0.5px;
 }
@@ -53,15 +57,15 @@
 }
 
 .underline {
-  border-bottom: 1px solid #4a4a4a;
+  border-bottom: 0.075em solid #4a4a4a;
   width: fit-content;
 }
 
 
-.avenir {
-  font-family: "Avenir Next", sans-serif;
+.suiz {
+  font-family: "Suiz One", serif;
 }
 
-.bask {
-  font-family: "Monotype Baskerville",serif;
+.robo {
+  font-family: "roboto", sans-serif;
 }
