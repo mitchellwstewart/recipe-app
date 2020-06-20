@@ -62,12 +62,20 @@ class RecipesPage extends Component {
   }
 
   startCreateOrUpdateRecipeHandler = async (args) => {
+    console.log('create or update modal')
     args === 'update'
       ? await this.setState(prevState => {
         return {updating: true, recipeToUpdate: prevState.selectedRecipe}
       })
     : await this.setState({creating: true})
-    console.log('this.state: ', this.state)
+  }
+
+  showDetailHandler = recipeId => {
+    console.log('view modal')
+    this.setState(prevState => {
+      const selectedRecipe = prevState.recipes.find(recipe => recipe._id === recipeId)
+      return { selectedRecipe: selectedRecipe }
+    })
   }
 
   modalCancelHandler = (args) => {
@@ -323,6 +331,7 @@ class RecipesPage extends Component {
                     recipes: prevState.recipes.filter(recipe => recipe._id !== resData.data.deleteRecipe._id)
                 }
         })
+ 
 
         this.setState({recipesInSearch: this.state.recipes})
         this.searchBarEl.current.value = ""
@@ -332,13 +341,6 @@ class RecipesPage extends Component {
       })
   }
 
-
-  showDetailHandler = recipeId => {
-    this.setState(prevState => {
-      const selectedRecipe = prevState.recipes.find(recipe => recipe._id === recipeId)
-      return { selectedRecipe: selectedRecipe }
-    })
-  }
 
   imageUploadHandler = e => {
     const imageForUpload = e.target.files[0]

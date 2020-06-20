@@ -8,16 +8,25 @@ h1 {
   padding: 1rem;
   width: 90%;
   max-width: 1500px;
+  flex-direction: column;
+  margin: 0 auto;
   @media(min-width: $break-mob){
+    flex-direction: row;
     width: 80%;
     max-width: 1500px;
     margin: 1rem auto 0;
+    .left-control, .right-control {
+      width: 50%;
+    }
+    .right-control {
+      justify-content: flex-end;
+    }
   }
-  margin: 4rem auto 0;
+  
   
   .left-control {
     // max-height: 30px;
-    width: 50%;
+    width: 100%;
    
     .search__container {
       #search {
@@ -42,6 +51,8 @@ h1 {
       }
     }
     .filterByTag {
+      margin-bottom: 1em;
+      @media(min-width: $break-mob) {margin-bottom: 0;}
       .filter-title {
         h4 {
           font-size: 10px;
@@ -111,7 +122,8 @@ h1 {
     }
   }
   .right-control {
-    width: 50%;
+    width: 100%;
+    justify-content: flex-start;
     .btn { 
       margin-right: 1em; 
       width: 150px;
