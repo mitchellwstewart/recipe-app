@@ -125,7 +125,7 @@ class InputForm extends Component  {
   removeTagHandler = (e) => {
     const tagToRemove = e.target.dataset.value
     this.setState(prevState => {
-      return{tagsAdded: prevState.tagsAdded.filter(tag => tag != tagToRemove)}
+      return{tagsAdded: prevState.tagsAdded.filter(tag => tag !== tagToRemove)}
     })
   }
 
@@ -149,30 +149,43 @@ class InputForm extends Component  {
     else {
       imageForDeletion.dataset.confirm = true
     }
-       
-        
-        
-      
-     
   }
 
  
 
   render() {
+    this.props.recipeToUpdate && console.log('recipeToUpdate: ', this.props.recipeToUpdate)
     return (
-      <form encType="multipart/form-data">
-        <div className="form-control">
+      <form encType="multipart/form-data" className={`recipe-form ${this.props.recipeToUpdate ? 'update-recipe' : 'create-recipe'}`}>
+
+      {this.props.recipeToUpdate && 
+        <header className="modal__header main f jcb ">
+            <div className="title f fdc x2 jcc">
+              <div className="title-edit_container form-control"><textarea className="suiz fw6 f fw" ref={this.props.recipeNameEl} type="text" id="recipeName" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeName : ""}/><p className="small s12 underline pointer">edit name</p></div>
+              <div className="time-edit_container form-control"><div className="f"><span className="pr025">Time:</span> <input ref={this.props.minutesEstimateEl} type="number" id="minutesEstimate" className="pr025" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.minutesEstimate : 1} />{this.props.recipeToUpdate.minutesEstimate > 1 ? " mins" : ' min'}</div><p className="small s12 underline pointer">edit time</p></div>
+            </div>
+            <div className="featured-image">
+              <img className="main-image" src={this.props.recipeToUpdate.imageLinks.find(img => img.featured).link} />
+            </div>
+        </header>
+        }
+        {/* <div className="form-control">
           <label htmlFor="recipeName">Recipe Name</label>
           <input ref={this.props.recipeNameEl} type="text" id="recipeName" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeName : ""}/>
         </div>
         <div className="form-control">
-          <label htmlFor="recipeDescription">Recipe Description</label>
-          <textarea ref={this.props.recipeDescriptionEl} type="text" id="recipeDescription" rows="4" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeDescription : ""}/>
-        </div>
-        <div className="form-control">
+          <label htmlFor="minutesEstimate">Estimated Minutes</label>
+          <input ref={this.props.minutesEstimateEl} type="number" id="minutesEstimate" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.minutesEstimate : 1} />
+        </div> */}
+      
+        <div className="form-control"> {/*Ingredients*/}
           <div className="recipeIngredients_header f">
-            <label htmlFor="header"><b>Recipe Ingredients</b></label>
+            <label htmlFor="header"><b>Recipe Ingredients</b></label> 
             <div className="add-recipe pointer" onClick={this.openIngredientHandler}>{this.state.openIngredientDropdown ? "Close x " : "Add Ingredient +"}</div>
+          </div>
+          <div className="form-control">
+            <label htmlFor="yields">Yields</label>
+            <input ref={this.props.yieldsEl} type="number" id="yields" defaultValue={this.state.updatedYield} />
           </div>
 
           {/* Ingredients List */}
@@ -214,9 +227,11 @@ class InputForm extends Component  {
               </div>
           </div>
         </div>
-
-          {/* Recipe Steps */}
-        <div className="form-control">
+        <div className="form-control"> {/*Description*/}
+          <label htmlFor="recipeDescription">Recipe Description</label>
+          <textarea ref={this.props.recipeDescriptionEl} type="text" id="recipeDescription" rows="4" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeDescription : ""}/>
+        </div>
+        <div className="form-control"> {/* Recipe Steps */}
           <div className="recipeIngredients_header f">
             <label htmlFor="recipeSteps"><b>Recipe Steps</b></label>
             <div className="add-recipe pointer" onClick={this.openStepsHandler}>{this.state.openStepsDropdown ? "Close x " : "Add Step +"}</div>
@@ -241,53 +256,40 @@ class InputForm extends Component  {
                 Add
               </div>
           </div>
-        </div>
-        <div className="form-control">
-          <label htmlFor="yields">Yields</label>
-          <input ref={this.props.yieldsEl} type="number" id="yields" defaultValue={this.state.updatedYield} />
-        </div>
-        <div className="form-control">
-          <label htmlFor="minutesEstimate">Estimated Minutes</label>
-          <input ref={this.props.minutesEstimateEl} type="number" id="minutesEstimate" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.minutesEstimate : 1} />
-        </div>
-        <div className="form-control">
+        </div>       
+        <div className="form-control"> {/* Link */}
           <label htmlFor="recipeLink">Recipe Link</label>
           <input ref={this.props.linkEl} type="url" id="recipeLink" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.link : ""} />
         </div>
-        <React.Fragment>
+        <React.Fragment> {/* Images */}
         { this.props.recipeToUpdate &&
         <div className="form-control">
-        <label>Images</label>
-        
-        <div className="recipe-images f edit" ref={this.props.uploadedImagesEl}>
-           {this.props.recipeToUpdate.imageLinks && this.props.recipeToUpdate.imageLinks.map((imageLink, idx)=>{
-             return  (<div className="uploaded-image f fdc aic rel mr025" data-featured={this.state.featuredImage === imageLink} key={idx}>
-                        <div className="delete-image abs right" data-confirm={false} onClick={this.handleDeleteImage}>
-                          {this.state.confirmDelete ? <div className="confirm-delete">Confirm Delete</div> : <ClearIcon />}
-                        
-                        </div>
-                        
-                        <div className="image-container f aic">
-                          <img className="img" ref={this.props.uploadedImageEl} src={imageLink.link}/>
-                        </div>
-                        {this.state.featuredImage != imageLink 
-                        ? <div className="featured-image-control f aic">
-                            <label htmlFor='featured-selection' className="select-featured caps small sl2">Set as featured</label>
-                            <input type="radio" name="featured-selection" value={imageLink._id} onChange={this.handleFeaturedImage} checked={this.state.featuredImage === imageLink.link ? true : false }/>
-                          </div>
-                        : <div className="featured-label caps small sl2 abs">Featured</div>
-                        }
-                    </div>)
-           })}
+          <label>Images</label>
+          <div className="recipe-images f edit" ref={this.props.uploadedImagesEl}>
+            {this.props.recipeToUpdate.imageLinks && this.props.recipeToUpdate.imageLinks.map((imageLink, idx)=>{
+              return  (
+                  <div className="uploaded-image f fdc aic rel mr025" data-featured={this.state.featuredImage === imageLink} key={idx}>
+                    <div className="delete-image abs right" data-confirm={false} onClick={this.handleDeleteImage}>
+                      {this.state.confirmDelete ? <div className="confirm-delete">Confirm Delete</div> : <ClearIcon />}
+                    </div>
+                    <div className="image-container f aic">
+                      <img className="img" ref={this.props.uploadedImageEl} src={imageLink.link}/>
+                    </div>
+                    {this.state.featuredImage !== imageLink 
+                    ? <div className="featured-image-control f aic">
+                        <label htmlFor='featured-selection' className="select-featured caps small sl2">Set as featured</label>
+                        <input type="radio" name="featured-selection" value={imageLink._id} onChange={this.handleFeaturedImage} checked={this.state.featuredImage === imageLink.link ? true : false }/>
+                      </div>
+                    : <div className="featured-label caps small sl2 abs">Featured</div>
+                    }
+                </div>
+                )
+            })}
+          </div> 
         </div> 
-      </div> 
-
         }
-         
-
          <div className="edit-image pointer"  onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'Close X' : 'Upload Image'}</div>
           { this.state.showImageUploader && 
-          
           <div className="form-control">
             <input type="file" ref={this.imageFileInputEl} onChange={this.props.imageHandler}/>
             {this.props.imageUploadQueue.length > 0 && 
@@ -303,37 +305,31 @@ class InputForm extends Component  {
           </div>     
           }
       </React.Fragment>
-      <div className="tag-container">
-        <p className="fw6"> Tags: </p>
-        <div className="tag-list f" ref={this.props.tagsEl}>
-        {this.state.tagsAdded.map(tag => {
-          return (<div className="recipe-tag mr05 f aic jcc bcbl" key={tag}>
-              <p className="pr025">{tag}</p>
-              <div className="remove-tag pointer" data-value={tag} onClick={this.removeTagHandler}>X</div>
-              </div>)
-        })}
-          
-        </div>
-        <div className="add-tag pointer" onClick={this.addTagHandler}>ADD TAG</div>
-        <div className={!this.state.showTagAdder ? 'hidden' : ''}>
-          <input type="text" ref={this.props.newTagEl} onChange={this.handleTagOnChange}/>
-          <div className="pointer" onClick={this.submitTagHandler}>Submit</div>
-          {this.state.tagSuggestions.length ? 
-          <div className="tag-suggestions">
-          <p>Tag Suggestions</p>
-          <ul ref={this.tagSuggestionsEl}>
-          
-            {this.state.tagSuggestions.map((suggestion, idx) => {
-              return <li className="tag-suggestion" onClick={this.submitTagHandler} key={idx} data-suggestion={suggestion}>{suggestion}</li>
+        <div className="fomr-control tag-container"> {/* Tags */}
+          <p className="fw6"> Tags: </p>
+          <div className="tag-list f" ref={this.props.tagsEl}>
+            {this.state.tagsAdded.map(tag => {
+              return (<div className="recipe-tag mr05 f aic jcc bcbl" key={tag}>
+                  <p className="pr025">{tag}</p>
+                  <div className="remove-tag pointer" data-value={tag} onClick={this.removeTagHandler}>X</div>
+                  </div>)
             })}
-          </ul>
           </div>
-          : ""}
+          <div className="add-tag pointer" onClick={this.addTagHandler}>ADD TAG</div>
+            <div className={!this.state.showTagAdder ? 'hidden' : ''}>
+              <input type="text" ref={this.props.newTagEl} onChange={this.handleTagOnChange}/>
+              <div className="pointer" onClick={this.submitTagHandler}>Submit</div>
+              {this.state.tagSuggestions.length ? 
+              <div className="tag-suggestions">
+              <p>Tag Suggestions</p>
+              <ul ref={this.tagSuggestionsEl}>
+                {this.state.tagSuggestions.map((suggestion, idx) => {
+                  return <li className="tag-suggestion" onClick={this.submitTagHandler} key={idx} data-suggestion={suggestion}>{suggestion}</li>
+                })}
+              </ul>
+            </div> : ""}
+          </div>
         </div>
-        
-        
-      </div>
-        
       </form>
     )
   }

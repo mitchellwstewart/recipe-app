@@ -42,6 +42,7 @@ class ViewModal extends Component {
 
   static contextType = AuthContext
   componentDidMount = () => {
+    document.querySelector('.main-content').classList.add('lock')
   }
   
   componentDidUpdate() {
@@ -114,8 +115,6 @@ class ViewModal extends Component {
                 </React.Fragment>
                 : <div className="soft-btn soft-btn_hover" onClick={this.deleteHandler}>{this.  props.deleteText}</div>}
                   </div> 
-
-
             </div>}
             {this.props.canSaveChanges && <button className="soft-btn soft-btn_hover"
               onClick={this.props.onSaveChanges}>
@@ -128,7 +127,6 @@ class ViewModal extends Component {
           <div className="title f fdc x2 jcc">
             <h1 className="suiz">{recipeName}</h1>
             <p>Time: {estimateTime} {estimateTime > 1 ? " mins" : ' min'}</p>
-          
           </div>
           <div className="featured-image">
             <img className="main-image" src={this.props.selectedRecipe.imageLinks.find(img => img.featured).link} />
