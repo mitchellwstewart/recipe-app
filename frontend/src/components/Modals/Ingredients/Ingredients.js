@@ -15,7 +15,7 @@ state = {
   }
   render() {
     return (
-      <div className="modal__content_ingredients f fdc my1 mr2 ml1 ">
+      <div className="modal__content_ingredients-container f fdc my1 mr2 ml0 ">
 
       <ul className="modal__content_ingredients-list f fdc pl1">
         <div className="yield-count f">

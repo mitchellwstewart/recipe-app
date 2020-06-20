@@ -9,7 +9,8 @@ import Ingredients from '../Ingredients/Ingredients'
 class ViewModal extends Component {
   state = {
     viewing: 'description',
-    badLink: false
+    badLink: false,
+    confirmDelete: false
   }
   constructor(props) {
     super(props)
@@ -20,6 +21,12 @@ class ViewModal extends Component {
   viewHandler = (e) => {
     this.setState({ viewing: e.target.id })
   }
+
+  deleteHandler = e => {
+    this.setState({confirmDelete: !this.state.confirmDelete})
+  }
+
+  
 
   render() {
     console.log('this.props.selected: ', this.props.selectedRecipe)
@@ -32,66 +39,88 @@ class ViewModal extends Component {
     const recipeImages = this.props.selectedRecipe.imageLinks
     return (
       <div className="modal z2">
-        <nav className="modal__nav pointer bcbl p0 m0 f" onClick={this.props.onCancel}><div className="p05 f"><ClearIcon /></div></nav>
-        <header className="modal__header f jcb">
-          <div className="f fdc">
-            <h1>{recipeName}</h1>
-            <p>Time: {estimateTime} {estimateTime > 1 ? " mins" : ' min'}</p>
-            <div className="tag-container">
-             <p className="fw6"> Tags: </p>
-              <div className="tag-list f">
-              {this.props.selectedRecipe.tags.map(tag => <div className="recipe-tag pr05" key={tag.tag}>{tag.tag}</div>)}
-              </div>
-            </div>
-          </div>
-
-          <section className="modal__header_actions f fdc jce p1">
-            {this.props.canConfirm && <button className="btn" onClick={this.props.onConfirm}> {this.props.confirmText} </button>}
+        <nav className="modal__nav pointer bcbl p0 m0 f jcb" >
+        <section className="modal__header_actions f jce">
+            {/* {this.props.canConfirm && <button className="btn" onClick={this.props.onConfirm}> {this.props.confirmText} </button>} */}
             {/* {this.props.canSubscribe &&
               <button className="btn"
                 onClick={this.props.onSubscribe}>
                 {this.props.subscribeText}
               </button>
             } */}
-            {this.props.canDelete && <button className="btn"
-              onClick={this.props.onDelete}>
-              {this.props.deleteText}
-            </button>}
             {this.props.canEdit &&
-              <button className="btn" onClick={this.props.onEdit}>{this.props.editText}</button>
+              <div className="action-container edit-action">
+                <button className="soft-btn soft-btn_hover f aic" onClick={this.props.onEdit}>{this.props.editText}</button>
+              </div>
             }
-            {this.props.canSaveChanges && <button className="btn"
+            {this.props.canDelete && 
+              <div className="action-container delete-actions f aic">
+              <div className="f">
+              {this.state.confirmDelete 
+                      ? <React.Fragment>
+                        <div className="confirm-delete soft-btn soft-btn_hover" onClick={this.props.onDelete}>Confirm Delete</div>
+                        <div className="cancel-delete" onClick={this.deleteHandler}><ClearIcon /></div>
+                      </React.Fragment>
+                      : <div className="soft-btn soft-btn_hover" onClick={this.deleteHandler}>{this.props.deleteText}</div>}
+                      </div> 
+
+
+            </div>}
+            {this.props.canSaveChanges && <button className="soft-btn soft-btn_hover"
               onClick={this.props.onSaveChanges}>
               {this.props.saveText}
             </button>}
           </section>
+          <div className="py05 f aic " onClick={this.props.onCancel}><ClearIcon /></div>
+        </nav>
+        <header className="modal__header main f jcb ">
+          <div className="f fdc x2 jcc">
+            <h1 className="suiz">{recipeName}</h1>
+            <p>Time: {estimateTime} {estimateTime > 1 ? " mins" : ' min'}</p>
+            {this.props.selectedRecipe.tags.length > 0 && 
+            <div className="tag-container">
+             <p className="fw6"> Tags: </p>
+              <div className="tag-list f">
+              {this.props.selectedRecipe.tags.map(tag => <div className="recipe-tag pr05" key={tag.tag}>{tag.tag}</div>)}
+              </div>
+            </div>
+            }
+          </div>
+          <div className="featured-image">
+            <img className="main-image" src={this.props.selectedRecipe.imageLinks.find(img => img.featured).link} />
+          </div>
         </header>
-        <section className="modal__content f">
+        <section className="modal__content px1 f">
           {/* Ingredients */}
-          <div className="desktop-only"> 
-          <header className="modal__content_ingredients_header fw5">Ingredients</header>
-            <Ingredients  ingredients = {ingredients} selectedRecipe={this.props.selectedRecipe}/>
+          <div className="desktop-only modal__content_ingredients"> 
+            <header className="modal__content_ingredients_header fw5 robo caps fw7 ls1">Ingredients</header>
+            <Ingredients ingredients = {ingredients} selectedRecipe={this.props.selectedRecipe}/>
          </div>
 
           {/* Main Content */}
-          <div className="modal__content_main f fdc">
+          <div className="modal__content_main f fdc pl1">
             <ul className="modal__content_main_nav f jcs pl0">
-              <li className={`modal__content_main_nav_item pointer mr1 fw5 ${this.state.viewing === "description" ? "active" : ""}`} id="description" onClick={this.viewHandler}>Description</li>
-              <li className={`modal__content_main_nav_item pointer mr1 fw5 ${this.state.viewing === "steps" ? "active" : ""}`} id="steps" onClick={this.viewHandler}>Steps</li>
-              <li className={`modal__content_main_nav_item pointer mr1 fw5 mobile-only ${this.state.viewing === "ingredients" ? "active" : ""}`} id="ingredients" onClick={this.viewHandler}>Ingredients</li>
+              <li className={`modal__content_main_nav_item pointer mr1 fw5 s12 fw7 ls1 caps ${this.state.viewing === "description" ? "active" : ""}`} id="description" onClick={this.viewHandler}>Description</li>
+              <li className={`modal__content_main_nav_item pointer mr1 fw5 s12 fw7 ls1 caps ${this.state.viewing === "steps" ? "active" : ""}`} id="steps" onClick={this.viewHandler}>Steps</li>
+              <li className={`modal__content_main_nav_item pointer mr1 fw5 s12 fw7 ls1 caps mobile-only ${this.state.viewing === "ingredients" ? "active" : ""}`} id="ingredients" onClick={this.viewHandler}>Ingredients</li>
               {/* <li className={`modal__content_main_nav_item pointer mr1 fw5 ${this.state.viewing === "creator-notes" ? "active" : ""}`} id="creator-notes" onClick={this.viewHandler}>Creator Notes</li> */}
             </ul>
             {this.state.viewing === "description" && 
             <div>
                 <p>{description}</p>
                 {recipeImages && recipeImages.length
-                ?
-                <div className="recipe-images m1r view">
-                    <p>recipe images</p>
+                ? <React.Fragment>
+                  <p className="caps ls1 fw6">Photos</p>
+                    <div className="recipe-images mr1 view f fw">
                     {recipeImages.map((image, idx) => {
-                      return (<img key={idx} className="uploaded-image" src={image.link} />)
+                      return (
+                        <div className="image-container mr05">
+                          <img key={idx} className="uploaded-image" src={image.link} />
+                        </div>
+                      )
                     })}
                   </div>  
+                  </React.Fragment>
                 : <div> NO IMAGE AVAILABLE</div>}
                 {recipeLink && !this.state.badLink &&
                 // <a href={recipeLink} target="_blank">{`View Original Recipe`}</a>
@@ -113,7 +142,7 @@ class ViewModal extends Component {
             }
             {this.state.viewing === "steps" && (
               
-              <div className="steps-container m1r">
+              <div className="steps-container mr1">
                 
               {steps.map(step => {
                 return <p key={step.stepNumber}>{step.stepNumber}. {step.stepInstruction}</p>
