@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { ReactTinyLink } from 'react-tiny-link'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Flickity from 'react-flickity-component'
 
 import ClearIcon from '@material-ui/icons/Clear';
@@ -27,6 +28,8 @@ class ViewModal extends Component {
     prevNextButtons: false,
     wrapAround: true,
     contain: true,
+    pageDots: window.matchMedia('(min-width: 768px').matches ? false : true,
+    draggable: window.matchMedia('(min-width: 768px').matches ? false : true,
     on: {
       ready: function() {
         console.log('Flickity is ready');
@@ -39,26 +42,25 @@ class ViewModal extends Component {
 
   static contextType = AuthContext
   componentDidMount = () => {
-    console.log('flickity ref: ', this.flkty)
   }
   
   componentDidUpdate() {
-    console.log('resize')
     this.flkty.resize()
   }
 
   viewHandler = (e) => {
+    console.log('view handler')
+    e.preventDefault()
     this.setState({ viewing: e.target.id })
   }
 
   deleteHandler = e => {
+    e.preventDefault()
     this.setState({confirmDelete: !this.state.confirmDelete})
   }
 
   fullscreenHandler = e => {
-    console.log('e.target: ', e.target)
-    console.log('this.flkty: ', this.flkty)
-    console.log('this.imagesSection: ', this.imagesSection)
+    e.preventDefault()
     if(this.state.fullscreenView){
       this.flkty.resize()
       //this.setState({fullscreenView: !this.state.fullscreenView})
@@ -69,7 +71,8 @@ class ViewModal extends Component {
     }
   }
 
-  closeFullscreen = () => {
+  closeFullscreen = (e) => {
+    e.preventDefault()
     this.setState({fullscreenView: false})
   }
   
@@ -78,7 +81,6 @@ class ViewModal extends Component {
   
 
   render() {
-    console.log('this.flickityOptions: ', this.flickityOptions)
     const recipeName = this.props.selectedRecipe.recipeName
     const description = this.props.selectedRecipe.recipeDescription
     const ingredients = this.props.selectedRecipe.recipeIngredients
@@ -87,8 +89,8 @@ class ViewModal extends Component {
     const recipeLink = this.props.selectedRecipe.link
     const recipeImages = this.props.selectedRecipe.imageLinks
     return (
-      <div className="modal z2">
-        <nav className="modal__nav pointer bcbl p0 m0 f jcb" >
+      <div className={`modal z2 ${this.state.fullscreenView ? 'image-fullscreen' : ''}`}>
+        <nav className="modal__nav pointer bcbl p0 m0 f jcb bcbl" >
         <section className="modal__header_actions f jce">
             {/* {this.props.canConfirm && <button className="btn" onClick={this.props.onConfirm}> {this.props.confirmText} </button>} */}
             {/* {this.props.canSubscribe &&
@@ -123,17 +125,10 @@ class ViewModal extends Component {
           <div className="py05 f aic " onClick={this.props.onCancel}><ClearIcon /></div>
         </nav>
         <header className="modal__header main f jcb ">
-          <div className="f fdc x2 jcc">
+          <div className="title f fdc x2 jcc">
             <h1 className="suiz">{recipeName}</h1>
             <p>Time: {estimateTime} {estimateTime > 1 ? " mins" : ' min'}</p>
-            {this.props.selectedRecipe.tags.length > 0 && 
-            <div className="tag-container">
-             <p className="fw6"> Tags: </p>
-              <div className="tag-list f">
-              {this.props.selectedRecipe.tags.map(tag => <div className="recipe-tag pr05" key={tag.tag}>{tag.tag}</div>)}
-              </div>
-            </div>
-            }
+          
           </div>
           <div className="featured-image">
             <img className="main-image" src={this.props.selectedRecipe.imageLinks.find(img => img.featured).link} />
@@ -142,7 +137,7 @@ class ViewModal extends Component {
         <section className="modal__content px1 f">
           {/* Ingredients */}
           <div className="desktop-only modal__content_ingredients"> 
-            <header className="modal__content_ingredients_header fw5 robo caps fw7 ls1">Ingredients</header>
+            <header className="modal__content_ingredients_header fw5 robo caps fw7 ls1 underline">Ingredients</header>
             <Ingredients ingredients = {ingredients} selectedRecipe={this.props.selectedRecipe}/>
          </div>
 
@@ -163,11 +158,14 @@ class ViewModal extends Component {
 
                 
                 {recipeImages && recipeImages.length
-                && <section className={`section-body images f x fdc ${this.state.fullscreenView ? 'fullscreen fill bccr' : ''}`} ref={this.imagesSection}>
+                && <section className={`section-body images f x fdc rel ${this.state.fullscreenView ? 'fullscreen fill bccr' : ''}`} ref={this.imagesSection}>
                   <div className={`close-fullscreen f jce p1 ${this.state.fullscreenView ? '' : 'hidden'}`} onClick={this.closeFullscreen}><ClearIcon/></div>
+                  
                   {!this.state.fullscreenView && <p className="caps ls1 fw6">Photos</p> }
-                      <Flickity
-                        className={'recipe-images view f fw x y aic'} // default ''
+
+                  <div className="image-slider_container f ">
+                  <Flickity
+                        className={'recipe-images view f fw x y aic '} // default ''
                         elementType={'div'} // default 'div'
                         options={this.flickityOptions} // takes flickity options {}
                         disableImagesLoaded={false} // default false
@@ -178,11 +176,20 @@ class ViewModal extends Component {
                     {recipeImages.map((image, idx) => {
                       return (
                         <div key={idx} className="image-container mr05" onClick={this.fullscreenHandler}>
-                          <img  className="uploaded-image" src={image.link} />
+                          <img className="uploaded-image" src={image.link} />
                         </div>
                       )
                     })}
                     </Flickity>
+                    { recipeImages.length > 2 && 
+                      <React.Fragment>
+                        <div className="arrow prev f jcc aic abs left" onClick={() => this.flkty.previous()}><ArrowBackIcon /></div>
+                        <div className="arrow next f jcc aic abs right" onClick={() => this.flkty.next()}><ArrowBackIcon /></div>
+                      </React.Fragment>
+                    }
+                    
+                  </div>
+                      
                   </section> 
                 }
                 {recipeLink && !this.state.badLink &&
@@ -201,6 +208,16 @@ class ViewModal extends Component {
                   </div>
                 </React.Fragment>
                 }
+
+
+              {this.props.selectedRecipe.tags.length > 0 && 
+              <div className="tag-container">
+              <p className="caps ls1 fw6"> Tags: </p>
+                <div className="tag-list f">
+                {this.props.selectedRecipe.tags.map(tag => <div className="recipe-tag pr05" key={tag.tag}>{tag.tag}</div>)}
+                </div>
+              </div>
+              }
             </div>
             }
             {this.state.viewing === "steps" && (
