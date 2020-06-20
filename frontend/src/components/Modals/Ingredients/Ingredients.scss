@@ -19,13 +19,22 @@
         .yield-count {
           font-weight: 600;
           &_amount {
-            max-width: 25px;
-            max-height: 25px;
+            max-width: 17px;
+            max-height: 17px;
             border: none;
             border-bottom: 1px solid #4a4a4a;
             text-align: center;
             position: relative; 
-            bottom: 2px;
+            bottom: 0px;
+            padding: 0;
+            /* Chrome, Safari, Edge, Opera */
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+              -webkit-appearance: none;
+              margin: 0;
+            }
+            /* Firefox */
+              -moz-appearance: textfield;
           }
         }
         padding: 0;
