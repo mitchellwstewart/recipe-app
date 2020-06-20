@@ -6,8 +6,11 @@
   position: fixed;
   overflow: scroll;
   top: 10vh;
-  bottom: 10vh;
+  //bottom: unset;
+  padding-bottom: 2em;
   &:not(.image-fullscreen) {
+    padding-bottom: 0em;
+    bottom: 10vh;
   }
   // left: 5%;
   @media(min-width: 768px) {

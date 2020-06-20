@@ -22,7 +22,7 @@ const findOrCreateTags = async (recipeTags, recipe) => {
     if(!tagResult) tagResult = await new Tag ({ tag: tag, recipesWithTag: [] })
       const updatedRecipes = recipe 
       ? tagResult.recipesWithTag.length 
-        ? [...tagResult.recipesWithTag.filter(existingRecipe => existingRecipe != recipe._id), recipe._id]
+        ? [...tagResult.recipesWithTag.filter(existingRecipe => existingRecipe !== recipe._id), recipe._id]
         : [recipe._id]
       : []
       tagResult.recipesWithTag = updatedRecipes
@@ -44,7 +44,7 @@ const removeRecipeFromTag =  async (tagsForRecipeRemoval, recipeId) => {
     tag = transformTag(tag)
     const tagResult = await Tag.findById(tag._id) 
     tagResult.recipesWithTag = tagResult.recipesWithTag.filter(id => {
-      return id != recipeId
+      return id !== recipeId
     })
     !tagResult.recipesWithTag.length ? await tagResult.delete() : await tagResult.save()
   })
@@ -113,7 +113,7 @@ module.exports = {
         await removeRecipeFromTag(recipeTags, args.recipeId)
         const creator = await User.findById(req.userId)
         if(!creator) { throw new Error ('USER NOT FOUND') }
-        creator.createdRecipes = creator.createdRecipes.filter(recipe => recipe != args.recipeId)
+        creator.createdRecipes = creator.createdRecipes.filter(recipe => recipe !== args.recipeId)
         await creator.save()
         const result = await fetchedRecipe.delete()
         return result._id
@@ -156,7 +156,7 @@ module.exports = {
         console.log('updatedRecipe: ', updatedRecipe)
          const creator = await User.findById(req.userId)
          if(!creator) { throw new Error ('USER NOT FOUND') }
-         const updatedRecipes = [...creator.createdRecipes.filter(recipe => recipe != args.recipeId), updatedRecipe]
+         const updatedRecipes = [...creator.createdRecipes.filter(recipe => recipe !== args.recipeId), updatedRecipe]
          creator.createdRecipes = updatedRecipes 
          await creator.save()
          //console.log('updatedRecipe: ', updatedRecipe)
