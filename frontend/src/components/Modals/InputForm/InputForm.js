@@ -261,7 +261,7 @@ class InputForm extends Component  {
         
         <div className="recipe-images f edit" ref={this.props.uploadedImagesEl}>
            {this.props.recipeToUpdate.imageLinks && this.props.recipeToUpdate.imageLinks.map((imageLink, idx)=>{
-             return  (<div className="uploaded-image f fdc aic rel" data-featured={this.state.featuredImage === imageLink} key={idx}>
+             return  (<div className="uploaded-image f fdc aic rel mr025" data-featured={this.state.featuredImage === imageLink} key={idx}>
                         <div className="delete-image abs right" data-confirm={false} onClick={this.handleDeleteImage}>
                           {this.state.confirmDelete ? <div className="confirm-delete">Confirm Delete</div> : <ClearIcon />}
                         

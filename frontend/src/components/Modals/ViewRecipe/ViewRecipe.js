@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import { ReactTinyLink } from 'react-tiny-link'
+import Flickity from 'react-flickity-component'
+
 import ClearIcon from '@material-ui/icons/Clear';
 import '../Modals.scss'
 import '../../../styles/lib/_display.scss'
@@ -10,13 +12,40 @@ class ViewModal extends Component {
   state = {
     viewing: 'description',
     badLink: false,
-    confirmDelete: false
+    confirmDelete: false,
+    fullscreenView: false
   }
   constructor(props) {
     super(props)
+    this.flkty = React.createRef();
+    this.imagesSection = React.createRef();
+    
+  }
+  flickityOptions = {
+    groupCells: 1,
+    percentPosition: true,
+    prevNextButtons: false,
+    wrapAround: true,
+    contain: true,
+    on: {
+      ready: function() {
+        console.log('Flickity is ready');
+      },
+      change: function( index ) {
+        console.log( 'Slide changed to ' + index );
+      }
+    }
   }
 
   static contextType = AuthContext
+  componentDidMount = () => {
+    console.log('flickity ref: ', this.flkty)
+  }
+  
+  componentDidUpdate() {
+    console.log('resize')
+    this.flkty.resize()
+  }
 
   viewHandler = (e) => {
     this.setState({ viewing: e.target.id })
@@ -26,10 +55,30 @@ class ViewModal extends Component {
     this.setState({confirmDelete: !this.state.confirmDelete})
   }
 
+  fullscreenHandler = e => {
+    console.log('e.target: ', e.target)
+    console.log('this.flkty: ', this.flkty)
+    console.log('this.imagesSection: ', this.imagesSection)
+    if(this.state.fullscreenView){
+      this.flkty.resize()
+      //this.setState({fullscreenView: !this.state.fullscreenView})
+    }
+    else {
+      this.flkty.resize()
+      this.setState({fullscreenView: !this.state.fullscreenView})
+    }
+  }
+
+  closeFullscreen = () => {
+    this.setState({fullscreenView: false})
+  }
+  
+
+
   
 
   render() {
-    console.log('this.props.selected: ', this.props.selectedRecipe)
+    console.log('this.flickityOptions: ', this.flickityOptions)
     const recipeName = this.props.selectedRecipe.recipeName
     const description = this.props.selectedRecipe.recipeDescription
     const ingredients = this.props.selectedRecipe.recipeIngredients
@@ -98,7 +147,7 @@ class ViewModal extends Component {
          </div>
 
           {/* Main Content */}
-          <div className="modal__content_main f fdc pl1">
+          <div className="modal__content_main f fdc pl1 x">
             <ul className="modal__content_main_nav f jcs pl0">
               <li className={`modal__content_main_nav_item pointer mr1 fw5 s12 fw7 ls1 caps ${this.state.viewing === "description" ? "active" : ""}`} id="description" onClick={this.viewHandler}>Description</li>
               <li className={`modal__content_main_nav_item pointer mr1 fw5 s12 fw7 ls1 caps ${this.state.viewing === "steps" ? "active" : ""}`} id="steps" onClick={this.viewHandler}>Steps</li>
@@ -114,17 +163,26 @@ class ViewModal extends Component {
 
                 
                 {recipeImages && recipeImages.length
-                && <section className="section-body description">
-                    <p className="caps ls1 fw6">Photos</p>
-                      <div className="recipe-images mr1 view f fw">
-                      {recipeImages.map((image, idx) => {
-                        return (
-                          <div className="image-container mr05">
-                            <img key={idx} className="uploaded-image" src={image.link} />
-                          </div>
-                        )
-                      })}
-                    </div> 
+                && <section className={`section-body images f x fdc ${this.state.fullscreenView ? 'fullscreen fill bccr' : ''}`} ref={this.imagesSection}>
+                  <div className={`close-fullscreen f jce p1 ${this.state.fullscreenView ? '' : 'hidden'}`} onClick={this.closeFullscreen}><ClearIcon/></div>
+                  {!this.state.fullscreenView && <p className="caps ls1 fw6">Photos</p> }
+                      <Flickity
+                        className={'recipe-images view f fw x y aic'} // default ''
+                        elementType={'div'} // default 'div'
+                        options={this.flickityOptions} // takes flickity options {}
+                        disableImagesLoaded={false} // default false
+                        reloadOnUpdate ={true}// default false
+                        static={false} // default false
+                        flickityRef={c => this.flkty = c}
+                      >
+                    {recipeImages.map((image, idx) => {
+                      return (
+                        <div key={idx} className="image-container mr05" onClick={this.fullscreenHandler}>
+                          <img  className="uploaded-image" src={image.link} />
+                        </div>
+                      )
+                    })}
+                    </Flickity>
                   </section> 
                 }
                 {recipeLink && !this.state.badLink &&

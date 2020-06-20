@@ -4,6 +4,7 @@ import './Ingredients.scss'
 class Ingredients extends Component {
 state = {
   updatedYield: this.props.selectedRecipe.yields,
+
 }
   constructor(props){
     super(props)
@@ -19,13 +20,14 @@ state = {
 
       <ul className="modal__content_ingredients-list f fdc pl1">
         <div className="yield-count f">
-          <p className="pr05 m0">Yields</p>
-        <input className="yield-count_amount" type="number" onChange={this.yieldHandler} defaultValue={this.state.updatedYield} />
+          <p className="pr025 m0 s14 fw5">Yields</p>
+        <input className="yield-count_amount s14 robo" type="number" onChange={this.yieldHandler} defaultValue={this.state.updatedYield} />
+        <p className="pl025 m0 s14 fw5 ls1">servings</p>
         </div>
         {this.props.ingredients.map((ingredient, idx) => {
           return (
             <li key={idx} className="ingredient-container f aic">
-              <p className="ingredient-container_amount" >{parseFloat((ingredient.amount * this.state.updatedYield / this.props.selectedRecipe.yields).toFixed(2))} {ingredient.unit} - {ingredient.name}</p>
+              <p className="ingredient-container_amount s14 caps" >{parseFloat((ingredient.amount * this.state.updatedYield / this.props.selectedRecipe.yields).toFixed(2))} {ingredient.unit} - {ingredient.name}</p>
             </li>
           )
         })}
