@@ -57,12 +57,12 @@ class ViewModal extends Component {
               <div className="action-container delete-actions f aic">
               <div className="f">
               {this.state.confirmDelete 
-                      ? <React.Fragment>
-                        <div className="confirm-delete soft-btn soft-btn_hover" onClick={this.props.onDelete}>Confirm Delete</div>
-                        <div className="cancel-delete" onClick={this.deleteHandler}><ClearIcon /></div>
-                      </React.Fragment>
-                      : <div className="soft-btn soft-btn_hover" onClick={this.deleteHandler}>{this.props.deleteText}</div>}
-                      </div> 
+                ? <React.Fragment>
+                  <div className="confirm-delete soft-btn soft-btn_hover" onClick={this.props.onDelete}>Confirm Delete</div>
+                  <div className="cancel-delete" onClick={this.deleteHandler}><ClearIcon /></div>
+                </React.Fragment>
+                : <div className="soft-btn soft-btn_hover" onClick={this.deleteHandler}>{this.  props.deleteText}</div>}
+                  </div> 
 
 
             </div>}
@@ -107,25 +107,30 @@ class ViewModal extends Component {
             </ul>
             {this.state.viewing === "description" && 
             <div>
-                <p>{description}</p>
+                <section className="section-body description">
+                  <p className="caps ls1 fw6">Overview</p>
+                  <p>{description}</p>
+                </section>
+
+                
                 {recipeImages && recipeImages.length
-                ? <React.Fragment>
-                  <p className="caps ls1 fw6">Photos</p>
-                    <div className="recipe-images mr1 view f fw">
-                    {recipeImages.map((image, idx) => {
-                      return (
-                        <div className="image-container mr05">
-                          <img key={idx} className="uploaded-image" src={image.link} />
-                        </div>
-                      )
-                    })}
-                  </div>  
-                  </React.Fragment>
-                : <div> NO IMAGE AVAILABLE</div>}
+                && <section className="section-body description">
+                    <p className="caps ls1 fw6">Photos</p>
+                      <div className="recipe-images mr1 view f fw">
+                      {recipeImages.map((image, idx) => {
+                        return (
+                          <div className="image-container mr05">
+                            <img key={idx} className="uploaded-image" src={image.link} />
+                          </div>
+                        )
+                      })}
+                    </div> 
+                  </section> 
+                }
                 {recipeLink && !this.state.badLink &&
                 // <a href={recipeLink} target="_blank">{`View Original Recipe`}</a>
                 <React.Fragment>
-                  <p className="fw6">Original Recipe:</p>
+                  <p className="caps ls1 fw6">Original Recipe:</p>
                   <div  className="container--5">
                     <ReactTinyLink
                       cardSize="small"
