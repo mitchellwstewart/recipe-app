@@ -61,12 +61,15 @@ class RecipesPage extends Component {
     console.log(this.context)
   }
 
-  startCreateOrUpdateRecipeHandler = (args) => {
+  startCreateOrUpdateRecipeHandler = async (args) => {
+    console.log('args: ', args)
     args === 'update'
-      ? this.setState(prevState => {
+      ? await this.setState(prevState => {
+        console.log('HERE: ', {updating: true, recipeToUpdate: prevState.selectedRecipe})
         return {updating: true, recipeToUpdate: prevState.selectedRecipe}
       })
-    : this.setState({creating: true})
+    : await this.setState({creating: true})
+    console.log('this.state: ', this.state)
   }
 
   modalCancelHandler = (args) => {
@@ -474,14 +477,14 @@ class RecipesPage extends Component {
           canSubscribe = {this.context.userId !== this.state.selectedRecipe.creator._id ? true : false} 
           canEdit = {this.context.userId !== this.state.selectedRecipe.creator._id ? false : true}
           canDelete = {this.context.userId !== this.state.selectedRecipe.creator._id ? false : true}
-          subscribeText={"Subscribe To Recipe" }
-          selectedRecipe = {this.state.selectedRecipe}
           editText={"Edit Recipe"}
-          deleteText={"Delete"}
+          deleteText={"Delete Recipe"}
           onCancel={this.modalCancelHandler} 
           onSubscribe={this.modalSubscribeToRecipeHandler}
           onDelete={this.modalDeleteRecipeHandler}
           onEdit={this.startCreateOrUpdateRecipeHandler.bind(this, 'update')}
+          subscribeText={"Subscribe To Recipe" }
+          selectedRecipe = {this.state.selectedRecipe}
           />)}
         {this.state.recipeToUpdate &&
         //in this case, the options are save changes or cancel (both if owner)
