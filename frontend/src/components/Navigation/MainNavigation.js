@@ -42,7 +42,7 @@ class MainNavigation extends Component{
         <nav className="main-navigation__items">
           <div className="arrow-up abs" />
           <ul className="f m0 p0">
-            <li><NavLink to="/recipes">All Recipes</NavLink></li>
+            <li onClick={this.handleHamburgerMenu}><NavLink to="/recipes">All Recipes</NavLink></li>
           {
           this.context.token && 
           <React.Fragment>
@@ -54,13 +54,16 @@ class MainNavigation extends Component{
                   <div className="pl05">+</div>
                 </div>
                 <div className="account-dropdown abs">
-                  <div className="pointer" onClick={this.context.logout}>Log Out</div>
+                  <div className="pointer" onClick={() => {
+                    this.handleHamburgerMenu()
+                    this.context.logout()
+                    }}>Log Out</div>
                 </div>
               </div>
             </li>
           </React.Fragment>
           }
-          {!this.context.token && <li><NavLink to="/auth">Log In</NavLink></li>}
+          {!this.context.token && <li onClick={this.handleHamburgerMenu}><NavLink to="/auth">Log In</NavLink></li>}
           </ul>
         </nav>
         </div>

@@ -78,7 +78,8 @@ class RecipesPage extends Component {
     })
   }
 
-  modalCancelHandler = (args) => {
+  modalCancelHandler = () => {
+    document.querySelector('.main-content').classList.remove('lock')
     this.setState({creating: false, selectedRecipe: null, updating: false, recipeToUpdate: false})
   }
 
@@ -353,7 +354,7 @@ class RecipesPage extends Component {
   removeImageFromQueue = e => {
     let imageToRemove = e.currentTarget.dataset.image
     this.setState(prevState => {
-      let newImageQueue = prevState.imageUploadQueue.filter(image => image.name != imageToRemove )
+      let newImageQueue = prevState.imageUploadQueue.filter(image => image.name !== imageToRemove )
       return {imageUploadQueue: newImageQueue}
     })
   }
@@ -379,7 +380,6 @@ class RecipesPage extends Component {
       this.setState({recipesInSearch: this.state.recipes})
     }
     else {
-      
       const recipesWithTag = this.state.recipes.filter(recipe => {
         let recipeHasTag = false
         recipe.tags.forEach(tag => { if(tag.tag === e.target.innerText) recipeHasTag = true })
@@ -428,8 +428,6 @@ class RecipesPage extends Component {
   componentWillUnmount = () => {
     this.isActive = false
   }
-
-
 
   render() {
     return(
