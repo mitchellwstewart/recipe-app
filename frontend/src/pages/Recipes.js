@@ -62,10 +62,8 @@ class RecipesPage extends Component {
   }
 
   startCreateOrUpdateRecipeHandler = async (args) => {
-    console.log('args: ', args)
     args === 'update'
       ? await this.setState(prevState => {
-        console.log('HERE: ', {updating: true, recipeToUpdate: prevState.selectedRecipe})
         return {updating: true, recipeToUpdate: prevState.selectedRecipe}
       })
     : await this.setState({creating: true})
