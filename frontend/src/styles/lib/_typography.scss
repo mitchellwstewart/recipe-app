@@ -61,7 +61,7 @@ h1, h2, h3, h4, h5, p {
 }
 
 .underline {
-  border-bottom: 0.075em solid #4a4a4a;
+  border-bottom: 0.075em solid currentColor;
   width: -moz-fit-content;
   width: fit-content;
 }
