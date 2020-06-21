@@ -42,11 +42,16 @@ class ViewModal extends Component {
 
   static contextType = AuthContext
   componentDidMount = () => {
-    document.querySelector('.main-content').classList.add('lock')
+    console.log('MOUNTED')
+    document.querySelector('body').classList.add('lock')
+    
   }
   
   componentDidUpdate() {
+    console.log('UPDATE FOR SURE')
     this.flkty.resize()
+    document.querySelector('body').classList.add('lock')
+    
   }
 
   viewHandler = (e) => {
@@ -82,6 +87,7 @@ class ViewModal extends Component {
   
 
   render() {
+    
     const recipeName = this.props.selectedRecipe.recipeName
     const description = this.props.selectedRecipe.recipeDescription
     const ingredients = this.props.selectedRecipe.recipeIngredients
@@ -134,9 +140,9 @@ class ViewModal extends Component {
         </header>
         <section className="modal__content px1 f">
           {/* Ingredients */}
-          <div className="desktop-only modal__content_ingredients"> 
-            <header className="modal__content_ingredients_header fw5 robo caps fw7 ls1 underline">Ingredients</header>
-            <Ingredients ingredients = {ingredients} selectedRecipe={this.props.selectedRecipe}/>
+          <div className="desktop-only ingredient-container"> 
+            {/* <header className="modal__content_ingredients_header fw5 robo caps fw7 ls1 underline">Ingredients</header> */}
+            <Ingredients ingredients = {ingredients} selectedRecipe={this.props.selectedRecipe} modalType="view"/>
          </div>
 
           {/* Main Content */}
