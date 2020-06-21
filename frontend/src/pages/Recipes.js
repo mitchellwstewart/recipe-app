@@ -79,19 +79,17 @@ class RecipesPage extends Component {
   }
 
   modalCancelHandler = () => {
-    document.querySelector('.main-content').classList.remove('lock')
+    document.querySelector('body').classList.remove('lock')
     this.setState({creating: false, selectedRecipe: null, updating: false, recipeToUpdate: false})
   }
 
   modalConfirmHandler = async () => {
-    console.log('context: ', this.context)
-    console.log('this.uploadedImagesEl.current: ', this.uploadedImagesEl.current)
     const recipeName = this.recipeNameEl.current.value
     const recipeDescription = this.recipeDescriptionEl.current.value
-    const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {
-      const ingredientName = ingredientNode.querySelector('[data-name]').dataset.name
-      const ingredientAmount = +ingredientNode.querySelector('[data-amount]').dataset.amount
-      const ingredientUnit = ingredientNode.querySelector('[data-unit]').dataset.unit
+    const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {      
+      const ingredientName = ingredientNode.dataset.name
+      const ingredientAmount = +ingredientNode.dataset.amount
+      const ingredientUnit = ingredientNode.dataset.unit
       return { name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
     })
     const recipeSteps = Array.from(this.recipeStepsEl.current.children).map((stepNode, idx) => {
@@ -106,9 +104,7 @@ class RecipesPage extends Component {
     })
     const currentRecipeImages = this.uploadedImagesEl.current ? Array.from(this.uploadedImagesEl.current.children).map(uploadedImage => {      
       let imageSrc = uploadedImage.querySelector('img').src
-      console.log('uploadedImage: ', uploadedImage.dataset.featured)
       let featured = uploadedImage.dataset.featured === "true" ? true : false
-      console.log('currentImage obj: ', {link: imageSrc, featured: featured})
       return {link: imageSrc, featured: featured}
     }) : []
     const yields = +this.yieldsEl.current.value
@@ -179,7 +175,6 @@ class RecipesPage extends Component {
             variables: updatedVariables
           };
          const token = this.context.token;
-         console.log('REQUEST BODY: ', requestBody)
          const mongoRes = await fetch('http://localhost:3001/graphql', {
               method: 'POST',
               body: JSON.stringify(requestBody),
@@ -234,13 +229,9 @@ class RecipesPage extends Component {
                  const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
                  const previousAllTags = {}
                  prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
-                 console.log('allTags: ', previousAllTags)
                  const updatedAllTags = resData.data.updateRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
-                 console.log('newTags: ', updatedAllTags)
-                 console.log('updated: ', [...prevState.allTags, ...updatedAllTags])
                  return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false, allTags: [...prevState.allTags, ...updatedAllTags], creating: false, updating: false}
                })
-               console.log('this.state.allTags: ', this.state.allTags)
                this.searchBarEl.current.value = ""
              } 
               
@@ -430,6 +421,7 @@ class RecipesPage extends Component {
   }
 
   render() {
+    console.log('RERENDERING? :', this.state.selectedRecipe)
     return(
       <React.Fragment>
         {(this.state.creating || this.state.updating || this.state.selectedRecipe) && <Backdrop />}
@@ -467,6 +459,7 @@ class RecipesPage extends Component {
           allTags={this.state.allTags}
           />
         </CreateAndUpdateModal>)}
+        {this.state.selectedRecipe && console.log('RERENDERED SELECTED: ', this.state.selectedRecipe)}
         {this.state.selectedRecipe && 
         //in this case, the options are delete, edit(if owner) or subscribe(if visitor)
           (<ViewModal 
