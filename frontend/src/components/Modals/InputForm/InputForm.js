@@ -156,18 +156,11 @@ viewHandler = e => {
               </div>
             </div>
             <div className="featured-image">
-              <img className="main-image" src={featuredImage ? featuredImage.link : null} alt='featured-image' />
+              <img className="main-image" src={this.state.featuredImage ? this.state.featuredImage.link : null} alt='featured-image' />
             </div>
         </header>
         }
-        {/* <div className="form-control">
-          <label htmlFor="recipeName">Recipe Name</label>
-          <input ref={this.props.recipeNameEl} type="text" id="recipeName" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeName : ""}/>
-        </div>
-        <div className="form-control">
-          <label htmlFor="minutesEstimate">Estimated Minutes</label>
-          <input ref={this.props.minutesEstimateEl} type="number" id="minutesEstimate" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.minutesEstimate : 1} />
-        </div> */}
+
         <div className="modal__content f fw">
           <div className="desktop-only ingredient-container section-body form-control"> {/*Ingredients*/}
           <Ingredients
@@ -180,26 +173,7 @@ viewHandler = e => {
               ingredientNameEl = {this.props.ingredientNameEl}
               modalType="update/create"
               /> 
-            {/* <div className="recipeIngredients_header f">
-              <label htmlFor="header"><b>Recipe Ingredients</b></label> 
-              <div className="add-recipe pointer" onClick={this.openIngredientHandler}>{this.state.openIngredientDropdown ? "Close x " : "Add Ingredient +"}</div>
-            </div>
-            <div className="form-control">
-              <label htmlFor="yields">Yields</label>
-              <input ref={this.props.yieldsEl} type="number" id="yields" defaultValue={this.state.updatedYield} />
-            </div> */}
-
-            {/* Ingredients List */}
-            {/* <ul className="ingredient-list" ref={this.props.recipeIngredientsEl} >
-              {this.state.ingredientsAdded && this.state.ingredientsAdded.map((ingredientObj, idx) => {
-                  return (
-                  <li className="ingredient-list_item f" key={idx}>
-                    <div className="remove-item pointer" id={ingredientObj.name} onClick={this.removeIngredientHandler}>X</div>
-                    <p><span data-amount={ingredientObj.amount}>{ingredientObj.amount}</span> <span data-unit={ingredientObj.unit}>{ingredientObj.unit}</span> - <span data-name={ingredientObj.name}>{ingredientObj.name}</span></p>
-                    </li> 
-                  )
-              })}
-            </ul> */}
+      
 
             
           </div>
