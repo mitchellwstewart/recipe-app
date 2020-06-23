@@ -335,10 +335,10 @@ class RecipesPage extends Component {
 
 
   imageUploadHandler = e => {
-    const imageForUpload = e.target.files[0]
-    
+    const imagesForUpload = e.target.files
+    console.log('imagseForUploads: ', imagesForUpload)
     this.setState(prevState => {
-      return {imageUploadQueue: [imageForUpload, ...prevState.imageUploadQueue]}
+      return {imageUploadQueue: [...imagesForUpload, ...prevState.imageUploadQueue]}
     })
   }
 
@@ -350,8 +350,9 @@ class RecipesPage extends Component {
     })
   }
 
-  handleSearch = e => {
+  handleSearch = async e => {
     let currentSearch = e.target.value
+    await this.setState({recipesInSearch: this.state.recipes})
     this.setState(prevState => {
       let newSearchedRecipes = prevState.recipes.filter(recipe => {
         return this.searchByEl.current.value.trim() === 'user'
@@ -525,8 +526,8 @@ class RecipesPage extends Component {
                     <option value="user">User Email</option>
                   </select>
                 </div>
+              <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `"Thai" or "Shortbread"` : `Search by user email`} />
               </div>
-              <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `Search (Try "Thai" or "Shortbread")` : `Search by user email`} />
               {this.state.allTags.length ?
               <div className="filterByTag mr2 mt05">
                 <div className="filter-title f aic pointer" onClick={this.handleFilterIcon }>

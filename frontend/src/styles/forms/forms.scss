@@ -21,7 +21,7 @@ form {
 .btn {
   cursor: pointer;
   transition: all 0.25s;
-  background: #7ca7b9!important;
+  background: #456a79!important;
   font: inherit;
   color: white!important;
   border: 1px solid #628492!important;
@@ -31,8 +31,8 @@ form {
    box-shadow: none!important;
   &:active, &:hover {
     background: white!important;
-    color: #7ca7b9!important;
-    border: 1px solid #7ca7b9!important;
+    color: #456a79!important;
+    border: 1px solid #456a79!important;
   }
 }
 
@@ -49,13 +49,18 @@ form {
   font-weight: 600;
   letter-spacing: 1px;
   height: 100%;
+  transition: all 0.25s;
   &_hover {
-    color: #6b6a6a;
+    color: #b4b4b4;
     border-bottom: none;
     transition: all 0.25s;
     &:hover {
-      color: black;
-      // border-bottom: 1px solid gray;
+      color: #4a4a4a;
+    }
+    &_underline{
+      &:hover {
+         border-bottom: 1px solid currentColor;
+      }
     }
   }
 }

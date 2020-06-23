@@ -35,9 +35,9 @@ class ViewModal extends Component {
     draggable: window.matchMedia('(min-width: 768px').matches ? false : true,
     on: {
       ready: function() {
-        console.log('Flickity is ready: ', this.element.querySelector('.flickity-slider'));
-        this.resize()
-        this.element.querySelector('.flickity-slider').style.transform = "translateX(0)!important"
+        // console.log('Flickity is ready: ', this.element.querySelector('.flickity-slider'));
+        // this.resize()
+        // this.element.querySelector('.flickity-slider').style.transform = "translateX(0)!important"
       },
       change: function( index ) {
         console.log( 'Slide changed to ' + index );
@@ -100,7 +100,7 @@ class ViewModal extends Component {
     const featuredImage = this.props.selectedRecipe.imageLinks.find(img => img.featured)
     return (
       <div className={`modal z2 ${this.state.fullscreenView ? 'image-fullscreen' : ''}`}>
-        <nav className="modal__nav pointer bcbl p0 m0 f jcb bcbl" >
+        <nav className="modal__nav pointer bcbl p0 m0 f jcb bcbl z1" >
         <section className="modal__header_actions f jce">
             {/* {this.props.canConfirm && <button className="btn" onClick={this.props.onConfirm}> {this.props.confirmText} </button>} */}
             {/* {this.props.canSubscribe &&
@@ -141,9 +141,9 @@ class ViewModal extends Component {
             <img className="main-image" src={featuredImage ? featuredImage.link : null} alt="featured-image" />
           </div>
         </header>
-        <section className="modal__content px1 f">
+        <section className="modal__content px1 f y">
           {/* Ingredients */}
-          <div className="desktop-only ingredient-container"> 
+          <div className="desktop-only ingredients-container section-body"> 
             {/* <header className="modal__content_ingredients_header fw5 robo caps fw7 ls1 underline">Ingredients</header> */}
             <Ingredients ingredients = {ingredients} selectedRecipe={this.props.selectedRecipe} modalType="view"/>
          </div>
@@ -159,7 +159,7 @@ class ViewModal extends Component {
             {this.state.viewing === "description" && 
             <div>
                 <section className="section-body description">
-                  <p className="caps ls1 fw6">Overview</p>
+                  <p className="caps fw6 underline pb025">Overview</p>
                   <p>{description}</p>
                 </section>
 
@@ -168,7 +168,7 @@ class ViewModal extends Component {
                 && <section className={`section-body images f x fdc rel ${this.state.fullscreenView ? 'fullscreen fill bccr' : ''}`} ref={this.imagesSection}>
                   <div className={`close-fullscreen f jce p1 ${this.state.fullscreenView ? '' : 'hidden'}`} onClick={this.closeFullscreen}><ClearIcon/></div>
                   
-                  {!this.state.fullscreenView && <p className="caps ls1 fw6">Photos</p> }
+                  {!this.state.fullscreenView && <p className="caps fw6 underline pb025">Photos</p> }
 
                   <div className="image-slider_container f">
                   <Flickity
@@ -201,27 +201,29 @@ class ViewModal extends Component {
                 }
                 {recipeLink && !this.state.badLink &&
                 // <a href={recipeLink} target="_blank">{`View Original Recipe`}</a>
-                <React.Fragment>
-                  <p className="caps ls1 fw6">Original Recipe:</p>
-                  <div  className="container--5">
-                    <ReactTinyLink
-                      cardSize="small"
-                      showGraphic={true}
-                      maxLine={2}
-                      minLine={1}
-                      url={recipeLink.includes('http') ? recipeLink : `https://${recipeLink}`}
-                      onError={() => this.setState({badLink: true})}
-                    />
-                  </div>
-                </React.Fragment>
+                <div className="section-body recipe-link">
+                  <React.Fragment>
+                    <p className="caps fw6 underline pb025">Original Recipe</p>
+                    <div className="container--5">
+                      <ReactTinyLink
+                        cardSize="small"
+                        showGraphic={true}
+                        maxLine={2}
+                        minLine={1}
+                        url={recipeLink.includes('http') ? recipeLink : `https://${recipeLink}`}
+                        onError={() => this.setState({badLink: true})}
+                      />
+                    </div>
+                  </React.Fragment>
+                </div>
                 }
 
 
               {this.props.selectedRecipe.tags.length > 0 && 
-              <div className="tag-container">
-              <p className="caps ls1 fw6"> Tags: </p>
+              <div className="tag-container section-body">
+              <p className="caps fw6 underline pb025"> Tags </p>
                 <div className="tag-list f">
-                {this.props.selectedRecipe.tags.map(tag => <div className="recipe-tag pr05" key={tag.tag}>{tag.tag}</div>)}
+                {this.props.selectedRecipe.tags.map(tag => <div className="tag" key={tag.tag}>{tag.tag}</div>)}
                 </div>
               </div>
               }
@@ -232,7 +234,7 @@ class ViewModal extends Component {
               <div className="steps-container mr1">
                 
               {steps.map(step => {
-                return <p key={step.stepNumber}>{step.stepNumber}. {step.stepInstruction}</p>
+                return <p className="f fdc mb05" key={step.stepNumber}> <span className="fw6 mb05">Step {step.stepNumber}.</span> <span>{step.stepInstruction}</span></p>
               })}
               </div>)
             }

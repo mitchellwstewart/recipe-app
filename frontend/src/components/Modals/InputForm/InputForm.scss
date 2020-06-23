@@ -37,59 +37,69 @@
         
       }
     }
-
-
   }
   
   &.create-recipe {
-
     .modal{
       &__content {
         
       }
     }
-  
   }
 
   .modal {
     &__content {
-      padding: 0 1rem;
+      border-bottom: 1px solid currentColor;
+      // padding: 0 1rem;
       &_main_container {
-        width: calc(50% - 1rem);
+        width: calc(50% - 2.1rem);
         max-width: 500px;
-        padding: 0 1rem;
+        padding: 0 0 0 1rem;
       }
-
-
       .section-body {
-          &.ingredient-container {
-            @media(min-width: 768px) {
-              width: calc(50% - 1rem);
-              max-width: 500px;
-            }
+        &.ingredients-container {
+          @media(min-width: 768px) {
+            padding: 0 1rem;
+            width: calc(50% - 2.1rem);
+            max-width: 500px;
           }
-          &.description-container {
+        }
+        &.description-container {
+          margin: 1em 0 0;
+          width: 100%;
+          textarea {
             width: 100%;
-            textarea {
+          }
+        }
+        &.steps-container {
+            @media(min-width: 768px) {
               width: 100%;
             }
+            .recipe-steps_list {
+              padding: 0;
+            }
+            .edit-controls {
+              svg {
+                fill: #b4b4b4;
+                stroke: #b4b4b4 ;
+                width: 12px;
+                height: 12px;
+              }
+            }
+        }
+
+        &.tag-container {
+          .tag{
+            &.tag-suggestion {
+              color: #7ca7b9 !important;
+              background: rgb(255, 247, 247)!important;
+              &:hover {
+                background: #7ca7b9 !important;
+              color: rgb(255, 247, 247)!important;
+              }
+            }
           }
-          &.steps-container {
-              @media(min-width: 768px) {
-                width: 100%;
-              }
-              .recipe-steps_list {
-                padding: 0;
-              }
-              .edit-controls {
-                svg {
-                  fill: #b4b4b4;
-                  stroke: #b4b4b4 ;
-                  width: 12px;
-                  height: 12px;
-                }
-              }
-          }
+        }
       }
       .recipe-images {
         .flickity-viewport{
