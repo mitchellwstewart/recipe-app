@@ -1,25 +1,34 @@
 import React, { Component } from 'react'
+import ClearIcon from '@material-ui/icons/Clear';
 import '../Modals.scss'
 import AuthContext from '../../../context/auth-context'
 
 class CreateAndUpdateModal extends Component {
-  state = {
-    viewing: 'description'
-  }
   constructor(props) {
     super(props)
+    this.state = {
+      viewing: 'description'
+    }
   }
   
   static contextType = AuthContext
 
+  componentDidMount() {
+    document.querySelector('.main-content').classList.add('lock')
+   }
   viewHandler = (e) => {
     this.setState({viewing: e.target.id})
   }
+  
   render() {
   return (
     <div className="modal create-update-modal z2">
-      <nav className="modal__nav pointer bcbl p0 m0 f" onClick={this.props.onCancel}><p>{`<- Back To Recipes`}</p></nav>
-      <header>{this.props.isUpdate ? "Update Recipe" : "Create Recipe"}</header>
+      <nav className="modal__nav pointer bcbl p0 m0 f jcb" onClick={this.props.onCancel}>
+      <header className="modal__header f jcb">{this.props.isUpdate ? "Update Recipe" : "Create Recipe"}</header>
+        <div className="p05 f aic">
+        <ClearIcon/></div>
+        </nav>
+      
       {this.props.validationError && <p className="caps cr">Validation Error: Check your inputs!</p>}
       {this.props.children}
       <div className="modal__header_actions f fdc jce p1">

@@ -2,37 +2,94 @@
   &__content {
     &_ingredients {
       width: 100%;
-      margin: 1rem;
-      @media(min-width: 768px) {
-        width: 20%;
-        max-width: 200px;
-      }
-      
+      //padding: 1rem;
+      padding-left: 0;
+      border-right: 1px solid #4a4a4a;
       &_header {
-        font-size: 1.5em;
+        font-size: 12px;
         margin-bottom: 0;
-        margin-top: 1rem;
+      }
+      .yield-count {
+        font-weight: 600;
+        &_amount {
+          max-width: 17px;
+          max-height: 17px;
+          border: none;
+          border-bottom: 1px solid #4a4a4a;
+          text-align: center;
+          position: relative; 
+          bottom: 0px;
+          padding: 0;
+          /* Chrome, Safari, Edge, Opera */
+          &::-webkit-outer-spin-button,
+          &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+          }
+          /* Firefox */
+            -moz-appearance: textfield;
+        }
       }
       &-list{
         @media(max-width: 767px) { padding-left: 0; }
-        .yield-count {
-          font-weight: 600;
-          &_amount {
-            max-width: 25px;
-            max-height: 25px;
-            border: none;
-            border-bottom: 1px solid black;
-            text-align: center;
-            position: relative; 
-            bottom: 2px;
-          }
-        }
+        padding: 0;
         .ingredient-container {
        
         }
-      }
+      }     
       
-     
+        .add-ingredient {
+          &:hover {
+            p {
+              border-bottom: 1px solid currentColor;
+              width: -moz-fit-content;
+              width: fit-content;
+            }
+          }
+        }
+          .ingredient-container.edit {
+            .ingredientInputContainer {
+              display: flex;
+              .form-control {
+                &.ingredient-amount, &.ingredient-unit, &.ingredient-name {
+                  margin-right: 1.75em;
+                  input, select {
+                    &::-webkit-outer-spin-button,
+                    &::-webkit-inner-spin-button {
+                      -webkit-appearance: none;
+                      margin: 0;
+                    }
+                    /* Firefox */
+                      -moz-appearance: textfield;
+                      
+                      border: none;
+                      border-bottom: 1px solid currentColor;
+                  }
+                  &.ingredient-amount {
+                    width: 20px;
+                  }
+
+                }
+              }
+            }
+           .add-ingredient, .edit-ingredient, .update-ingredient, .cancel-change {
+              &:hover {
+                p {
+                  border-bottom: 1px solid currentColor
+                }
+              }
+            }
+            .remove-ingredient {
+              svg {
+                fill: #b4b4b4;
+                stroke: #b4b4b4 ;
+                width: 12px;
+                height: 12px;
+              }
+            }
+          }
+        
+      
     }
   }
 }

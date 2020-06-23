@@ -21,18 +21,41 @@ form {
 .btn {
   cursor: pointer;
   transition: all 0.25s;
-  background: white;
+  background: #7ca7b9!important;
   font: inherit;
-  color: black;
-  border: 1px solid black;
+  color: white!important;
+  border: 1px solid #628492!important;
   border-radius: 2px;
   padding: 0.25rem 1rem;
   margin-right: 1rem;
-  // box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.26);
+   box-shadow: none!important;
   &:active, &:hover {
-    background: #53879e;
-    color: white;
-    font-weight: 600;
-    border: 1px solid black;
+    background: white!important;
+    color: #7ca7b9!important;
+    border: 1px solid #7ca7b9!important;
+  }
+}
+
+.soft-btn {
+  border: none;
+  background: transparent;
+  // border-bottom: 1px solid gray;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 0 0.5rem 0 0;
+  padding: 0;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  height: 100%;
+  &_hover {
+    color: #6b6a6a;
+    border-bottom: none;
+    transition: all 0.25s;
+    &:hover {
+      color: black;
+      // border-bottom: 1px solid gray;
+    }
   }
 }

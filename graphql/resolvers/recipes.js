@@ -10,30 +10,43 @@ const asyncForEach = async (array, callback) => {
 }
 const findOrCreateTags = async (recipeTags, recipe) => {
   let verifiedTags = []
-  if(recipe) { recipe = transformRecipe(recipe) }
+
+  if(recipe) { 
+    //console.log('existing recipe: ', recipe._id)
+    //recipe = transformRecipe(recipe) 
+    //console.log('transformed recipe: ', recipe._id)
+  }
   await asyncForEach(recipeTags, async ({ tag }) => {
     let tagResult = await Tag.findOne({tag: tag});
+    console.log("TAG RESULT: ", tagResult)
     if(!tagResult) tagResult = await new Tag ({ tag: tag, recipesWithTag: [] })
       const updatedRecipes = recipe 
       ? tagResult.recipesWithTag.length 
-        ? [...tagResult.recipesWithTag.filter(existingRecipe => existingRecipe != recipe._id), recipe._id]
+        ? [...tagResult.recipesWithTag.filter(existingRecipe => existingRecipe !== recipe._id), recipe._id]
         : [recipe._id]
       : []
       tagResult.recipesWithTag = updatedRecipes
       await tagResult.save()
-      verifiedTags.push({tag: tagResult.tag, _id: tagResult._id})
+
+      let verifiedTag = {
+        tag: tagResult.tag,
+         _id: tagResult._id,
+        recipesWithTag: tagResult.recipesWithTag
+      }
+      //console.log('verifieddTag: ', verifiedTag)
+      verifiedTags.push(tagResult)
     })
+    //console.log('verifiedTags: ', verifiedTags)
     return verifiedTags
 }
-
 const removeRecipeFromTag =  async (tagsForRecipeRemoval, recipeId) => {
   await asyncForEach(tagsForRecipeRemoval, async(tag) => {
     tag = transformTag(tag)
     const tagResult = await Tag.findById(tag._id) 
     tagResult.recipesWithTag = tagResult.recipesWithTag.filter(id => {
-      return id != recipeId
+      return id !== recipeId
     })
-    await tagResult.save()
+    !tagResult.recipesWithTag.length ? await tagResult.delete() : await tagResult.save()
   })
 }
 
@@ -43,7 +56,10 @@ module.exports = {
     recipes: async (args, req) => {
         try {
             const recipes = await Recipe.find()
-            return recipes.map(recipe =>  transformRecipe(recipe))
+             return recipes.map(recipe =>  {
+              recipe._doc.tags.forEach(tag => console.log('fpr each tag: ', tag._doc))
+              return transformRecipe(recipe)
+              })
         }
         catch(err) {
             throw err
@@ -69,7 +85,7 @@ module.exports = {
         })
         const recipeResult = await recipe.save()
         let updatedTagsWithRecipes = await findOrCreateTags( verifiedTags, recipeResult)
-        recipeResult.tags.push(...updatedTagsWithRecipes) // FIXME: Async recipesWithTag promise array not showing up. See in merge.js
+        recipeResult.tags.push(...updatedTagsWithRecipes) 
         recipeResult.save()
         let createdRecipe = transformRecipe(recipeResult)
         const creator = await User.findById(req.userId)
@@ -92,12 +108,14 @@ module.exports = {
         if(req.userId.toString() !== fetchedRecipe.creator.toString()) {
           throw new Error ('Unauthenticated: User does not own recipe')
         }
-
+        
+        const recipeTags = fetchedRecipe.tags
+        await removeRecipeFromTag(recipeTags, args.recipeId)
         const creator = await User.findById(req.userId)
-            if(!creator) { throw new Error ('USER NOT FOUND') }
-            creator.createdRecipes.filter(recipe => recipe != args.recipeId)
-            await creator.save()
-          const result = await fetchedRecipe.delete()
+        if(!creator) { throw new Error ('USER NOT FOUND') }
+        creator.createdRecipes = creator.createdRecipes.filter(recipe => recipe !== args.recipeId)
+        await creator.save()
+        const result = await fetchedRecipe.delete()
         return result._id
       }
       catch(err) { throw err }
@@ -111,7 +129,7 @@ module.exports = {
         const newTagData = {}
         args.recipeInput.tags.forEach(tagObj => newTagData[tagObj.tag] = tagObj)
          const tagsToRemove = recipeBeforeUpdate.tags.filter(tagObj =>  !newTagData[tagObj.tag] && tagObj)
-         const updatedTagsWithRecipe = await findOrCreateTags(args.recipeInput.tags, recipeBeforeUpdate)
+         
         await Recipe.updateOne(
           {_id: args.recipeId},
           { $set: {
@@ -127,17 +145,21 @@ module.exports = {
               creator: req.userId,
           }}
         );
+        const updatedTagsWithRecipe = await findOrCreateTags(args.recipeInput.tags, recipeBeforeUpdate)
         await removeRecipeFromTag(tagsToRemove, args.recipeId)
         const result =  await Recipe.findOne({_id: args.recipeId})
+        console.log("updatedTagsWithRecipe: ", updatedTagsWithRecipe)
         result.tags = updatedTagsWithRecipe
         result.save()
-
+          result._doc.tags.forEach(tag => console.log('fpr each tag: ', tag._doc))
         updatedRecipe = transformRecipe(result)
+        console.log('updatedRecipe: ', updatedRecipe)
          const creator = await User.findById(req.userId)
          if(!creator) { throw new Error ('USER NOT FOUND') }
-         const updatedRecipes = [...creator.createdRecipes.filter(recipe => recipe != args.recipeId), updatedRecipe]
+         const updatedRecipes = [...creator.createdRecipes.filter(recipe => recipe !== args.recipeId), updatedRecipe]
          creator.createdRecipes = updatedRecipes 
          await creator.save()
+         //console.log('updatedRecipe: ', updatedRecipe)
          return updatedRecipe
       }
       catch(err) { 
