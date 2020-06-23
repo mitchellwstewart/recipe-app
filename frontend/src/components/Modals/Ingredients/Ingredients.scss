@@ -2,7 +2,7 @@
   &__content {
     &_ingredients {
       width: 100%;
-      padding: 1rem;
+      //padding: 1rem;
       padding-left: 0;
       border-right: 1px solid #4a4a4a;
       &_header {
@@ -37,7 +37,7 @@
        
         }
       }     
-      &-container {
+      
         .add-ingredient {
           &:hover {
             p {
@@ -89,7 +89,7 @@
             }
           }
         
-      }
+      
     }
   }
 }
