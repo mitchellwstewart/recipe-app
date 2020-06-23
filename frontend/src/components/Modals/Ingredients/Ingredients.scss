@@ -2,12 +2,13 @@
   &__content {
     &_ingredients {
       width: 100%;
-      //padding: 1rem;
       padding-left: 0;
-      border-right: 1px solid #4a4a4a;
+      position: sticky;
+      top: 50px;
       &_header {
         font-size: 12px;
-        margin-bottom: 0;
+        margin-bottom: 2em;
+        border-bottom: 1.5px solid currentColor
       }
       .yield-count {
         font-weight: 600;

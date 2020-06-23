@@ -13,7 +13,7 @@ class Ingredient extends Component {
   render() {
     return (          
       <li key={this.props.idx} className="ingredient-container f aic">
-        <p className="ingredient-container_amount s14 caps" >{parseFloat((this.props.ingredient.amount * this.props.yields / this.state.startingYield).toFixed(2))} {this.props.ingredient.unit} - {this.props.ingredient.name}</p>
+        <p className="ingredient-container_amount s14 fw5" >{parseFloat((this.props.ingredient.amount * this.props.yields / this.state.startingYield).toFixed(2))} {this.props.ingredient.unit} {this.props.ingredient.name}</p>
       </li>
     )
   }
