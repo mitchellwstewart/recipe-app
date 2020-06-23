@@ -10,7 +10,14 @@
       padding: 1rem;
       border: 1px solid rgb(208, 224, 231);
       width: 100%;
-      @media (min-width: $break-mob){max-width:200px;}
+      @media (min-width: $break-mob){
+        width: 40%;
+        //max-width:500px;
+        min-width: 200px;
+      }
+      @media(min-width: 1030px) {
+        width: 20%;
+      }
       min-height: 200px;
       .overlay {
         background-color: transparent;

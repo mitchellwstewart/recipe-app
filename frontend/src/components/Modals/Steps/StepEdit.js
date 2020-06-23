@@ -45,19 +45,15 @@ render() {
           <div className="remove-step edit pointer" id={this.props.step.stepNumber} onClick={this.props.removeStepHandler} ><ClearIcon /></div>
         </div>
       </div>
-
       <div className={`edit-step py1 f x jcb ${this.state.openStepEditor ? "" : "hidden"}`}>
         <div className="section-body">
           <label htmlFor="step-item">Step: </label>
-
           <input type="text" className="step-content" ref={this.recipeStepEl} id="stepItem" onChange={e => console.log(this.props.recipeStepEl.current.value)} defaultValue={this.props.step.stepInstruction} />
         </div>
-
         <div className="edit-controls f aic jcc">
           <div className="edit-step edit pointer" onClick={this.confirmEditHandler}><p className="s12 clg mx05 my0">update +</p></div>
           <div className="remove-step edit pointer" id={this.props.step.stepNumber} onClick={this.openEditStepHandler} ><ClearIcon /></div>
         </div>
-       
       </div>
   </li> 
   )
