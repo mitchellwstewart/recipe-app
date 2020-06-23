@@ -1,7 +1,12 @@
 
-h1, h2, h3, h4, h5, p {
+h1, h2, h3, h4, h5, p, label {
   color: #4a4a4a
 }
+
+p {
+  font-size: 14px;
+}
+
 .ls05{
   letter-spacing: 0.5px;
 }

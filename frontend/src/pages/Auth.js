@@ -4,7 +4,9 @@ import AuthContext from '../context/auth-context'
 
 class AuthPage extends Component {
   state = {
-    isLogin: true
+    isLogin: true,
+    validationMessage: false
+
   }
 
   static contextType = AuthContext;
@@ -14,6 +16,10 @@ class AuthPage extends Component {
     this.passwordEl = React.createRef();
   }
 
+  handleValidation = () => {
+    this.setState({validationMessage: true})
+    setTimeout(() => this.setState({validationMessage: false}), 3000)
+  }
   switchModeHandler = () => {
     this.setState(prevState => {
       return {isLogin: !prevState.isLogin}
@@ -25,6 +31,7 @@ class AuthPage extends Component {
     const email = this.emailEl.current.value;
     const password = this.passwordEl.current.value;
     if(email.trim().length === 0 || password.trim().length === 0) {
+      this.handleValidation()
       return;
     }
 
@@ -70,8 +77,11 @@ if(!this.state.isLogin) {
         'Content-Type': 'application/json'
       }
     }).then(res => {
+      console.log('res: ', res.errors)
       if(res.status !== 200 && res.status !== 201) {
-        throw new Error('Failed!')
+        //this.handleValidation()
+        //throw new Error('Failed!')
+        return
       }
       return res.json()
     }).then(resData => {
@@ -81,7 +91,9 @@ if(!this.state.isLogin) {
     })
     
     .catch(err => {
-      throw err
+      console.log('err: ', err)
+      this.handleValidation()
+      //throw err
     })
   };
 
@@ -97,10 +109,12 @@ if(!this.state.isLogin) {
                 <label htmlFor="password">Password: </label>
                 <input type="password" id="password" ref={this.passwordEl} />
               </div>
+              <div className={`form-validation ${this.state.validationMessage ? '' : 'hidden'}`}>
+                <p className="cr">User Email or Password is incorrect. Try again or signup. </p>
+              </div>
               <div className="form-actions" >
               <button className="pointer" type="submit">Submit</button>
                 <button className="pointer" onClick={this.switchModeHandler} type="button">Switch to {this.state.isLogin ? 'Signup' : 'Login'}</button>
-                
               </div>
             </form>
 

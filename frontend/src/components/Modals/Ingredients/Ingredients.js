@@ -84,13 +84,13 @@ state = {
     return (
       <div className="modal__content_ingredients f fdc py1 mr2 ml0 ">
       <header className="modal__content_ingredients_header fw5 robo caps fw7 ls1 underline">Ingredients</header>
-        <div className="yield-count f">
-          <p className="pr025 m0 s14 fw5">Yields</p>
+        <div className="yield-count f caps ">
+          <p className="pr025 m0 s12 fw6">Yield: </p>
           {this.props.modalType === 'view'
-          ? <input className="yield-count_amount s14 robo" type="number" onChange={this.yieldHandler} defaultValue={this.state.updatedYield} />
-          : <input className="yield-count_amount s14 robo" type="number" onChange={this.yieldHandler} ref={this.props.yieldsEl} defaultValue={this.state.updatedYield} />
+          ? <input className="yield-count_amount s12 robo" type="number" onChange={this.yieldHandler} defaultValue={this.state.updatedYield} />
+          : <input className="yield-count_amount s12 robo" type="number" onChange={this.yieldHandler} ref={this.props.yieldsEl} defaultValue={this.state.updatedYield} />
           }
-        <p className="pl025 m0 s14 fw5 ls1">servings</p>
+        <p className="pl025 m0 s12 fw5 ls1">{this.state.updatedYield > 1 ? 'servings' : 'serving'}</p>
         </div>
       <ul ref = {this.props.recipeIngredientsEl} className="modal__content_ingredients-list f fdc pl1">
         {this.state.ingredientsAdded.map((ingredient, idx) => {
