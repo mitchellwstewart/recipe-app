@@ -1,7 +1,9 @@
-import React, { Component } from 'react'
-import { ReactTinyLink } from 'react-tiny-link'
+import React, { Component } from 'react';
+import { ReactTinyLink } from 'react-tiny-link';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import Flickity from 'react-flickity-component'
+import Flickity from 'react-flickity-component';
+import 'flickity-imagesloaded';
+
 
 import ClearIcon from '@material-ui/icons/Clear';
 import '../Modals.scss'
@@ -24,15 +26,18 @@ class ViewModal extends Component {
   }
   flickityOptions = {
     groupCells: 1,
-    percentPosition: true,
+    percentPosition: false,
     prevNextButtons: false,
     wrapAround: true,
     contain: true,
+    imagesLoaded: true,
     pageDots: window.matchMedia('(min-width: 768px').matches ? false : true,
     draggable: window.matchMedia('(min-width: 768px').matches ? false : true,
     on: {
       ready: function() {
-        console.log('Flickity is ready');
+        console.log('Flickity is ready: ', this.element.querySelector('.flickity-slider'));
+        this.resize()
+        this.element.querySelector('.flickity-slider').style.transform = "translateX(0)!important"
       },
       change: function( index ) {
         console.log( 'Slide changed to ' + index );
@@ -165,25 +170,25 @@ class ViewModal extends Component {
                   
                   {!this.state.fullscreenView && <p className="caps ls1 fw6">Photos</p> }
 
-                  <div className="image-slider_container f ">
+                  <div className="image-slider_container f">
                   <Flickity
-                        className={'recipe-images view f fw x y aic '} // default ''
-                        elementType={'div'} // default 'div'
-                        options={this.flickityOptions} // takes flickity options {}
-                        disableImagesLoaded={false} // default false
-                        reloadOnUpdate ={true}// default false
-                        static={false} // default false
-                        flickityRef={c => this.flkty = c}
+                      className={'recipe-images view f fw x y aic '} // default ''
+                      elementType={'div'} // default 'div'
+                      options={this.flickityOptions} // takes flickity options {}
+                      disableImagesLoaded={false} // default false
+                      reloadOnUpdate ={true}// default false
+                      static={false} // default false
+                      flickityRef={c => this.flkty = c}
                       >
                     {recipeImages.map((image, idx) => {
                       return (
-                        <div key={idx} className="image-container mr05" onClick={this.fullscreenHandler}>
-                          <img className="uploaded-image" src={image.link} />
+                        <div key={idx} className="image-container mr05 x" onClick={this.fullscreenHandler}>
+                          <img className="uploaded-image x" src={image.link} />
                         </div>
                       )
                     })}
                     </Flickity>
-                    { recipeImages.length > 2 && 
+                    { recipeImages.length > 1 && 
                       <React.Fragment>
                         <div className="arrow prev f jcc aic abs left" onClick={() => this.flkty.previous()}><ArrowBackIcon /></div>
                         <div className="arrow next f jcc aic abs right" onClick={() => this.flkty.next()}><ArrowBackIcon /></div>

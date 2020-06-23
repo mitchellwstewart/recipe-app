@@ -115,8 +115,9 @@ class RecipesPage extends Component {
     let newImageLinks = [];
           try {
           if(recipeImagesQueue.length) {
-           const imageUploaders = await recipeImagesQueue.map(image => {
+           const imageUploaders = await recipeImagesQueue.map(image => { 
              const formData = new FormData();
+             formData.append('file', image)
              formData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
              return axios({
                url: process.env.REACT_APP_IMAGE_UPLOAD_URL,

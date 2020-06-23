@@ -120,15 +120,19 @@
         .flickity-viewport{
           width: 100%;
           display: flex;
+          
+          justify-content: flex-start;
           overflow: hidden;
         }
         .flickity-slider {
           width: 100%;
           display: flex;
-          //transform: translateX(0%)
+
+          
         }
         &.fullscreen {
           position: absolute;
+          z-index: 100;
           .image-slider_container {
             .recipe-images {
               top: 0;
