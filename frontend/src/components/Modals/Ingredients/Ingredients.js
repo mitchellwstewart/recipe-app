@@ -20,7 +20,6 @@ state = {
   }
 
   yieldHandler = e => {
-    console.log('e.target.value: ', e.target.value)
     const value = parseFloat(e.target.value)
     !Number.isNaN(value) && this.setState({ updatedYield: value })
   }
@@ -39,8 +38,8 @@ state = {
     this.setState({openNewIngredientDropdown: !this.state.openNewIngredientDropdown})
   }
 
-  addIngredientHandler = (ingredientName, ingredientUnit, ingredientAmount, originalIngredientName) => {
-    if(!originalIngredientName && this.state.ingredientsAdded.find(ingredient => ingredient.name === ingredientName)) {
+  addNewIngredientHandler = (ingredientName, ingredientUnit, ingredientAmount) => {
+    if(this.state.ingredientsAdded.find(ingredient => ingredient.name === ingredientName)) {
       this.setState({ingredientValidation: true})
       setTimeout(()=>{
         this.setState({ingredientValidation: false})
@@ -54,12 +53,22 @@ state = {
         unit: ingredientUnit,
       }
      this.setState(prevState => {
-       const updatedIngredients = originalIngredientName 
-        ? [...prevState.ingredientsAdded.filter(ingredient => ingredient.name != originalIngredientName), ingredientObj] 
-        : [...prevState.ingredientsAdded, ingredientObj]
+       const updatedIngredients = [...prevState.ingredientsAdded, ingredientObj]
        return {ingredientsAdded: updatedIngredients, openNewIngredientDropdown: false}
      })
     }
+  }
+
+  updateIngredientHandler = (ingredientName, ingredientUnit, ingredientAmount, originalIngredientName) => {
+      const ingredientObj = { 
+        name: ingredientName,
+        amount: +ingredientAmount,
+        unit: ingredientUnit,
+      }
+     this.setState(prevState => {
+       const updatedIngredients = [...prevState.ingredientsAdded.map(ingredient => ingredient.name === originalIngredientName ? ingredientObj : ingredient)] 
+       return {ingredientsAdded: updatedIngredients, openNewIngredientDropdown: false}
+     })
   }
   removeIngredientHandler = (e) => {
    let deleteSelectionName = e.currentTarget.id
@@ -73,7 +82,7 @@ state = {
 
   render() {
     return (
-      <div className="modal__content_ingredients f fdc my1 mr2 ml0 ">
+      <div className="modal__content_ingredients f fdc py1 mr2 ml0 ">
       <header className="modal__content_ingredients_header fw5 robo caps fw7 ls1 underline">Ingredients</header>
         <div className="yield-count f">
           <p className="pr025 m0 s14 fw5">Yields</p>
@@ -96,7 +105,7 @@ state = {
             ingredientUnitEl = {this.props.ingredientUnitEl}
             ingredientNameEl = {this.props.ingredientNameEl}
             ingredientValidation = {this.state.ingredientValidation}
-            addIngredientHandler = {this.addIngredientHandler}
+            updateIngredientHandler = {this.updateIngredientHandler}
             removeIngredientHandler={this.removeIngredientHandler}
             /> 
             :  <Ingredient 
@@ -119,7 +128,7 @@ state = {
           ingredientUnitEl = {this.props.ingredientUnitEl}
           ingredientNameEl = {this.props.ingredientNameEl}
           ingredientValidation = {this.state.ingredientValidation}
-          addIngredientHandler = {this.addIngredientHandler}
+          addNewIngredientHandler = {this.addNewIngredientHandler}
           newIngredientAdder={this.state.openNewIngredientDropdown}
           openNewIngredientHandler = {this.openNewIngredientHandler}
           /> 

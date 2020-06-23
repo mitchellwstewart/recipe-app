@@ -42,20 +42,17 @@ class ViewModal extends Component {
 
   static contextType = AuthContext
   componentDidMount = () => {
-    console.log('MOUNTED')
     document.querySelector('body').classList.add('lock')
     
   }
   
   componentDidUpdate() {
-    console.log('UPDATE FOR SURE')
-    this.flkty.resize()
+    this.flkty.resize && this.flkty.resize()
     document.querySelector('body').classList.add('lock')
     
   }
 
   viewHandler = (e) => {
-    console.log('view handler')
     e.preventDefault()
     this.setState({ viewing: e.target.id })
   }
@@ -95,6 +92,7 @@ class ViewModal extends Component {
     const estimateTime = this.props.selectedRecipe.minutesEstimate
     const recipeLink = this.props.selectedRecipe.link
     const recipeImages = this.props.selectedRecipe.imageLinks
+    const featuredImage = this.props.selectedRecipe.imageLinks.find(img => img.featured)
     return (
       <div className={`modal z2 ${this.state.fullscreenView ? 'image-fullscreen' : ''}`}>
         <nav className="modal__nav pointer bcbl p0 m0 f jcb bcbl" >
@@ -135,7 +133,7 @@ class ViewModal extends Component {
             <p>Time: {estimateTime} {estimateTime > 1 ? " mins" : ' min'}</p>
           </div>
           <div className="featured-image">
-            <img className="main-image" src={this.props.selectedRecipe.imageLinks.find(img => img.featured).link} />
+            <img className="main-image" src={featuredImage ? featuredImage.link : null} alt="featured-image" />
           </div>
         </header>
         <section className="modal__content px1 f">
