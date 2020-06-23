@@ -12,6 +12,7 @@ import RecipeList from '../components/Recipes/RecipeList/RecipeList'
 import Spinner from '../components/Spinner/Spinner'
 import {createRecipeMutation, updateRecipeMutation, fetchRecipesQuery} from '../graphqlQueries/queries'
 import axios from 'axios'
+import cloudinary from 'cloudinary-core'
 require('dotenv').config()
 
 class RecipesPage extends Component {
@@ -27,6 +28,7 @@ class RecipesPage extends Component {
     validationError: false,
     featuredImage: null,
     imageUploadQueue: [],
+    imageDeleteQueue: [],
     allTags: [],
     filterOpen: false,
   }
@@ -119,6 +121,9 @@ class RecipesPage extends Component {
              const formData = new FormData();
              formData.append('file', image)
              formData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
+
+            //  const cl = new cloudinary.Cloudinary({cloud_name: process.env.REACT_APP_CLOUD_NAME, secure: true})
+            //  cl.v2.uploader.unsigned_upload(image, process.env.REACT_APP_UPLOAD_PRESET, null, ()=>{console.log('single upload finished')})
              return axios({
                url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
                method: "POST",
@@ -139,6 +144,10 @@ class RecipesPage extends Component {
            await axios.all(imageUploaders).then((res)=>{
              this.setState({imageUploadQueue: []})
            })
+          }
+
+          if(this.state.imageDeleteQueue.length) {
+            this.deleteFromCloudinary(this.state.imageDeleteQueue)
           }
          if(link.trim().length > 0 && recipeName.trim().length > 0) { this.setState({validationError: false}) }
          else if(
@@ -350,6 +359,21 @@ class RecipesPage extends Component {
     })
   }
 
+  updateImageDeleteQueue = async imageId => {
+    //const imageToDelete = e.currentTarget.dataset.image
+    console.log('IMAGE DELETE HANDLER: ', imageId)
+    await this.setState(prevState => {
+      let newImageDeleteQueue = [...prevState.imageDeleteQueue, imageId]
+      console.log('new delete queue: ', newImageDeleteQueue)
+      return {imageDeleteQueue: newImageDeleteQueue}
+    })
+    console.log('images to delete from Cloudinary: ', this.state.imageDeleteQueue)
+  }
+
+  deleteFromCloudinary = images => {
+    console.log('delete images from coudinary: ', images)
+  }
+
   handleSearch = async e => {
     let currentSearch = e.target.value
     await this.setState({recipesInSearch: this.state.recipes})
@@ -503,6 +527,7 @@ class RecipesPage extends Component {
           ingredientUnitEl={this.ingredientUnitEl}
           ingredientNameEl={this.ingredientNameEl}
           imageHandler = {this.imageUploadHandler}
+          updateImageDeleteQueue = {this.updateImageDeleteQueue}
           imageEl = {this.imageEl}
           removeFromQueue = {this.removeImageFromQueue}
           uploadedImagesEl = {this.uploadedImagesEl}
