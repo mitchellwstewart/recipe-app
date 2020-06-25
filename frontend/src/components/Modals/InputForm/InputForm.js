@@ -34,7 +34,7 @@ class InputForm extends Component  {
        imagesAdded: this.props.recipeToUpdate.imageLinks,
        showImageUploader: false,
        tagsAdded: this.props.recipeToUpdate.tags.map(tagObj => tagObj.tag),
-       featuredImage: this.props.recipeToUpdate.imageLinks.find(image => image.featured)
+       featuredImage: this.props.recipeToUpdate.imageLinks.find(image => image.featured === true)
      })
      
      console.log('this.state: ', this.state)
@@ -121,9 +121,11 @@ viewHandler = e => {
     })
   }
 
-  handleFeaturedImage = (e) => {
+  handleFeaturedImage = async (e) => {
+    console.log('e.target.value: ', e.target.value)
     let selectedImageObj = this.props.recipeToUpdate.imageLinks.find(image => image._id === e.target.value)
-    this.setState({featuredImage: selectedImageObj})
+    await this.setState({featuredImage: selectedImageObj})
+    console.log('new featured: ', this.state.featuredImage)
   }
 
   removeFromQueue = e => {
@@ -131,13 +133,18 @@ viewHandler = e => {
     this.props.removeFromQueue(e)
   }
 
-  handleDeleteImage = imageId => {
-    console.log('imageId', imageId)
-    console.log('this.props from recipe to input: ', this.props)
-    console.log('WHEN FEATURED IS REMOVED, WE MUST RESET FEATURED IMAGE')
-    const updatedImages = this.state.imagesAdded.filter(image => image._id !== imageId)
-    this.setState({imagesAdded: updatedImages})
-    this.props.updateImageDeleteQueue(imageId)
+  handleDeleteImage = async imageId => {
+    let newFeaturedImage;
+    this.state.imagesAdded.forEach((image, idx) => {
+      if(image.featured) {
+        if(this.state.imagesAdded[idx-1]) newFeaturedImage = this.state.imagesAdded[idx-1]
+        else if (this.state.imagesAdded[idx+1]) newFeaturedImage = this.state.imagesAdded[idx+1]
+      }
+    });
+    newFeaturedImage.featured = true
+    const updatedImages = this.state.imagesAdded.filter((image) => image._id !== imageId)
+     await this.setState({imagesAdded: updatedImages, featuredImage: newFeaturedImage})
+     this.props.updateImageDeleteQueue(imageId)
   }
 
  
@@ -167,16 +174,16 @@ viewHandler = e => {
         }
         <div className="modal__content f fw">
           <div className="desktop-only ingredients-container section-body form-control"> {/*Ingredients*/}
-          <Ingredients
-            ingredients = {this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeIngredients : []} 
-            recipeToUpdate={this.props.recipeToUpdate ? this.props.recipeToUpdate : null}
-            yieldsEl = {this.props.yieldsEl}
-            recipeIngredientsEl = {this.props.recipeIngredientsEl}
-            ingredientAmountEl = {this.props.ingredientAmountEl}
-            ingredientUnitEl = {this.props.ingredientUnitEl}
-            ingredientNameEl = {this.props.ingredientNameEl}
-            modalType="update/create"
-            /> 
+            <Ingredients
+              ingredients = {this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeIngredients : []} 
+              recipeToUpdate={this.props.recipeToUpdate ? this.props.recipeToUpdate : null}
+              yieldsEl = {this.props.yieldsEl}
+              recipeIngredientsEl = {this.props.recipeIngredientsEl}
+              ingredientAmountEl = {this.props.ingredientAmountEl}
+              ingredientUnitEl = {this.props.ingredientUnitEl}
+              ingredientNameEl = {this.props.ingredientNameEl}
+              modalType="update/create"
+              /> 
           </div>
           <div className="modal__content_main_container"> 
             <ul className="modal__content_main_nav f jcs pl0">

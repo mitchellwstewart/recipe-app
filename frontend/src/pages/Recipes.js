@@ -342,7 +342,6 @@ class RecipesPage extends Component {
       })
   }
 
-
   imageUploadHandler = e => {
     const imagesForUpload = e.target.files
     console.log('imagseForUploads: ', imagesForUpload)
@@ -362,7 +361,6 @@ class RecipesPage extends Component {
   updateImageDeleteQueue = async imageId => {
     //const imageToDelete = e.currentTarget.dataset.image
     console.log('IMAGE DELETE HANDLER: ', imageId)
-    console.log('Mitch - when featured image is removed, featured image should be reset')
     await this.setState(prevState => {
       let newImageDeleteQueue = [...prevState.imageDeleteQueue, imageId]
       console.log('new delete queue: ', newImageDeleteQueue)
@@ -389,8 +387,6 @@ class RecipesPage extends Component {
       return {recipesInSearch: newSearchedRecipes}
     })
   }
-
-
 
   handleTagSelection = e => {
     if(e.currentTarget.dataset.clear) {
