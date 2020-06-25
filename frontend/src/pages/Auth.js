@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './Auth.scss'
 import AuthContext from '../context/auth-context'
+import Button from '@material-ui/core/Button';
 
 class AuthPage extends Component {
   state = {
@@ -100,6 +101,8 @@ if(!this.state.isLogin) {
   
     render() {
         return(
+          <div className="auth-container f fdc">
+            <h3>{this.state.isLogin ? "Welcome back! Log in with your email" : "Welcome! Sign up for an account"}</h3>
             <form className="auth-form" onSubmit={this.submitHandler}>
               <div className="form-control" >
                 <label htmlFor="email">Email: </label>
@@ -113,11 +116,12 @@ if(!this.state.isLogin) {
                 <p className="cr">User Email or Password is incorrect. Try again or signup. </p>
               </div>
               <div className="form-actions" >
-              <button className="pointer" type="submit">Submit</button>
-                <button className="pointer" onClick={this.switchModeHandler} type="button">Switch to {this.state.isLogin ? 'Signup' : 'Login'}</button>
+              <Button className="btn pointer mr05" type="submit" >Submit</Button>
+              
+                <Button className=" btn pointer mr05" onClick={this.switchModeHandler} type="button">Switch to {this.state.isLogin ? 'Signup' : 'Login'}</Button>
               </div>
             </form>
-
+          </div>
         );
     }
 
