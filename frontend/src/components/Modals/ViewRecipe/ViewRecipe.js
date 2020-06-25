@@ -133,7 +133,7 @@ class ViewModal extends Component {
           <div className="py05 f aic " onClick={this.props.onCancel}><ClearIcon /></div>
         </nav>
         <header className="modal__header main f jcb ">
-          <div className="title f fdc x2 jcc">
+          <div className="title f fdc x2 jcc mt1">
             <h1 className="suiz">{recipeName}</h1>
             <p>Time: {estimateTime} {estimateTime > 1 ? " mins" : ' min'}</p>
           </div>

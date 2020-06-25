@@ -362,6 +362,7 @@ class RecipesPage extends Component {
   updateImageDeleteQueue = async imageId => {
     //const imageToDelete = e.currentTarget.dataset.image
     console.log('IMAGE DELETE HANDLER: ', imageId)
+    console.log('Mitch - when featured image is removed, featured image should be reset')
     await this.setState(prevState => {
       let newImageDeleteQueue = [...prevState.imageDeleteQueue, imageId]
       console.log('new delete queue: ', newImageDeleteQueue)
@@ -538,7 +539,7 @@ class RecipesPage extends Component {
           allTags={this.state.allTags}
           />
         </CreateAndUpdateModal>)}
-          <h1 className="ac  fw5 suiz  fw7 italic">All Recipes</h1> 
+          <h1 className="ac fw5 suiz fw7 italic mt1">All Recipes</h1> 
         <div className="recipes-control f jcb container--5">
           <div className="left-control f fdc ">
             <div className="f fdc">
@@ -560,7 +561,7 @@ class RecipesPage extends Component {
                   <div className={`plus-icon f ${this.state.filterOpen ? 'active' : ""}`} ><ClearIcon /></div>
                 </div>
                 
-                <ul className={`tag-container f container--5 fw p0 ${this.state.filterOpen ? 'active' : ''}`}>
+                <ul className={`tag-container f aic mt0 container--5 fw p0 ${this.state.filterOpen ? 'active' : ''}`}>
                   {this.state.allTags.map((tag, idx )=> {
                     if(tag.recipesWithTag && tag.recipesWithTag.length > 0) {
                       return <li key={idx} className="pointer pr05 tag f jcc aic py025 px075 mr025 mb025" onClick={this.handleTagSelection}>{tag.tag}</li>

@@ -150,7 +150,7 @@ viewHandler = e => {
         <header className="modal__header main f jcb section-body">
             <div className="title f fdc x2 jcc rel">
             <p className="small s12 clg abs top mt0">Click on any field to edit</p>
-              <div className="title-edit_container form-control">
+              <div className="title-edit_container form-control mt1">
                 <textarea className="suiz fw6 f fw p0" ref={this.props.recipeNameEl} type="text" id="recipeName" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeName : ""}/>
               </div>
               <div className="time-edit_container form-control">
