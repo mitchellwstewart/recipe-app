@@ -12,6 +12,7 @@ import RecipeList from '../components/Recipes/RecipeList/RecipeList'
 import Spinner from '../components/Spinner/Spinner'
 import {createRecipeMutation, updateRecipeMutation, fetchRecipesQuery} from '../graphqlQueries/queries'
 import axios from 'axios'
+import cloudinary from 'cloudinary-core'
 require('dotenv').config()
 
 class RecipesPage extends Component {
@@ -27,6 +28,7 @@ class RecipesPage extends Component {
     validationError: false,
     featuredImage: null,
     imageUploadQueue: [],
+    imageDeleteQueue: [],
     allTags: [],
     filterOpen: false,
   }
@@ -115,9 +117,13 @@ class RecipesPage extends Component {
     let newImageLinks = [];
           try {
           if(recipeImagesQueue.length) {
-           const imageUploaders = await recipeImagesQueue.map(image => {
+           const imageUploaders = await recipeImagesQueue.map(image => { 
              const formData = new FormData();
+             formData.append('file', image)
              formData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
+
+            //  const cl = new cloudinary.Cloudinary({cloud_name: process.env.REACT_APP_CLOUD_NAME, secure: true})
+            //  cl.v2.uploader.unsigned_upload(image, process.env.REACT_APP_UPLOAD_PRESET, null, ()=>{console.log('single upload finished')})
              return axios({
                url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
                method: "POST",
@@ -138,6 +144,10 @@ class RecipesPage extends Component {
            await axios.all(imageUploaders).then((res)=>{
              this.setState({imageUploadQueue: []})
            })
+          }
+
+          if(this.state.imageDeleteQueue.length) {
+            this.deleteFromCloudinary(this.state.imageDeleteQueue)
           }
          if(link.trim().length > 0 && recipeName.trim().length > 0) { this.setState({validationError: false}) }
          else if(
@@ -332,12 +342,11 @@ class RecipesPage extends Component {
       })
   }
 
-
   imageUploadHandler = e => {
-    const imageForUpload = e.target.files[0]
-    
+    const imagesForUpload = e.target.files
+    console.log('imagseForUploads: ', imagesForUpload)
     this.setState(prevState => {
-      return {imageUploadQueue: [imageForUpload, ...prevState.imageUploadQueue]}
+      return {imageUploadQueue: [...imagesForUpload, ...prevState.imageUploadQueue]}
     })
   }
 
@@ -349,8 +358,24 @@ class RecipesPage extends Component {
     })
   }
 
-  handleSearch = e => {
+  updateImageDeleteQueue = async imageId => {
+    //const imageToDelete = e.currentTarget.dataset.image
+    console.log('IMAGE DELETE HANDLER: ', imageId)
+    await this.setState(prevState => {
+      let newImageDeleteQueue = [...prevState.imageDeleteQueue, imageId]
+      console.log('new delete queue: ', newImageDeleteQueue)
+      return {imageDeleteQueue: newImageDeleteQueue}
+    })
+    console.log('images to delete from Cloudinary: ', this.state.imageDeleteQueue)
+  }
+
+  deleteFromCloudinary = images => {
+    console.log('delete images from coudinary: ', images)
+  }
+
+  handleSearch = async e => {
     let currentSearch = e.target.value
+    await this.setState({recipesInSearch: this.state.recipes})
     this.setState(prevState => {
       let newSearchedRecipes = prevState.recipes.filter(recipe => {
         return this.searchByEl.current.value.trim() === 'user'
@@ -362,8 +387,6 @@ class RecipesPage extends Component {
       return {recipesInSearch: newSearchedRecipes}
     })
   }
-
-
 
   handleTagSelection = e => {
     if(e.currentTarget.dataset.clear) {
@@ -501,6 +524,7 @@ class RecipesPage extends Component {
           ingredientUnitEl={this.ingredientUnitEl}
           ingredientNameEl={this.ingredientNameEl}
           imageHandler = {this.imageUploadHandler}
+          updateImageDeleteQueue = {this.updateImageDeleteQueue}
           imageEl = {this.imageEl}
           removeFromQueue = {this.removeImageFromQueue}
           uploadedImagesEl = {this.uploadedImagesEl}
@@ -511,7 +535,7 @@ class RecipesPage extends Component {
           allTags={this.state.allTags}
           />
         </CreateAndUpdateModal>)}
-          <h1 className="ac  fw5 suiz  fw7 italic">All Recipes</h1> 
+          <h1 className="ac fw5 suiz fw7 italic mt1">All Recipes</h1> 
         <div className="recipes-control f jcb container--5">
           <div className="left-control f fdc ">
             <div className="f fdc">
@@ -524,8 +548,8 @@ class RecipesPage extends Component {
                     <option value="user">User Email</option>
                   </select>
                 </div>
+              <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `"Thai" or "Shortbread"` : `Search by user email`} />
               </div>
-              <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `Search (Try "Thai" or "Shortbread")` : `Search by user email`} />
               {this.state.allTags.length ?
               <div className="filterByTag mr2 mt05">
                 <div className="filter-title f aic pointer" onClick={this.handleFilterIcon }>
@@ -533,7 +557,7 @@ class RecipesPage extends Component {
                   <div className={`plus-icon f ${this.state.filterOpen ? 'active' : ""}`} ><ClearIcon /></div>
                 </div>
                 
-                <ul className={`tag-container f container--5 fw p0 ${this.state.filterOpen ? 'active' : ''}`}>
+                <ul className={`tag-container f aic mt0 container--5 fw p0 ${this.state.filterOpen ? 'active' : ''}`}>
                   {this.state.allTags.map((tag, idx )=> {
                     if(tag.recipesWithTag && tag.recipesWithTag.length > 0) {
                       return <li key={idx} className="pointer pr05 tag f jcc aic py025 px075 mr025 mb025" onClick={this.handleTagSelection}>{tag.tag}</li>

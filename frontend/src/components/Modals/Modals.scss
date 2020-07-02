@@ -18,6 +18,9 @@
     left: calc((100% - 50rem) / 2)
   }
   &__nav {
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid #4a4a4a;
     height: 50px;
     padding: 0 1rem;
     .action-container {
@@ -63,7 +66,6 @@
       padding: 1rem;
       background: white(1, 10, 129);;
       color: #4a4a4a;
-      border-top: 1px solid #4a4a4a;
       border-bottom: 1px solid #4a4a4a;
       h1{
         margin: 0;
@@ -76,12 +78,12 @@
   }
 
   &__content {
-   
     &_main {
       @media(max-width: 767px) {
         width: 100%;
       }
       &_nav {
+
         @media(max-width: 767px) {
           justify-content: space-around;
         }
@@ -91,7 +93,7 @@
             //font-size: 1.5em;
           }
           margin-bottom: 0;
-          &.active { border-bottom: 1px solid #4a4a4a; }
+          &.active { border-bottom: 1.5px solid currentColor; }
         }
       }
       .uploaded-image {
@@ -105,10 +107,16 @@
 
 
     .section-body {
-      &.ingredient-container {
+      margin: 2rem 0 0;
+      &:last-of-type {
+        margin-bottom: 2rem;
+      }
+      &.ingredients-container {
+        margin-top: 0;
         @media(min-width: 768px) {
           width: 20%;
           max-width: 200px;
+          border-right: 1px solid #4a4a4a;
         }
       }
       &.description-container, &.steps-container {
@@ -120,15 +128,19 @@
         .flickity-viewport{
           width: 100%;
           display: flex;
+          
+          justify-content: flex-start;
           overflow: hidden;
         }
         .flickity-slider {
           width: 100%;
           display: flex;
-          //transform: translateX(0%)
+
+          
         }
         &.fullscreen {
           position: absolute;
+          z-index: 100;
           .image-slider_container {
             .recipe-images {
               top: 0;
@@ -194,6 +206,32 @@
             }
           }
         }
+      }
+
+      &.recipe-link {
+
+      }
+      &.tag-container {
+          font-size: 10px;
+          .tag {
+            border: 1px solid #4a4a4a;
+            border-radius: 25px;
+            transition: all 0.25s;
+            background: #7ca7b9 !important;
+            color: rgb(255, 247, 247);
+            font-size: 12px;
+            max-height: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.25em 0.5em;
+            margin-right: 0.5em;
+            // &:hover {
+            //   color: #7ca7b9;
+            //   background: white!important;
+            //   border-color: #7ca7b9
+            // }
+          }
       }
     }
   }

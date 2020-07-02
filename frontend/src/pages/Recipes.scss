@@ -15,7 +15,7 @@ h1 {
     flex-direction: row;
     width: 80%;
     max-width: 1500px;
-    margin: 1rem auto 0;
+    margin: 1rem auto 3em;
     .left-control, .right-control {
       width: 50%;
     }
@@ -27,11 +27,18 @@ h1 {
     // max-height: 30px;
     width: 100%;
    
-    .search__container {
+    .search__container {    
       #search {
         width: 95%;
         height: 100%;
-        min-height: 25px;
+        min-height: 30px;
+        //border-radius: 25px;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid #456a79;
+        color: #456a79;
+        font-size: 1.5em;
+        font-weight: 700;
       }
       @media(min-width: 768px) {
         min-width: 400px;
@@ -111,6 +118,7 @@ h1 {
           background: #7ca7b9 !important;
           color: rgb(255, 247, 247);
           font-size: 12px;
+          max-height: 15px;
           &:hover {
             color: #7ca7b9;
             background: white!important;
@@ -130,10 +138,10 @@ h1 {
       height: 100%;
       max-height: 30px;
       color: white ;
-      border: 1px solid #7ca7b9;
+      border: 1px solid #456a79;
       margin-bottom: 0.25em;
       &:hover {
-        color: #7ca7b9;
+        color: #456a79;
       }
     }
   }
