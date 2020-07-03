@@ -141,6 +141,7 @@
         &.fullscreen {
           position: absolute;
           z-index: 100;
+          margin: 0;
           .image-slider_container {
             .recipe-images {
               top: 0;
