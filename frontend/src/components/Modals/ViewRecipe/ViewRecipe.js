@@ -106,11 +106,11 @@ class ViewModal extends Component {
             }
             {this.props.canDelete && 
               <div className="action-container delete-actions f aic">
-              <div className="f">
+              <div className="f aic">
               {this.state.confirmDelete 
                 ? <React.Fragment>
                   <div className="confirm-delete soft-btn soft-btn_hover" onClick={this.props.onDelete}>Confirm Delete</div>
-                  <div className="cancel-delete" onClick={this.deleteHandler}><ClearIcon /></div>
+                  <div className="cancel-delete f aic" onClick={this.deleteHandler}><ClearIcon /></div>
                 </React.Fragment>
                 : <div className="soft-btn soft-btn_hover" onClick={this.deleteHandler}>{this.  props.deleteText}</div>}
                   </div> 
