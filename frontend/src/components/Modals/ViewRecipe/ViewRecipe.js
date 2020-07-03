@@ -33,16 +33,6 @@ class ViewModal extends Component {
     imagesLoaded: true,
     pageDots: window.matchMedia('(min-width: 768px').matches ? false : true,
     draggable: window.matchMedia('(min-width: 768px').matches ? false : true,
-    on: {
-      ready: function() {
-        // console.log('Flickity is ready: ', this.element.querySelector('.flickity-slider'));
-        // this.resize()
-        // this.element.querySelector('.flickity-slider').style.transform = "translateX(0)!important"
-      },
-      change: function( index ) {
-        console.log( 'Slide changed to ' + index );
-      }
-    }
   }
 
   static contextType = AuthContext
