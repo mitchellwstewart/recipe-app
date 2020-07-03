@@ -3,7 +3,9 @@ import ClearIcon from '@material-ui/icons/Clear';
 import './InputForm.scss'
 import Ingredients from '../Ingredients/Ingredients';
 import StepEdit from '../Steps/StepEdit'
-import ImageEdit from '../ImagesList/ImageEdit'
+import ImageEdit from '../ImagesList/ImageEdit';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
 class InputForm extends Component  {
   constructor(props) {
     super(props)
@@ -19,15 +21,28 @@ class InputForm extends Component  {
       tagSuggestions: [],
       featuredImage: null,
       confirmDelete: false,
+      columns: { 
+        'column1' : {
+          name: 'ToDo',
+          items: [
+            {id: 'item1', content: 'first task'},
+            {id: 'item2', content: 'second task'},
+            {id: 'item3', content: 'third task'}
+          ]
+        },
+        // 'column2' : {
+        //   name: 'In progress',
+        //   items: [
+        //   ]
+        // }
+      }
     }
-
-
     this.tagSuggestionsEl = React.createRef();
     this.imageFileInputEl = React.createRef();
   }
   componentDidMount = async () => {
     if(this.props.recipeToUpdate) {
-      console.log('this.props.recipeToUpdate.imageLinks: ', this.props.recipeToUpdate.imageLinks.find(image => image.featured))
+      // console.log('this.props.recipeToUpdate.imageLinks: ', this.props.recipeToUpdate.imageLinks.find(image => image.featured))
       await this.setState({
        ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
        stepsAdded: this.props.recipeToUpdate.recipeSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}),
@@ -37,7 +52,7 @@ class InputForm extends Component  {
        featuredImage: this.props.recipeToUpdate.imageLinks.find(image => image.featured === true)
      })
      
-     console.log('this.state: ', this.state)
+    //  console.log('this.state: ', this.state)
     } 
   }
 
@@ -122,10 +137,8 @@ viewHandler = e => {
   }
 
   handleFeaturedImage = async (e) => {
-    console.log('e.target.value: ', e.target.value)
     let selectedImageObj = this.props.recipeToUpdate.imageLinks.find(image => image._id === e.target.value)
     await this.setState({featuredImage: selectedImageObj})
-    console.log('new featured: ', this.state.featuredImage)
   }
 
   removeFromQueue = e => {
@@ -147,10 +160,19 @@ viewHandler = e => {
      this.props.updateImageDeleteQueue(imageId)
   }
 
- 
+  onDragEnd = async (result, columns, setColumns) => {
+    if(!result.destination) return;
+    const { source, destination } = result;
+    const copiedItems = [...this.state.stepsAdded]
+    const [removed] = copiedItems.splice(source.index, 1);
+    copiedItems.splice(destination.index, 0, removed);
+      await this.setState({stepsAdded: copiedItems.map((step, idx) => {
+        return {...step, stepNumber: idx + 1}
+      })})
+  }
 
   render() {
-    
+    this.props.recipeStepsEl && console.log('this.props.recipeStepsEl:', this.props.recipeStepsEl.children)
     return (
       <form encType="multipart/form-data" className={`recipe-form ${this.props.recipeToUpdate ? 'update-recipe' : 'create-recipe'}`}>
       {this.props.recipeToUpdate && 
@@ -232,20 +254,65 @@ viewHandler = e => {
                 </div>
               </div>
             </div>
-            <div className={`section-body steps-container ${this.state.viewing === "steps" ? '' : 'hidden'}`}> {/* Recipe Steps */}
-              <ul className="recipe-steps_list" ref={this.props.recipeStepsEl} >
-                {this.state.stepsAdded && this.state.stepsAdded.map((step, idx) => {
-                  return (
-                    <StepEdit 
-                    step={step} 
-                    idx={idx} 
-                    updateStepHandler = {this.updateStepHandler} 
-                    removeStepHandler = {this.removeStepHandler}
-                    recipeStepEl = {this.props.recipeStepEl}
-                    />
-                  )
-                })}
-              </ul>
+            <div className={`section-body steps-container ${this.state.viewing === "steps" ? '' : 'hidden'}`} > {/* Recipe Steps */}
+              <DragDropContext className="steps-dnd" onDragEnd={result=> this.onDragEnd(result, this.state.columns)}>
+                <Droppable droppableId={'recipeSteps'} >
+                  {(provided, snapshot) => {
+                    return (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        // style={{
+                        //   background: snapshot.isDraggingOver ? 'lightblue' : 'lightgrey',
+                        //   padding: 4,
+                        //   width: 250,
+                        //   minHeight: 500,
+                        // }}
+                        >
+                          <ul className="recipe-steps_list" ref={this.props.recipeStepsEl} >
+                          {
+                            this.state.stepsAdded.map((step, index) => {
+                              return (
+                              <Draggable key={`${step.stepNumber}`} draggableId={`${step.stepNumber}`} index={index}>
+                            {(provided, snapshot) => {
+                              return (
+                                <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                // style={{
+                                //   userSelect: 'none',
+                                //   padding: 16,
+                                //   margin: '0 0 8px 0',
+                                //   minHeight: '50px',
+                                //   backgroundColor: snapshot.isDragging ? '#263b4a' : '#456c86',
+                                //   color: 'white',
+                                //   ...provided.draggableProps.style
+                                // }}
+                                >
+                                  <StepEdit 
+                                  step={step} 
+                                  idx={index} 
+                                  updateStepHandler = {this.updateStepHandler} 
+                                  removeStepHandler = {this.removeStepHandler}
+                                  recipeStepEl = {this.props.recipeStepEl}
+                                  />
+                                </div>
+
+                              )
+                            }}
+                            </Draggable>
+                              )
+                            })
+                          }
+                          </ul>
+                          
+                            {provided.placeholder}
+                      </div>
+                    )
+                  }}
+                </Droppable>  
+              </DragDropContext>
               <div className={`recipeSteps_inputs bcbl ${this.state.openStepsDropdown ? "" : "hidden"}`}>
                 <div className="section-body">
                   <label htmlFor="step-item">Step</label>
@@ -256,7 +323,7 @@ viewHandler = e => {
               <div className="add-new-step_container">
                 <div className="add-step pointer" onClick={this.openNewStepHandler}>
                   <p className="clg s12">{ "add step +"}</p>
-                  </div>
+                </div>
               </div>
             </div>    
               <div className={`section-body images-container ${this.state.viewing === "images" ? '' : 'hidden'}`}>{/* Images */}
@@ -286,6 +353,7 @@ viewHandler = e => {
                     return  (
                       <ImageEdit
                         idx = {idx}
+                        key ={idx}
                         imageLink = {imageLink}
                         featuredImage = {this.state.featuredImage}
                         handleDeleteImage = {this.handleDeleteImage}

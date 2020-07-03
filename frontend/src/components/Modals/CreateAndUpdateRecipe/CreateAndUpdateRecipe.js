@@ -23,9 +23,10 @@ class CreateAndUpdateModal extends Component {
   render() {
   return (
     <div className="modal create-update-modal z2">
-      <nav className="modal__nav pointer bcbl p0 m0 f jcb" onClick={this.props.onCancel}>
-      <header className="modal__header f jcb">{this.props.isUpdate ? "Update Recipe" : "Create Recipe"}</header>
-        <div className="p05 f aic">
+      <nav className="modal__nav  bcbl p0 m0 f jcb aic z3" >
+      
+      <header className="modal__header f jcb s12 ls1 clg caps f fw6 aic">{this.props.isUpdate ? "Updating Recipe" : "Creating Recipe"}</header>
+        <div className="p05 f aic pointer"  onClick={this.props.onCancel}>
         <ClearIcon/></div>
         </nav>
       
