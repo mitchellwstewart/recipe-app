@@ -18,8 +18,8 @@ class ImageEdit extends Component {
     //this.setState({isFeaturedImage: this.props.featuredImage._id === this.props.imageLink._id })
   }
  componentDidUpdate = () => {
-   console.log('imageLink :', this.props.imageLink)
-   console.log('this.props.featuredImage: ', this.props.featuredImage)
+  //  console.log('imageLink :', this.props.imageLink)
+  //  console.log('this.props.featuredImage: ', this.props.featuredImage)
     if(this.props.featuredImage && this.props.featuredImage._id === this.props.imageLink._id && !this.props.featuredImage && this.props.featuredImage._id === this.props.imageLink._id) {
       this.setState({isFeaturedImage: true})
     }
@@ -27,7 +27,7 @@ class ImageEdit extends Component {
 
 
  setDeleteState = () => {
-   console.log('reverse state')
+  //  console.log('reverse state')
    this.setState({confirmDelete: !this.state.confirmDelete})
  }
 

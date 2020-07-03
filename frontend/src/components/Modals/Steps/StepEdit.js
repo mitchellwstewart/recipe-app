@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import ClearIcon from '@material-ui/icons/Clear';
+import DragHandleIcon from '@material-ui/icons/DragHandle';
 
 class StepEdit extends Component {
   state = {
@@ -33,20 +34,22 @@ confirmEditHandler = () => {
 
 
 
-
-
 render() {
   return (
     <li className="step-list_item f jcb" key={this.props.idx}>
       <div className={`added-step f x jcb ${this.state.openStepEditor ? "hidden" : ""}`}>
-        <p><span className="step-order">{this.props.step.stepNumber}.</span> <span className="step-content">{this.props.step.stepInstruction}</span></p>
+        
+        <p className="f aic jcc">
+          <div className="move-step pr05 edit-controls"><DragHandleIcon /></div>
+          <span className="step-order">{this.props.step.stepNumber}.</span> <span className="step-content">{this.props.step.stepInstruction}</span>
+        </p>
         <div className="edit-controls f aic jcc">
           <div className="edit-step edit pointer" onClick={this.openEditStepHandler}><p className="s12 clg mx05 my0">edit</p></div>
           <div className="remove-step edit pointer" id={this.props.step.stepNumber} onClick={this.props.removeStepHandler} ><ClearIcon /></div>
         </div>
       </div>
       <div className={`edit-step py1 f x jcb ${this.state.openStepEditor ? "" : "hidden"}`}>
-        <div className="section-body">
+        <div className="s12 clg mr05 my0">
           <label htmlFor="step-item">Step: </label>
           <input type="text" className="step-content" ref={this.recipeStepEl} id="stepItem" onChange={e => console.log(this.props.recipeStepEl.current.value)} defaultValue={this.props.step.stepInstruction} />
         </div>
