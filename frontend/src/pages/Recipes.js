@@ -116,33 +116,7 @@ class RecipesPage extends Component {
     let newImageLinks = [];
     try {
     if(recipeImagesQueue.length) {
-      const imageUploaders = await recipeImagesQueue.map(image => { 
-        const formData = new FormData();
-        formData.append('file', image)
-        formData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
-
-      //  const cl = new cloudinary.Cloudinary({cloud_name: process.env.REACT_APP_CLOUD_NAME, secure: true})
-      //  cl.v2.uploader.unsigned_upload(image, process.env.REACT_APP_UPLOAD_PRESET, null, ()=>{console.log('single upload finished')})
-        return axios({
-          url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
-          method: "POST",
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          data: formData
-        }).then(res => {
-          if(res.status !== 200 && res.status !== 201) {
-            throw new Error('Failed!')
-          }
-            
-          !currentRecipeImages.length && !newImageLinks.length  //this is the first image, set as featured
-          ? newImageLinks.push({link: res.data.secure_url, featured: true})
-          : newImageLinks.push({link: res.data.secure_url, featured: false})
-        })
-      })
-      await axios.all(imageUploaders).then((res)=>{
-        this.setState({imageUploadQueue: []})
-      })
+      await this.uploadToCloudinary(recipeImagesQueue, newImageLinks, currentRecipeImages)
     }
 
     if(this.state.imageDeleteQueue.length) {
@@ -248,6 +222,37 @@ class RecipesPage extends Component {
     catch(err) {
       throw err
     }
+  }
+
+  uploadToCloudinary = async (recipeImagesQueue, newImageLinks, currentRecipeImages) => {
+    const imageUploaders = await recipeImagesQueue.map(image => { 
+      console.log('image: ', image)
+      const formData = new FormData();
+      formData.append('file', image)
+      formData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
+
+    //  const cl = new cloudinary.Cloudinary({cloud_name: process.env.REACT_APP_CLOUD_NAME, secure: true})
+    //  cl.v2.uploader.unsigned_upload(image, process.env.REACT_APP_UPLOAD_PRESET, null, ()=>{console.log('single upload finished')})
+      return axios({
+        url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: formData
+      }).then(res => {
+        if(res.status !== 200 && res.status !== 201) {
+          throw new Error('Failed!')
+        }
+          
+        !currentRecipeImages.length && !newImageLinks.length  //this is the first image, set as featured
+        ? newImageLinks.push({link: res.data.secure_url, featured: true})
+        : newImageLinks.push({link: res.data.secure_url, featured: false})
+      })
+    })
+    await axios.all(imageUploaders).then((res)=>{
+      this.setState({imageUploadQueue: []})
+    })
   }
 
   modalSubscribeToRecipeHandler = () => {
