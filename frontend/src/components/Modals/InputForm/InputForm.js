@@ -246,7 +246,7 @@ viewHandler = e => {
                 </div> : ""}
                 <div className="tag-list f" ref={this.props.tagsEl}>
                   {this.state.tagsAdded.map(tag => {
-                    return (<div className="tag mr05 f aic jcc bcbl" key={tag}>
+                    return (<div className="tag mr05 f aic jcc bcdbl" key={tag}>
                         <p className="pr025 cw">{tag}</p>
                         <div className="remove-tag pointer" data-value={tag} onClick={this.removeTagHandler}>X</div>
                         </div>)
@@ -313,7 +313,7 @@ viewHandler = e => {
                   }}
                 </Droppable>  
               </DragDropContext>
-              <div className={`recipeSteps_inputs bcbl ${this.state.openStepsDropdown ? "" : "hidden"}`}>
+              <div className={`recipeSteps_inputs bcdbl ${this.state.openStepsDropdown ? "" : "hidden"}`}>
                 <div className="section-body">
                   <label htmlFor="step-item">Step</label>
                   <input type="text" ref={this.props.recipeStepEl} id="stepItem" defaultValue={""} />

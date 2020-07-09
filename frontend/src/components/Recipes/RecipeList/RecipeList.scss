@@ -2,17 +2,17 @@
 
 .recipe{
   &__list{
-    background-color: #fffdfb;
+    background-color: #efeced;
     border: 1px solid #d0e0e7;
     max-width: 1100px;
     width: 90%;
     padding: 1rem;
     @media (min-width: $break-mob) {
       padding: 2rem;
-      width: 80%;
+      // width: 80%;
     }
     
-    margin: 0 auto 2rem;
+    margin: 0 auto 2rem 0;
     list-style: none;
     
   }

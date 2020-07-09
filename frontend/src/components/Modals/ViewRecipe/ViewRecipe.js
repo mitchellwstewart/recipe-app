@@ -90,7 +90,7 @@ class ViewModal extends Component {
     const featuredImage = this.props.selectedRecipe.imageLinks.find(img => img.featured)
     return (
       <div className={`modal z2 ${this.state.fullscreenView ? 'image-fullscreen' : ''}`}>
-        <nav className="modal__nav pointer bcbl p0 m0 f jcb bcbl z1" >
+        <nav className="modal__nav pointer bcdbl p0 m0 f jcb z1" >
         <section className="modal__header_actions f jce">
             {/* {this.props.canConfirm && <button className="btn" onClick={this.props.onConfirm}> {this.props.confirmText} </button>} */}
             {/* {this.props.canSubscribe &&
