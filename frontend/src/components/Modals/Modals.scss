@@ -32,6 +32,12 @@
         }
       }
     }
+    .close-modal {
+      svg {
+        fill: #efeced;
+        stroke: #efeced;
+      }
+    }
   }
 
 
@@ -215,11 +221,11 @@
       &.tag-container {
           font-size: 10px;
           .tag {
-            border: 1px solid #4a4a4a;
+            border: 1px solid #27596d;
             border-radius: 25px;
             transition: all 0.25s;
-            background: #7ca7b9 !important;
-            color: rgb(255, 247, 247);
+            color: #efeced  !important;
+            background-color: #27596d;
             font-size: 12px;
             max-height: 15px;
             display: flex;

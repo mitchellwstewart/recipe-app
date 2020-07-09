@@ -5,7 +5,7 @@ h1 {
   margin-top: 2em;
 }
 .recipes-control {
-  padding: 1rem;
+  padding: 1rem 1rem 1rem 0;
   width: 90%;
   max-width: 1500px;
   flex-direction: column;
@@ -13,9 +13,9 @@ h1 {
   margin: 0 auto;
   @media(min-width: $break-mob){
     flex-direction: row;
-    width: 80%;
+    // width: 80%;
     max-width: 1500px;
-    margin: 1rem auto 3em;
+    margin: 1rem auto 3em 0;
     .left-control, .right-control {
       width: 50%;
     }
@@ -35,10 +35,14 @@ h1 {
         //border-radius: 25px;
         background: transparent;
         border: none;
-        border-bottom: 1px solid #456a79;
-        color: #456a79;
+        border-bottom: 1px solid #efeced;
+        color: #efeced;
         font-size: 1.5em;
         font-weight: 700;
+        &::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+          color: #efeced;
+          opacity: 0.5; /* Firefox */
+        }
       }
       @media(min-width: 768px) {
         min-width: 400px;
@@ -86,27 +90,30 @@ h1 {
           display: flex;
         }
         .clear-tags {
+          p {
+            color: #efeced98;
+          }
           &:hover {
             // font-weight: 500;
            p {
-            color: #4a4a4a;
+            color: #efeced;
            } 
            svg {
-             fill: #4a4a4a;
-             stroke: #4a4a4a;
+             fill: #efeced;
+             stroke: #efeced;
            }
           }
           p {
             transition: all 0.25s;
             min-width: 25px;
             // font-weight: 400;
-            color: gray;
+            // color: gray;
            
           }
           
           svg {
-            fill: gray;
-            stroke: gray;
+            fill: #efeced98;
+            stroke: #efeced98;
             width: 12px;
             height: 12px;
           }
@@ -115,14 +122,14 @@ h1 {
           border: 1px solid #4a4a4a;
           border-radius: 25px;
           transition: all 0.25s;
-          background: #7ca7b9 !important;
-          color: rgb(255, 247, 247);
+          background: #efeced !important;
+          color: #27596d;
           font-size: 12px;
           max-height: 15px;
           &:hover {
-            color: #7ca7b9;
-            background: white!important;
-            border-color: #7ca7b9
+            color: #efeced;
+            background: #27596d!important;
+            border-color: #efeced
           }
         }
       }
@@ -137,11 +144,13 @@ h1 {
       width: 150px;
       height: 100%;
       max-height: 30px;
-      color: white ;
-      border: 1px solid #456a79;
+      background-color: #efeced!important;
+      color: #27596d!important ;
       margin-bottom: 0.25em;
       &:hover {
-        color: #456a79;
+        color: #efeced!important;
+        background-color: #27596d!important ;
+        border: 2px solid #efeced!important;
       }
     }
   }

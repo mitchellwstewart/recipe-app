@@ -91,11 +91,11 @@
         &.tag-container {
           .tag{
             &.tag-suggestion {
-              color: #7ca7b9 !important;
-              background: rgb(255, 247, 247)!important;
+              color: #27596d  !important;
+              background: #efeced!important;
               &:hover {
-                background: #7ca7b9 !important;
-              color: rgb(255, 247, 247)!important;
+                color: #efeced  !important;
+              background-color: #27596d!important;
               }
             }
           }

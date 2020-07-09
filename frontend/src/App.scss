@@ -20,7 +20,9 @@ body {
 }
 .main-content {
   @media(min-width: $break-mob) {
-    margin: 4.5rem 2.5rem;
+    width: 80%;
+
+    margin: 4.5rem auto;
   }
   
 }
