@@ -537,35 +537,35 @@ class RecipesPage extends Component {
           allTags={this.state.allTags}
           />
         </CreateAndUpdateModal>)}
-          <h1 className="ac fw5 suiz fw7 italic mt1">All Recipes</h1> 
+          <h1 className="ac fw5 suiz fw7 italic mt1 cw x f jcs">All Recipes</h1> 
         <div className="recipes-control f jcb container--5">
           <div className="left-control f fdc ">
             <div className="f fdc">
               <div className="search__container f fdc x">
                 {/* <label htmlFor="search">Search Recipes</label> */}
-                <div className="form-control f aic caps ls1 pt025 mb05">
+                <div className="form-control f aic caps ls1 pt025 mb05 cw">
                   <div className="search-by_label">Search By: </div>
-                  <select className="search-by_select caps fw6 ls1" ref={this.searchByEl} onChange={(e)=>this.setState({searchBy: e.target.value})} defaultValue="name">
+                  <select className="search-by_select caps fw6 ls1 cw" ref={this.searchByEl} onChange={(e)=>this.setState({searchBy: e.target.value})} defaultValue="name">
                     <option value="name">Recipe Name</option>
                     <option value="user">User Email</option>
                   </select>
                 </div>
-              <input ref={this.searchBarEl} id="search" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `"Thai" or "Shortbread"` : `Search by user email`} />
+              <input ref={this.searchBarEl} id="search" className="cw" onChange={this.handleSearch} placeholder={this.state.searchBy === 'name' ? `"Thai" or "Shortbread"` : `Search by user email`} />
               </div>
               {this.state.allTags.length ?
-              <div className="filterByTag mr2 mt05">
+              <div className="filterByTag mr2 mt05 cw">
                 <div className="filter-title f aic pointer" onClick={this.handleFilterIcon }>
-                  <h4 className="pr025 caps ls1 fw6 mt025 mb0">filter by tags </h4>
+                  <h4 className="pr025 caps ls1 fw6 mt025 mb0 cw">filter by tags </h4>
                   <div className={`plus-icon f ${this.state.filterOpen ? 'active' : ""}`} ><ClearIcon /></div>
                 </div>
                 
-                <ul className={`tag-container f aic mt0 container--5 fw p0 ${this.state.filterOpen ? 'active' : ''}`}>
+                <ul className={`tag-container f aic mt1 container--5 fw p0 ${this.state.filterOpen ? 'active' : ''}`}>
                   {this.state.allTags.map((tag, idx )=> {
                     if(tag.recipesWithTag && tag.recipesWithTag.length > 0) {
                       return <li key={idx} className="pointer pr05 tag f jcc aic py025 px075 mr025 mb025" onClick={this.handleTagSelection}>{tag.tag}</li>
                     }
                   })}
-                  <li onClick={this.handleTagSelection} className="px05 fw6 pointer f jcc aic clear-tags" data-clear="clear"><p className="caps ">clear</p> <ClearIcon /></li> 
+                  <li onClick={this.handleTagSelection} className="px05 fw6 pointer f jcc aic clear-tags" data-clear="clear"><p className="caps s12 m025 ">clear</p> <ClearIcon /></li> 
                 </ul>
               </div>
               : ''}

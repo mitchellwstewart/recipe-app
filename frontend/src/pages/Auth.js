@@ -102,14 +102,14 @@ if(!this.state.isLogin) {
     render() {
         return(
           <div className="auth-container f fdc">
-            <h3>{this.state.isLogin ? "Welcome back! Log in with your email" : "Welcome! Sign up for an account"}</h3>
+            <h3 className="ccr">{this.state.isLogin ? "Welcome back! Log in with your email" : "Welcome! Sign up for an account"}</h3>
             <form className="auth-form" onSubmit={this.submitHandler}>
               <div className="form-control" >
-                <label htmlFor="email">Email: </label>
+                <label htmlFor="email" className="ccr">Email: </label>
                 <input type="email" id="email" ref={this.emailEl}/>
               </div>
               <div className="form-control" >
-                <label htmlFor="password">Password: </label>
+                <label htmlFor="password" className="ccr">Password: </label>
                 <input type="password" id="password" ref={this.passwordEl} />
               </div>
               <div className={`form-validation ${this.state.validationMessage ? '' : 'hidden'}`}>
