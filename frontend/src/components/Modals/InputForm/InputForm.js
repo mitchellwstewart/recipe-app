@@ -37,12 +37,28 @@ class InputForm extends Component  {
         // }
       }
     }
+    this.recipeNameEl = React.createRef();
+    this.recipeDescriptionEl = React.createRef();
+    this.recipeIngredientsEl = React.createRef();
+    this.recipeStepsEl = React.createRef();
+    
+    this.minutesEstimateEl = React.createRef();
+    this.yieldsEl = React.createRef();
+    this.dateEl = React.createRef();
+    this.linkEl = React.createRef();
+
+    this.imageEl = React.createRef();
+    this.uploadedImagesEl = React.createRef()
+    this.tagsEl = React.createRef();
+    this.newTagEl = React.createRef();
+
+
     this.tagSuggestionsEl = React.createRef();
     this.imageFileInputEl = React.createRef();
   }
   componentDidMount = async () => {
     if(this.props.recipeToUpdate) {
-      // console.log('this.props.recipeToUpdate.imageLinks: ', this.props.recipeToUpdate.imageLinks.find(image => image.featured))
+      
       await this.setState({
        ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
        stepsAdded: this.props.recipeToUpdate.recipeSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}),
@@ -51,21 +67,60 @@ class InputForm extends Component  {
        tagsAdded: this.props.recipeToUpdate.tags.map(tagObj => tagObj.tag),
        featuredImage: this.props.recipeToUpdate.imageLinks.find(image => image.featured === true)
      })
-     
-    //  console.log('this.state: ', this.state)
     } 
   }
 
 
-viewHandler = e => {
-  e.preventDefault()
-  this.setState({viewing: e.target.id})
-}
+  prepareRecipeHandler = (e) => {
+    e.preventDefault()
+    const recipeName = this.recipeNameEl.current.value
+    const recipeDescription = this.recipeDescriptionEl.current.value
+    const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {      
+      const ingredientName = ingredientNode.dataset.name
+      const ingredientAmount = +ingredientNode.dataset.amount
+      const ingredientUnit = ingredientNode.dataset.unit
+      return { name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
+    })
+    const recipeSteps = Array.from(this.recipeStepsEl.current.children).map((stepNode, idx) => {
+      const stepNumber = +(idx+1)
+      const stepInstruction = stepNode.querySelector('span.step-content').innerText
+        return {stepNumber: stepNumber, stepInstruction: stepInstruction}
+    })
+    
+    const tags = Array.from(this.tagsEl.current.children).map(tagNode => {
+      const tag = tagNode.querySelector('p').innerText
+      return {tag: tag}
+    })
+    const yields = +this.yieldsEl.current.value
+    const minutesEstimate = +this.minutesEstimateEl.current.value
+    const link = this.linkEl.current.value
+    const currentRecipeImages = this.uploadedImagesEl.current ? Array.from(this.uploadedImagesEl.current.children).map(uploadedImage => {      
+      let imageSrc = uploadedImage.querySelector('img').src
+      let featured = uploadedImage.dataset.featured === "true" ? true : false
+      return {link: imageSrc, featured: featured}
+    }) : []
+    const recipeElements = {
+      recipeName: recipeName,
+      recipeDescription: recipeDescription,
+      recipeIngredients: recipeIngredients,
+      recipeSteps: recipeSteps,
+      tags: tags,
+      yields: yields,
+      minutesEstimate: minutesEstimate,
+      link: link,
+      currentRecipeImages: currentRecipeImages
+    }
+    this.props.updateRecipeHandler(recipeElements)
+  }
+
+  viewHandler = e => {
+    e.preventDefault()
+    this.setState({viewing: e.target.id})
+  }
 
   openNewStepHandler = () => {
     this.setState({openStepsDropdown: !this.state.openStepsDropdown})
   }
-
 
   addStepHandler = (e) => { 
      this.setState(prevState => {
@@ -172,7 +227,7 @@ viewHandler = e => {
   }
 
   render() {
-    this.props.recipeStepsEl && console.log('this.props.recipeStepsEl:', this.props.recipeStepsEl.children)
+    console.log('this.props: ', this.props)
     return (
       <form encType="multipart/form-data" className={`recipe-form ${this.props.recipeToUpdate ? 'update-recipe' : 'create-recipe'}`}>
       {this.props.recipeToUpdate && 
@@ -180,11 +235,11 @@ viewHandler = e => {
             <div className="title f fdc x2 jcc rel">
             <p className="small s12 clg abs top mt0">Click on any field to edit</p>
               <div className="title-edit_container form-control mt1">
-                <textarea className="suiz fw6 f fw p0" ref={this.props.recipeNameEl} type="text" id="recipeName" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeName : ""}/>
+                <textarea className="suiz fw6 f fw p0" ref={this.recipeNameEl} type="text" id="recipeName" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeName : ""}/>
               </div>
               <div className="time-edit_container form-control">
                 <div className="f"><span className="">Time:</span> 
-                  <input ref={this.props.minutesEstimateEl} type="number" id="minutesEstimate" className="mx025" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.minutesEstimate : 1} /> 
+                  <input ref={this.minutesEstimateEl} type="number" id="minutesEstimate" className="mx025" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.minutesEstimate : 1} /> 
                   {this.props.recipeToUpdate.minutesEstimate > 1 ? " mins" : ' min'}
                 </div>
               </div>
@@ -199,11 +254,11 @@ viewHandler = e => {
             <Ingredients
               ingredients = {this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeIngredients : []} 
               recipeToUpdate={this.props.recipeToUpdate ? this.props.recipeToUpdate : null}
-              yieldsEl = {this.props.yieldsEl}
-              recipeIngredientsEl = {this.props.recipeIngredientsEl}
-              ingredientAmountEl = {this.props.ingredientAmountEl}
-              ingredientUnitEl = {this.props.ingredientUnitEl}
-              ingredientNameEl = {this.props.ingredientNameEl}
+              yieldsEl = {this.yieldsEl}
+              recipeIngredientsEl = {this.recipeIngredientsEl}
+              ingredientAmountEl = {this.ingredientAmountEl}
+              ingredientUnitEl = {this.ingredientUnitEl}
+              ingredientNameEl = {this.ingredientNameEl}
               modalType="update/create"
               /> 
           </div>
@@ -218,11 +273,11 @@ viewHandler = e => {
             <div className={`section-body description-container f fdc ${this.state.viewing === "description" ? '' : 'hidden'}`}> {/*Description*/}
               <section className="description">
                 <p className="caps fw6 underline pb025">Overview</p>
-                <textarea ref={this.props.recipeDescriptionEl} type="text" id="recipeDescription" rows="4" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeDescription : ""}/>
+                <textarea ref={this.recipeDescriptionEl} type="text" id="recipeDescription" rows="4" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeDescription : ""}/>
               </section>
           <div className="section-body link-container f fdc"> {/* Link */}
             <label htmlFor="recipeLink" className="caps fw6 underline pb025 s14 mb1">Original Recipe </label>
-            <input ref={this.props.linkEl} type="url" id="recipeLink"  defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.link : ""} />
+            <input ref={this.linkEl} type="url" id="recipeLink"  defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.link : ""} />
             <p className="advisory s12 clg">note: please make sure to double check the url</p>
           </div>
             <div className="section-body tag-container"> {/* Tags */}
@@ -230,7 +285,7 @@ viewHandler = e => {
                 <p className="caps fw6 underline pb025 mr05 "> Tags</p>
                 <div className={`add-tag pointer clg s12 soft-btn_hover ${this.state.showTagAdder ? 'hidden' : ''}`} onClick={this.toggleTagHandler}>add tag + </div>
                 <div className={`input-control f aic ${!this.state.showTagAdder ? 'hidden' : ''}`}>
-                  <input type="text" ref={this.props.newTagEl} onChange={this.handleTagOnChange}/>
+                  <input type="text" ref={this.newTagEl} onChange={this.handleTagOnChange}/>
                     <div className="pointer mx05 clg s12 soft-btn_hover" onClick={this.submitTagHandler}>submit + </div>
                     <div className="pointer mr05 clg s12 soft-btn_hover" onClick={this.toggleTagHandler}>cancel x</div>
                   </div>
@@ -244,7 +299,7 @@ viewHandler = e => {
                     })}
                   </ul>
                 </div> : ""}
-                <div className="tag-list f" ref={this.props.tagsEl}>
+                <div className="tag-list f" ref={this.tagsEl}>
                   {this.state.tagsAdded.map(tag => {
                     return (<div className="tag mr05 f aic jcc bcdbl" key={tag}>
                         <p className="pr025 cw">{tag}</p>
@@ -269,7 +324,7 @@ viewHandler = e => {
                         //   minHeight: 500,
                         // }}
                         >
-                          <ul className="recipe-steps_list" ref={this.props.recipeStepsEl} >
+                          <ul className="recipe-steps_list" ref={this.recipeStepsEl} >
                           {
                             this.state.stepsAdded.map((step, index) => {
                               return (
@@ -280,22 +335,13 @@ viewHandler = e => {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                // style={{
-                                //   userSelect: 'none',
-                                //   padding: 16,
-                                //   margin: '0 0 8px 0',
-                                //   minHeight: '50px',
-                                //   backgroundColor: snapshot.isDragging ? '#263b4a' : '#456c86',
-                                //   color: 'white',
-                                //   ...provided.draggableProps.style
-                                // }}
                                 >
                                   <StepEdit 
                                   step={step} 
                                   idx={index} 
                                   updateStepHandler = {this.updateStepHandler} 
                                   removeStepHandler = {this.removeStepHandler}
-                                  recipeStepEl = {this.props.recipeStepEl}
+                                  recipeStepEl = {this.recipeStepEl}
                                   />
                                 </div>
 
@@ -316,7 +362,7 @@ viewHandler = e => {
               <div className={`recipeSteps_inputs bcdbl ${this.state.openStepsDropdown ? "" : "hidden"}`}>
                 <div className="section-body">
                   <label htmlFor="step-item">Step</label>
-                  <input type="text" ref={this.props.recipeStepEl} id="stepItem" defaultValue={""} />
+                  <input type="text" ref={this.recipeStepEl} id="stepItem" defaultValue={""} />
                 </div>
                 <div className="pointer" onClick={this.addStepHandler}> Add </div>
               </div>
@@ -331,13 +377,21 @@ viewHandler = e => {
                 <p className="s12 soft-btn_hover" onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'close x' : 'upload image +'}</p>
                 { this.state.showImageUploader && 
                 <div className="form-control">
-                  <input type="file" multiple ref={this.imageFileInputEl} onChange={this.props.imageHandler}/>
+                  <input type="file" multiple ref={this.imageFileInputEl} onChange={this.props.imageUploadHandler}/>
                   {this.props.imageUploadQueue.length > 0 && 
                   <div className="upload-queue" >
                     <p>Ready For Upload</p>
-                    <div className="images-for-upload f fdc">
-                      {this.props.imageUploadQueue.map(image => {
-                        return (<div className="p0 m0 f" key={image.name}>- {image.name} <div className="clear-file f aic pointer" data-image={image.name} onClick={this.removeFromQueue}><ClearIcon /></div></div>)
+                    <div className="images-for-upload f">
+                      {this.props.imageUploadQueue.map((image, idx)=> {
+                        return (
+                        <div className="p0 m0 f" key={image.name}>
+                          
+                          {this.props.imageUploadQueuePreviews && <img src={this.props.imageUploadQueuePreviews[idx]} alt="preview" style={{ height: "100px", width: "100px", borderRadius: "50%", objectFit: 'cover'}}/>}
+                          
+                          <div className="clear-file f aic pointer" data-image={image.name} onClick={this.removeFromQueue}>
+                            <ClearIcon />
+                          </div>
+                        </div>)
                       })}
                     </div>
                   </div>
@@ -348,7 +402,7 @@ viewHandler = e => {
               <React.Fragment> 
               { this.props.recipeToUpdate &&
               <div className="form-control ">
-                <div className="recipe-images f edit fw" ref={this.props.uploadedImagesEl}>
+                <div className="recipe-images f edit fw" ref={this.uploadedImagesEl}>
                   {this.state.imagesAdded && this.state.imagesAdded.map((imageLink, idx)=>{
                     return  (
                       <ImageEdit
@@ -359,21 +413,6 @@ viewHandler = e => {
                         handleDeleteImage = {this.handleDeleteImage}
                         handleFeaturedImage = {this.handleFeaturedImage}
                       />
-                    //   <div className="uploaded-image f fdc aic rel mr025" data-featured={this.state.featuredImage === imageLink} key={idx}>
-                    //     <div className="delete-image abs right" data-confirm={false} onClick={this.handleDeleteImage}>
-                    //       {this.state.confirmDelete ? <div className="confirm-delete">Confirm Delete</div> : <ClearIcon />}
-                    //     </div>
-                    //     <div className="image-container f aic">
-                    //       <img className="img" ref={this.props.uploadedImageEl} src={imageLink.link}/>
-                    //     </div>
-                    //     {this.state.featuredImage !== imageLink 
-                    //     ? <div className="featured-image-control f aic">
-                    //         <label htmlFor='featured-selection' className="select-featured caps small sl2">Set as featured</label>
-                    //         <input type="radio" name="featured-selection" value={imageLink._id} onChange={this.handleFeaturedImage} checked={this.state.featuredImage === imageLink.link ? true : false }/>
-                    //       </div>
-                    //     : <div className="featured-label caps small sl2 abs">Featured</div>
-                    //     }
-                    // </div> 
                     )
                   })}
                 </div> 
@@ -383,6 +422,11 @@ viewHandler = e => {
             </div>
           </div>
         </div>
+
+        <div className="modal__header_actions f fdc jce p1">
+          {this.props.canConfirm &&  <button className="btn" onClick={this.prepareRecipeHandler}> {this.props.confirmText } </button> }
+          {this.props.canSaveChanges && <button className="btn" onClick={this.prepareRecipeHandler}> {this.props.saveText } </button> }
+      </div>
       </form>
     )
   }

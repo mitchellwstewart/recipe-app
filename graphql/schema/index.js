@@ -62,9 +62,14 @@ type Step {
   stepNumber: Float!
 }
 
+type CloudinaryLink {
+  secure_url: String!
+  resource_type: String!
+}
+
 input UserInput {
-    email: String!
-    password: String!
+  email: String!
+  password: String!
 }
 
 input TagInput {
@@ -72,16 +77,16 @@ input TagInput {
 }
 
 input RecipeInput {
-    recipeName: String!
-    recipeDescription: String
-    recipeIngredients: [IngredientInput!]
-    recipeSteps: [StepInput!]
-    yields: Float
-    minutesEstimate: Float
-    date: String!
-    link: String
-    imageLinks: [ImageLinkInput!]
-    tags: [TagInput!]
+  recipeName: String!
+  recipeDescription: String
+  recipeIngredients: [IngredientInput!]
+  recipeSteps: [StepInput!]
+  yields: Float
+  minutesEstimate: Float
+  date: String!
+  link: String
+  imageLinks: [ImageLinkInput!]
+  tags: [TagInput!]
 }
 
 input IngredientInput{
@@ -100,6 +105,11 @@ input StepInput {
   stepInstruction: String!
 }
 
+input NewImageForCloudinaryInput {
+  name: String!
+  base64: String!
+}
+
 type RootQuery {
     recipes: [Recipe!]!
     subscriptions: [Subscription!]!
@@ -112,6 +122,7 @@ type RootMutation {
     createRecipe(recipeInput: RecipeInput): Recipe
     deleteRecipe(recipeId: ID!): Recipe
     updateRecipe(recipeId: ID!, recipeInput: RecipeInput): Recipe
+    uploadToCloudinary(imagesForCloudinary: [NewImageForCloudinaryInput]):[CloudinaryLink!]
     subscribeToRecipe(recipeId: ID!): Subscription!
     unsubscribeFromRecipe(subscriptionId: ID!): Recipe!
 }
