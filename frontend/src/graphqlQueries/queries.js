@@ -140,7 +140,15 @@ const fetchRecipesQuery = `
     }
   
   `
-
+  const cloudinaryUploadMutation = `
+  mutation UploadToCloudinary($imagesForCloudinary: [NewImageForCloudinaryInput]) {
+    uploadToCloudinary(imagesForCloudinary: $imagesForCloudinary )
+      {
+        secure_url
+        resource_type
+      }  
+    }
+  `
   const addTagToRecipe = `
   mutation AddTagToRecipe(
     $tag: String!
@@ -156,4 +164,4 @@ const fetchRecipesQuery = `
   `
 
 
-module.exports = { createRecipeMutation, updateRecipeMutation, fetchRecipesQuery }
+module.exports = { createRecipeMutation, updateRecipeMutation, fetchRecipesQuery, cloudinaryUploadMutation }

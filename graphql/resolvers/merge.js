@@ -23,18 +23,18 @@ const transformRecipe = recipe => {
 };
 
 const transformTag = tag => {
-  console.log('tag._doc: ', tag._doc.recipesWithTag)
+  //console.log('tag._doc: ', tag._doc.recipesWithTag)
   const transformedTag = {
     ...tag._doc,
     _id: tag._doc._id.toString(),
     recipesWithTag: () => recipeLoader.loadMany(tag._doc.recipesWithTag) 
   }
-  console.log('transformed: ', transformedTag.recipesWithTag)
+  //console.log('transformed: ', transformedTag.recipesWithTag)
   return transformedTag
 }
 
 const transformUpdatedTag =  tag => {
-  console.log('tag: ', tag)
+  //console.log('tag: ', tag)
   const transformedTag = {
     ...tag,
     _id: tag._id.toString(),

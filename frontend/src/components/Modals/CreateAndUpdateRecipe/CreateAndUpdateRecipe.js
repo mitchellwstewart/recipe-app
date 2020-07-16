@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import ClearIcon from '@material-ui/icons/Clear';
 import '../Modals.scss'
 import AuthContext from '../../../context/auth-context'
+import InputForm from '../../Modals/InputForm/InputForm';
+
 
 class CreateAndUpdateModal extends Component {
   constructor(props) {
@@ -21,6 +23,7 @@ class CreateAndUpdateModal extends Component {
   }
   
   render() {
+    console.log('create and update this.props: ', this.props)
   return (
     <div className="modal create-update-modal z2">
       <nav className="modal__nav  bcdbl p0 m0 f jcb aic z3" >
@@ -31,16 +34,40 @@ class CreateAndUpdateModal extends Component {
         </nav>
       
       {this.props.validationError && <p className="caps cr">Validation Error: Check your inputs!</p>}
-      {this.props.children}
-      <div className="modal__header_actions f fdc jce p1">
-        {this.props.canConfirm && 
-          <button className="btn" onClick={this.props.onConfirm}> {this.props.confirmText } </button> }
-            {this.props.canSaveChanges && <button className="btn" 
-              onClick={this.props.onSaveChanges}>
-            {this.props.saveText }  
-          </button> 
-        }
-      </div>
+      {this.props.isUpdate 
+      ?  <InputForm       
+      saveText={this.context.token && "Save Changes" }
+      //onCancel={this.props.modalCancelHandler.bind(this, 'update')} 
+      onSaveChanges={this.props.modalConfirmHandler}
+      updateRecipeHandler = {this.props.updateRecipeHandler}
+      imageUploadHandler = {this.props.imageUploadHandler}
+      updateImageDeleteQueue = {this.props.updateImageDeleteQueue}
+      removeFromQueue = {this.props.removeImageFromQueue}
+      imageUploadQueue = {this.props.imageUploadQueue}
+      imageUploadQueuePreviews = {this.props.imageUploadQueuePreviews}
+      recipeToUpdate = {this.props.recipeToUpdate}
+      allTags={this.props.allTags}
+      canConfirm = {this.props.canConfrim}
+      canSaveChanges = {this.props.canSaveChanges}
+      /> 
+    : <InputForm 
+      confirmText="Confirm"
+      onCancel={this.props.modalCancelHandler} 
+      onConfirm={this.props.modalConfirmHandler}
+      updateRecipeHandler = {this.props.updateRecipeHandler}
+      imageUploadQueue = {this.props.imageUploadQueue}
+      imageUploadQueuePreviews = {this.props.imageUploadQueuePreviews}
+      imageUploadHandler = {this.props.imageUploadHandler}
+      removeFromQueue = {this.props.removeImageFromQueue}
+      tagsEl = {this.props.tagsEl}
+      newTagEl = {this.props.newTagEl}
+      allTags={this.props.allTags}
+      canConfirm = {this.props.canConfrim}
+      canSaveChanges = {this.props.canSaveChanges}
+    />
+    
+    }
+ 
     </div>
     )
   }
