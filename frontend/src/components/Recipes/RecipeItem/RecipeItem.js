@@ -6,7 +6,7 @@ const recipeItem = props => {
   return (
     <li key={props.recipeId} className="recipe__list-item  pointer bcw rel" onClick={props.onDetail.bind(this, props.recipeId)}>
       <div className="overlay abs fill f aic jcc">
-        <p className="overlay_text caps ls2 p1">view</p>
+        <p className="overlay_text caps ls2">view</p>
       </div>
       <div className="recipe__list-item_inner f fdc jcb x y">
         <div className="recipe__list-item_inner_image f aic jcc">

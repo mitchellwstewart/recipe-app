@@ -23,13 +23,15 @@
         background-color: transparent;
         opacity: 0;
         &_text{
-          font-size: 1.5em;
+          font-size: 1em;
+          padding: 0.5em;
           color: rgb(121, 121, 121);
+          border: solid 1px  rgb(121, 121, 121);
         }
       }
       &:hover {
         .recipe__list-item_inner {
-          opacity: 0.2;
+          opacity: 0.1;
         }
         .overlay{
           opacity: 1;

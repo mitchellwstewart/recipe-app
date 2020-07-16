@@ -24,11 +24,6 @@ class RecipesPage extends Component {
     recipeToUpdate: null,
     validationError: false,
     featuredImage: null,
-    imageUploadQueue: [],
-    imageUploadQueuePreviews: [],
-    uploadedCloudinaryLinks: [],
-    imageDeleteQueue: [],
-
     allTags: [],
     filterOpen: false,
   }
@@ -56,342 +51,34 @@ class RecipesPage extends Component {
     : await this.setState({creating: true})
   }
 
-  showDetailHandler = recipeId => {
-    console.log('view modal')
-    this.setState(prevState => {
+  showDetailHandler = async recipeId => {
+    await this.setState(prevState => {
       const selectedRecipe = prevState.recipes.find(recipe => recipe._id === recipeId)
       return { selectedRecipe: selectedRecipe }
     })
   }
 
-  modalCancelHandler = () => {
-    document.querySelector('body').classList.remove('lock')
-    this.setState({creating: false, selectedRecipe: null, updating: false, recipeToUpdate: false})
+  handleRecipesStateUpdate = (recipe, recipeUpdated) => {
+    this.searchBarEl.current.value = ""
+    this.setState(prevState => { 
+       const updatedRecipes = recipeUpdated 
+        ? [...prevState.recipes.filter(exisitingRecipe => exisitingRecipe._id !== recipe._id), recipe]
+        : [recipe, ...prevState.recipes]
+       const previousAllTags = {}
+       prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
+       const updatedAllTags = recipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
+       return {
+         recipes: updatedRecipes,
+         recipesInSearch: updatedRecipes, 
+         recipeToUpdate: null, 
+         creating: false, 
+         updating: false, 
+         selectedRecipe: recipeUpdated ? recipe : { ...recipe, creator: {_id: this.context.userId}, }, 
+         allTags: recipeUpdated ? [...prevState.allTags, ...updatedAllTags] : updatedAllTags, 
+       }
+     })
   }
 
-  modalConfirmHandler = async ({
-    recipeName, recipeDescription,
-    recipeIngredients, recipeSteps,
-    tags, yields, minutesEstimate, link,
-    currentRecipeImages }) => {
-
-
-
-      
-      
-
-    
-    try {
-      if(this.state.imageUploadQueue.length) { //REMOVE ! WHEN DONE TESTING
-        console.log('this.state.imageUploadQueue: ', this.state.imageUploadQueue)
-        await this.uploadToCloudinary(this.state.imageUploadQueuePreviews, this.state.uploadedCloudinaryLinks, currentRecipeImages)
-      }
-
-    //  if(this.state.imageDeleteQueue.length) {
-    //    this.deleteFromCloudinary(this.state.imageDeleteQueue)
-    //  }
-      if(link.trim().length > 0 && recipeName.trim().length > 0) { this.setState({validationError: false}) }
-      else if(
-        recipeName.trim().length === 0 ||
-        recipeIngredients.length === 0 ||
-        recipeSteps.length === 0 ||
-        yields <= 0 || 
-        minutesEstimate <= 0 
-      ){
-        this.setState({validationError: true})
-        setTimeout(()=> {
-          this.setState({validationError: false})
-        }, 3000)
-        return;
-      }
-    
-      const recipeId = this.state.updating ? this.state.recipeToUpdate._id : null
-      const defaultVariables = {
-        recipeName: recipeName,
-        recipeDescription: recipeDescription,
-        recipeIngredients: recipeIngredients,
-        recipeSteps: recipeSteps,
-        yields: yields,
-        minutesEstimate: minutesEstimate,
-        date: new Date().toISOString(),
-        link: link,
-        imageLinks: this.state.uploadedCloudinaryLinks.length ? [...currentRecipeImages, ...this.state.uploadedCloudinaryLinks] : currentRecipeImages,
-        tags: tags,
-      }
-
-      const updatedVariables = recipeId ? {...defaultVariables, recipeId} : defaultVariables
-      const requestBody = {
-        query: this.state.updating ? updateRecipeMutation : createRecipeMutation,
-        variables: updatedVariables
-      };
-
-      console.log('requestBody: ', requestBody)
-      const token = this.context.token;
-      const mongoRes = await fetch('http://localhost:3001/graphql', {
-          method: 'POST',
-          body: JSON.stringify(requestBody),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          }
-        })
-          if(mongoRes.status !== 200 && mongoRes.status !== 201) {
-            throw new Error('Failed!')
-          }
-          const resData =  await mongoRes.json()
-          console.log("resData from create/update: ", resData)
-          if(this.state.creating) {
-            this.setState(prevState => {
-              const updatedRecipes = [...prevState.recipes]
-              const previousAllTags = {}
-              prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj)
-              const updatedAllTags = resData.data.createRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
-              updatedRecipes.push({
-                _id: resData.data.createRecipe._id,
-                recipeName: resData.data.createRecipe.recipeName,
-                recipeDescription: resData.data.createRecipe.recipeDescription,
-                recipeIngredients: resData.data.createRecipe.recipeIngredients,
-                recipeSteps: resData.data.createRecipe.recipeSteps,
-                yields: resData.data.createRecipe.yields,
-                minutesEstimate: resData.data.createRecipe.minutesEstimate,
-                date: resData.data.createRecipe.date,
-                link: resData.data.createRecipe.link,
-                imageLinks: resData.data.createRecipe.imageLinks,
-                tags: resData.data.createRecipe.tags,
-                creator: {
-                  _id: this.context.userId,
-                }
-              })
-              return {recipes: updatedRecipes, 
-                recipesInSearch: updatedRecipes, 
-                creating: false, 
-                updating: false,
-                selectedRecipe: {
-                  ...resData.data.createRecipe,
-                  creator: {_id: this.context.userId}, 
-                  allTags: updatedAllTags, 
-                }
-              }
-            })
-            this.searchBarEl.current.value = ""
-          }
-          else if (this.state.updating) {
-            this.setState(prevState => {
-              const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
-              const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
-              const previousAllTags = {}
-              prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
-              const updatedAllTags = resData.data.updateRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
-              return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false, allTags: [...prevState.allTags, ...updatedAllTags], creating: false, updating: false}
-            })
-            this.searchBarEl.current.value = ""
-          } 
-     }
-     catch(err) {
-       throw err
-     }
-  }
-
-  uploadToCloudinary = async (imageFilesForProcessing, uploadedCloudinaryLinks, currentRecipeImages) => {
-
-    const imagesForCloudinary = []
-    
-    console.log('imageFilesForProcessing: ', imageFilesForProcessing)
-
-
-    const requestBody = {
-      query: cloudinaryUploadMutation,
-      variables: {
-        imagesForCloudinary: imageFilesForProcessing //images ready for upload to cloudinary
-      }
-    }
-
-    
-    const token = this.context.token;
-    const cloudinaryRes = await fetch('http://localhost:3001/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      }
-    })
-    if (cloudinaryRes.status !== 200 && cloudinaryRes.status !== 201) {
-      throw new Error('Failed!')
-    }
-    const resData =  await cloudinaryRes.json()
-    console.log('cloudinary resData: ', resData)
-
-    await this.setState(prevState => {
-      return {uploadedCloudinaryLinks: [...prevState.uploadedCloudinaryLinks, ...resData.data.uploadToCloudinary.map(image => {
-        // !currentRecipeImages.length && !newImageLinks.length  //this is the first image, set as featured
-        //   ? newImageLinks.push({link: res.data.secure_url, featured: true})
-        //   : newImageLinks.push({link: res.data.secure_url, featured: false})
-
-        return {link: image.secure_url, featured: false} //update code above to set true or false feature
-      })]}
-    })
-
-    console.log('this.state.uploadedCloudinaryLinks: ', this.state.uploadedCloudinaryLinks)
-
-
-  }
-
-
-
-
-
-
-  
-
-
-
-
-  modalSubscribeToRecipeHandler = () => {
-    if(!this.context.token) {
-      this.setState({selectedRecipe: null})
-      return;
-    }
-    const requestBody = {
-      query: `
-        mutation SubscripeToRecipe ($id: ID!) {
-          subscribeToRecipe(recipeId: $id){
-            _id
-            createdAt
-            updatedAt
-          }
-        }
-      `,
-      variables: {
-        id: this.state.selectedRecipe._id
-      }
-    }
-  
-    fetch('http://localhost:3001/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + this.context.token
-      }
-      }).then(res => {
-        if(res.status !== 200 && res.status !== 201) {
-          throw new Error('Failed!')
-        }
-        return res.json()
-      }).then(resData => {
-        this.setState({selectedRecipe: null})
-      })
-      
-      .catch(err => {
-        throw err
-    })
-  }
-
-  modalDeleteRecipeHandler = () => {
-    if(!this.context.token) {
-      this.setState({selectedRecipe: null})
-      return;
-    }
-    
-    const requestBody = {
-      query: `
-        mutation DeleteRecipe ($id: ID!) {
-          deleteRecipe(recipeId: $id){
-            _id
-          }
-        }
-      `,
-      variables: {
-        id: this.state.selectedRecipe._id
-      }
-    }
-    fetch('http://localhost:3001/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + this.context.token
-      }
-      }).then(res => {
-        if(res.status !== 200 && res.status !== 201) {
-          throw new Error('Failed!')
-        }
-        return res.json()
-      }).then(resData => {
-        console.log("resData delete: ", resData)
-        this.setState(prevState => {
-          return {  
-                  creating: false,
-                  selectedRecipe: null,
-                  recipes: prevState.recipes.filter(recipe => recipe._id !== resData.data.deleteRecipe._id)
-                }
-        })
- 
-
-        this.setState({recipesInSearch: this.state.recipes})
-        this.searchBarEl.current.value = ""
-      })
-      .catch(err => {
-        throw err
-      })
-  }
-
-  imageUploadHandler = async e => {
-    console.log(e.target.files)
-
-    const imagesForUpload = e.target.files
-    await this.setState(prevState => {
-      return {imageUploadQueue: [...imagesForUpload, ...prevState.imageUploadQueue]}
-    })
-
-
-    const imagePromises = this.state.imageUploadQueue.map(async fileObject => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.readAsDataURL(fileObject)
-        reader.onloadend = async () => {
-          // await this.setState( prevState => {
-          //   console.log('setting state: ', prevState.imageUploadQueuePreviews)
-          //   return {imageUploadQueuePreviews: [...prevState.imageUploadQueuePreviews, {name: fileObject.name, base64: reader.result}]}
-          // })
-          //console.log('this.state.imageUploadQueuePreviews: ', this.state.imageUploadQueuePreviews)
-          resolve({name: fileObject.name, base64: reader.result})
-        }
-      })
-    })
-
-   await Promise.all([...imagePromises]).then(async base64Images => { 
-      await this.setState(prevState => {
-        return {imageUploadQueuePreviews: [...prevState.imageUploadQueuePreviews, ...base64Images]}
-      })
-
-      console.log('this.state.imageUploadQueuePrevies: ', this.state.imageUploadQueuePreviews)
-    });
-  }
-
-  removeImageFromQueue = e => {
-    let imageToRemove = e.currentTarget.dataset.image
-    this.setState(prevState => {
-      let newImageQueue = prevState.imageUploadQueue.filter(image => image.name !== imageToRemove )
-      return {imageUploadQueue: newImageQueue}
-    })
-  }
-
-  updateImageDeleteQueue = async imageId => {
-    //const imageToDelete = e.currentTarget.dataset.image
-    console.log('IMAGE DELETE HANDLER: ', imageId)
-    await this.setState(prevState => {
-      let newImageDeleteQueue = [...prevState.imageDeleteQueue, imageId]
-      console.log('new delete queue: ', newImageDeleteQueue)
-      return {imageDeleteQueue: newImageDeleteQueue}
-    })
-    console.log('images to delete from Cloudinary: ', this.state.imageDeleteQueue)
-  }
-
-  deleteFromCloudinary = images => {
-    console.log('delete images from coudinary: ', images)
-  }
 
   handleSearch = async e => {
     let currentSearch = e.target.value
@@ -472,15 +159,16 @@ class RecipesPage extends Component {
         canCancel 
         canConfirm 
         isCreate
-        updateRecipeHandler = {this.modalConfirmHandler}
+        //updateRecipeHandler = {this.modalConfirmHandler}
         validationError={this.state.validationError}
-        imageUploadQueue = {this.state.imageUploadQueue}
-        imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
-        imageUploadHandler = {this.imageUploadHandler}
-        removeFromQueue = {this.removeImageFromQueue}
+        //imageUploadQueue = {this.state.imageUploadQueue}
+        // imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
+        // imageUploadHandler = {this.imageUploadHandler}
+        // removeFromQueue = {this.removeImageFromQueue}
         tagsEl = {this.tagsEl}
         newTagEl = {this.newTagEl}
         allTags={this.state.allTags}
+        handleRecipesStateUpdate={this.handleRecipesStateUpdate}
         >
           
         </CreateAndUpdateModal>)}
@@ -511,16 +199,17 @@ class RecipesPage extends Component {
           isUpdate
           canCancel 
           canSaveChanges 
-          updateRecipeHandler = {this.modalConfirmHandler}
+          //updateRecipeHandler = {this.modalConfirmHandler}
           selectedRecipe = {this.state.recipeToUpdate}
           validationError={this.state.validationError}
-          imageUploadHandler = {this.imageUploadHandler}
-          updateImageDeleteQueue = {this.updateImageDeleteQueue}
-          removeFromQueue = {this.removeImageFromQueue}
-          imageUploadQueue = {this.state.imageUploadQueue}
-          imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
+          //imageUploadHandler = {this.imageUploadHandler}
+          //updateImageDeleteQueue = {this.updateImageDeleteQueue}
+          //removeFromQueue = {this.removeImageFromQueue}
+          // imageUploadQueue = {this.state.imageUploadQueue}
+          // imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
           recipeToUpdate = {this.state.recipeToUpdate}
           allTags={this.state.allTags}
+          handleRecipesStateUpdate={this.handleRecipesStateUpdate}
         >
          
         </CreateAndUpdateModal>)}

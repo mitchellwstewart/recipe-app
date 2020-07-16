@@ -70,7 +70,6 @@ class InputForm extends Component  {
     } 
   }
 
-
   prepareRecipeHandler = (e) => {
     e.preventDefault()
     const recipeName = this.recipeNameEl.current.value
