@@ -53,11 +53,11 @@ state = {
         <div className={`ingredientInputContainer mt05 ${this.state.openIngredientEditor  || this.props.newIngredientAdder ? "" : "hidden"}`}>
         <div className="form-control ingredient-amount">
           <label htmlFor="ingredientAmount" className="clg s12">amount</label>
-          <input type="number" ref={this.ingredientAmountEl} id="ingredientAmount" defaultValue={this.props.ingredient ? this.props.ingredient.amount : 1} />
+          <input type="number" ref={this.ingredientAmountEl} className="ingredientAmount" defaultValue={this.props.ingredient ? this.props.ingredient.amount : 1} />
         </div>
         <div className="form-control ingredient-unit">
           <label htmlFor="ingredientUnit" className="clg s12">unit</label>
-          <select id="ingredientUnit" size="1" ref={this.ingredientUnitEl} defaultValue={this.props.ingredient ? this.props.ingredient.unit : 'cup'}>
+          <select className="ingredientUnit" size="1" ref={this.ingredientUnitEl} defaultValue={this.props.ingredient ? this.props.ingredient.unit : 'cup'}>
             <option value="cup">cup</option>
             <option value="tbsp">tbsp</option>
             <option value="tsp">tsp</option>
@@ -69,7 +69,7 @@ state = {
         </div>
         <div className="form-control ingredient-name">
           <label htmlFor="ingredientName" className="clg s12">ingredient name</label>
-          <input type="string" ref={this.ingredientNameEl} id="ingredientName" defaultValue={this.props.ingredient ? this.props.ingredient.name : ''} />
+          <input type="string" ref={this.ingredientNameEl} className="ingredientName" defaultValue={this.props.ingredient ? this.props.ingredient.name : ''} />
           {this.props.ingredientValidation && <p className="caps cr">this ingredient already exists, choose a different name or delete exisiting ingredient</p>}
         </div>
         <div className="edit-controls f aic jcc">

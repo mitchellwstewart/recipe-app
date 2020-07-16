@@ -5,15 +5,12 @@ import ClearIcon from '@material-ui/icons/Clear';
 import './Recipes.scss';
 import ViewModal from '../components/Modals/ViewRecipe/ViewRecipe';
 import CreateAndUpdateModal from '../components/Modals/CreateAndUpdateRecipe/CreateAndUpdateRecipe';
-import InputForm from '../components/Modals/InputForm/InputForm';
 import Backdrop from '../components/Backdrop/Backdrop'
 import AuthContext from '../context/auth-context'
 import RecipeList from '../components/Recipes/RecipeList/RecipeList'
 import Spinner from '../components/Spinner/Spinner'
-import {createRecipeMutation, updateRecipeMutation, fetchRecipesQuery} from '../graphqlQueries/queries'
-import axios from 'axios'
-import cloudinary from 'cloudinary-core'
-require('dotenv').config()
+import { createRecipeMutation, updateRecipeMutation, fetchRecipesQuery, cloudinaryUploadMutation } from '../graphqlQueries/queries'
+
 
 class RecipesPage extends Component {
   state = {
@@ -28,7 +25,10 @@ class RecipesPage extends Component {
     validationError: false,
     featuredImage: null,
     imageUploadQueue: [],
+    imageUploadQueuePreviews: [],
+    uploadedCloudinaryLinks: [],
     imageDeleteQueue: [],
+
     allTags: [],
     filterOpen: false,
   }
@@ -38,22 +38,6 @@ class RecipesPage extends Component {
   static contextType = AuthContext
   constructor(props) {
     super(props);
-    this.recipeNameEl = React.createRef();
-    this.recipeDescriptionEl = React.createRef();
-    this.recipeIngredientsEl = React.createRef();
-    this.recipeStepsEl = React.createRef();
-    this.recipeStepEl = React.createRef();
-    this.minutesEstimateEl = React.createRef();
-    this.yieldsEl = React.createRef();
-    this.dateEl = React.createRef();
-    this.linkEl = React.createRef();
-    this.ingredientAmountEl = React.createRef();
-    this.ingredientUnitEl = React.createRef();
-    this.ingredientNameEl = React.createRef();
-    this.imageEl = React.createRef();
-    this.uploadedImagesEl = React.createRef()
-    this.tagsEl = React.createRef();
-    this.newTagEl = React.createRef();
     this.searchBarEl = React.createRef()
     this.searchByEl = React.createRef()
   }
@@ -85,175 +69,183 @@ class RecipesPage extends Component {
     this.setState({creating: false, selectedRecipe: null, updating: false, recipeToUpdate: false})
   }
 
-  modalConfirmHandler = async () => {
-    const recipeName = this.recipeNameEl.current.value
-    const recipeDescription = this.recipeDescriptionEl.current.value
-    const recipeIngredients = Array.from(this.recipeIngredientsEl.current.children).map(ingredientNode => {      
-      const ingredientName = ingredientNode.dataset.name
-      const ingredientAmount = +ingredientNode.dataset.amount
-      const ingredientUnit = ingredientNode.dataset.unit
-      return { name: ingredientName, amount: ingredientAmount, unit: ingredientUnit}
-    })
-    const recipeSteps = Array.from(this.recipeStepsEl.current.children).map((stepNode, idx) => {
-      const stepNumber = +(idx+1)
-      const stepInstruction = stepNode.querySelector('span.step-content').innerText
-        return {stepNumber: stepNumber, stepInstruction: stepInstruction}
-    })
+  modalConfirmHandler = async ({
+    recipeName, recipeDescription,
+    recipeIngredients, recipeSteps,
+    tags, yields, minutesEstimate, link,
+    currentRecipeImages }) => {
+
+
+
+      
+      
+
     
-    const tags = Array.from(this.tagsEl.current.children).map(tagNode => {
-      const tag = tagNode.querySelector('p').innerText
-      return {tag: tag}
-    })
-    const currentRecipeImages = this.uploadedImagesEl.current ? Array.from(this.uploadedImagesEl.current.children).map(uploadedImage => {      
-      let imageSrc = uploadedImage.querySelector('img').src
-      let featured = uploadedImage.dataset.featured === "true" ? true : false
-      return {link: imageSrc, featured: featured}
-    }) : []
-    const yields = +this.yieldsEl.current.value
-    const minutesEstimate = +this.minutesEstimateEl.current.value
-    const link = this.linkEl.current.value
-    const recipeImagesQueue = this.state.imageUploadQueue
-    let newImageLinks = [];
     try {
-    if(recipeImagesQueue.length) {
-      await this.uploadToCloudinary(recipeImagesQueue, newImageLinks, currentRecipeImages)
-    }
+      if(this.state.imageUploadQueue.length) { //REMOVE ! WHEN DONE TESTING
+        console.log('this.state.imageUploadQueue: ', this.state.imageUploadQueue)
+        await this.uploadToCloudinary(this.state.imageUploadQueuePreviews, this.state.uploadedCloudinaryLinks, currentRecipeImages)
+      }
 
-    if(this.state.imageDeleteQueue.length) {
-      this.deleteFromCloudinary(this.state.imageDeleteQueue)
-    }
-    if(link.trim().length > 0 && recipeName.trim().length > 0) { this.setState({validationError: false}) }
-    else if(
-      recipeName.trim().length === 0 ||
-      recipeIngredients.length === 0 ||
-      recipeSteps.length === 0 ||
-      yields <= 0 || 
-      minutesEstimate <= 0 
-    ){
-      this.setState({validationError: true})
-      setTimeout(()=> {
-        this.setState({validationError: false})
-      }, 3000)
-      return;
-    }
+    //  if(this.state.imageDeleteQueue.length) {
+    //    this.deleteFromCloudinary(this.state.imageDeleteQueue)
+    //  }
+      if(link.trim().length > 0 && recipeName.trim().length > 0) { this.setState({validationError: false}) }
+      else if(
+        recipeName.trim().length === 0 ||
+        recipeIngredients.length === 0 ||
+        recipeSteps.length === 0 ||
+        yields <= 0 || 
+        minutesEstimate <= 0 
+      ){
+        this.setState({validationError: true})
+        setTimeout(()=> {
+          this.setState({validationError: false})
+        }, 3000)
+        return;
+      }
     
-    const recipeId = this.state.updating ? this.state.recipeToUpdate._id : null
-    const defaultVariables = {
-      recipeName: recipeName,
-      recipeDescription: recipeDescription,
-      recipeIngredients: recipeIngredients,
-      recipeSteps: recipeSteps,
-      yields: yields,
-      minutesEstimate: minutesEstimate,
-      date: new Date().toISOString(),
-      link: link,
-      imageLinks: newImageLinks.length ? [...currentRecipeImages, ...newImageLinks] : currentRecipeImages,
-      tags: tags,
-    }
+      const recipeId = this.state.updating ? this.state.recipeToUpdate._id : null
+      const defaultVariables = {
+        recipeName: recipeName,
+        recipeDescription: recipeDescription,
+        recipeIngredients: recipeIngredients,
+        recipeSteps: recipeSteps,
+        yields: yields,
+        minutesEstimate: minutesEstimate,
+        date: new Date().toISOString(),
+        link: link,
+        imageLinks: this.state.uploadedCloudinaryLinks.length ? [...currentRecipeImages, ...this.state.uploadedCloudinaryLinks] : currentRecipeImages,
+        tags: tags,
+      }
 
-    const updatedVariables = recipeId ? {...defaultVariables, recipeId} : defaultVariables
-    const requestBody = {
-      query: this.state.updating ? updateRecipeMutation : createRecipeMutation,
-      variables: updatedVariables
-    };
-    const token = this.context.token;
-    const mongoRes = await fetch('http://localhost:3001/graphql', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        }
-      })
-        if(mongoRes.status !== 200 && mongoRes.status !== 201) {
-          throw new Error('Failed!')
-        }
-        const resData =  await mongoRes.json()
-        console.log("resData from create/update: ", resData)
-        if(this.state.creating) {
-          this.setState(prevState => {
-            const updatedRecipes = [...prevState.recipes]
-            const previousAllTags = {}
-            prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj)
-            const updatedAllTags = resData.data.createRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
-            updatedRecipes.push({
-              _id: resData.data.createRecipe._id,
-              recipeName: resData.data.createRecipe.recipeName,
-              recipeDescription: resData.data.createRecipe.recipeDescription,
-              recipeIngredients: resData.data.createRecipe.recipeIngredients,
-              recipeSteps: resData.data.createRecipe.recipeSteps,
-              yields: resData.data.createRecipe.yields,
-              minutesEstimate: resData.data.createRecipe.minutesEstimate,
-              date: resData.data.createRecipe.date,
-              link: resData.data.createRecipe.link,
-              imageLinks: resData.data.createRecipe.imageLinks,
-              tags: resData.data.createRecipe.tags,
-              creator: {
-                _id: this.context.userId,
+      const updatedVariables = recipeId ? {...defaultVariables, recipeId} : defaultVariables
+      const requestBody = {
+        query: this.state.updating ? updateRecipeMutation : createRecipeMutation,
+        variables: updatedVariables
+      };
+
+      console.log('requestBody: ', requestBody)
+      const token = this.context.token;
+      const mongoRes = await fetch('http://localhost:3001/graphql', {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          }
+        })
+          if(mongoRes.status !== 200 && mongoRes.status !== 201) {
+            throw new Error('Failed!')
+          }
+          const resData =  await mongoRes.json()
+          console.log("resData from create/update: ", resData)
+          if(this.state.creating) {
+            this.setState(prevState => {
+              const updatedRecipes = [...prevState.recipes]
+              const previousAllTags = {}
+              prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj)
+              const updatedAllTags = resData.data.createRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
+              updatedRecipes.push({
+                _id: resData.data.createRecipe._id,
+                recipeName: resData.data.createRecipe.recipeName,
+                recipeDescription: resData.data.createRecipe.recipeDescription,
+                recipeIngredients: resData.data.createRecipe.recipeIngredients,
+                recipeSteps: resData.data.createRecipe.recipeSteps,
+                yields: resData.data.createRecipe.yields,
+                minutesEstimate: resData.data.createRecipe.minutesEstimate,
+                date: resData.data.createRecipe.date,
+                link: resData.data.createRecipe.link,
+                imageLinks: resData.data.createRecipe.imageLinks,
+                tags: resData.data.createRecipe.tags,
+                creator: {
+                  _id: this.context.userId,
+                }
+              })
+              return {recipes: updatedRecipes, 
+                recipesInSearch: updatedRecipes, 
+                creating: false, 
+                updating: false,
+                selectedRecipe: {
+                  ...resData.data.createRecipe,
+                  creator: {_id: this.context.userId}, 
+                  allTags: updatedAllTags, 
+                }
               }
             })
-            return {recipes: updatedRecipes, 
-              recipesInSearch: updatedRecipes, 
-              creating: false, 
-              updating: false,
-              selectedRecipe: {
-                ...resData.data.createRecipe,
-                creator: {_id: this.context.userId}, 
-                allTags: updatedAllTags, 
-              }
-            }
-          })
-          this.searchBarEl.current.value = ""
-        }
-        else if (this.state.updating) {
-          this.setState(prevState => {
-            const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
-            const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
-            const previousAllTags = {}
-            prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
-            const updatedAllTags = resData.data.updateRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
-            return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false, allTags: [...prevState.allTags, ...updatedAllTags], creating: false, updating: false}
-          })
-          this.searchBarEl.current.value = ""
-        } 
-        
-      
-    }
-    catch(err) {
-      throw err
-    }
+            this.searchBarEl.current.value = ""
+          }
+          else if (this.state.updating) {
+            this.setState(prevState => {
+              const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: prevState.recipeToUpdate.creator._id}}
+              const updatedRecipes = [...prevState.recipes.filter(recipe => recipe._id !== resData.data.updateRecipe._id), updatedRecipe]
+              const previousAllTags = {}
+              prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
+              const updatedAllTags = resData.data.updateRecipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
+              return {recipes: updatedRecipes, recipesInSearch: updatedRecipes, recipeToUpdate: null, selectedRecipe: updatedRecipe, updating: false, allTags: [...prevState.allTags, ...updatedAllTags], creating: false, updating: false}
+            })
+            this.searchBarEl.current.value = ""
+          } 
+     }
+     catch(err) {
+       throw err
+     }
   }
 
-  uploadToCloudinary = async (recipeImagesQueue, newImageLinks, currentRecipeImages) => {
-    const imageUploaders = await recipeImagesQueue.map(image => { 
-      console.log('image: ', image)
-      const formData = new FormData();
-      formData.append('file', image)
-      formData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET)
+  uploadToCloudinary = async (imageFilesForProcessing, uploadedCloudinaryLinks, currentRecipeImages) => {
 
-    //  const cl = new cloudinary.Cloudinary({cloud_name: process.env.REACT_APP_CLOUD_NAME, secure: true})
-    //  cl.v2.uploader.unsigned_upload(image, process.env.REACT_APP_UPLOAD_PRESET, null, ()=>{console.log('single upload finished')})
-      return axios({
-        url: process.env.REACT_APP_IMAGE_UPLOAD_URL,
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: formData
-      }).then(res => {
-        if(res.status !== 200 && res.status !== 201) {
-          throw new Error('Failed!')
-        }
-          
-        !currentRecipeImages.length && !newImageLinks.length  //this is the first image, set as featured
-        ? newImageLinks.push({link: res.data.secure_url, featured: true})
-        : newImageLinks.push({link: res.data.secure_url, featured: false})
-      })
+    const imagesForCloudinary = []
+    
+    console.log('imageFilesForProcessing: ', imageFilesForProcessing)
+
+
+    const requestBody = {
+      query: cloudinaryUploadMutation,
+      variables: {
+        imagesForCloudinary: imageFilesForProcessing //images ready for upload to cloudinary
+      }
+    }
+
+    
+    const token = this.context.token;
+    const cloudinaryRes = await fetch('http://localhost:3001/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      }
     })
-    await axios.all(imageUploaders).then((res)=>{
-      this.setState({imageUploadQueue: []})
+    if (cloudinaryRes.status !== 200 && cloudinaryRes.status !== 201) {
+      throw new Error('Failed!')
+    }
+    const resData =  await cloudinaryRes.json()
+    console.log('cloudinary resData: ', resData)
+
+    await this.setState(prevState => {
+      return {uploadedCloudinaryLinks: [...prevState.uploadedCloudinaryLinks, ...resData.data.uploadToCloudinary.map(image => {
+        // !currentRecipeImages.length && !newImageLinks.length  //this is the first image, set as featured
+        //   ? newImageLinks.push({link: res.data.secure_url, featured: true})
+        //   : newImageLinks.push({link: res.data.secure_url, featured: false})
+
+        return {link: image.secure_url, featured: false} //update code above to set true or false feature
+      })]}
     })
+
+    console.log('this.state.uploadedCloudinaryLinks: ', this.state.uploadedCloudinaryLinks)
+
+
   }
+
+
+
+
+
+
+  
+
+
+
 
   modalSubscribeToRecipeHandler = () => {
     if(!this.context.token) {
@@ -345,12 +337,37 @@ class RecipesPage extends Component {
       })
   }
 
-  imageUploadHandler = e => {
+  imageUploadHandler = async e => {
+    console.log(e.target.files)
+
     const imagesForUpload = e.target.files
-    console.log('imagseForUploads: ', imagesForUpload)
-    this.setState(prevState => {
+    await this.setState(prevState => {
       return {imageUploadQueue: [...imagesForUpload, ...prevState.imageUploadQueue]}
     })
+
+
+    const imagePromises = this.state.imageUploadQueue.map(async fileObject => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(fileObject)
+        reader.onloadend = async () => {
+          // await this.setState( prevState => {
+          //   console.log('setting state: ', prevState.imageUploadQueuePreviews)
+          //   return {imageUploadQueuePreviews: [...prevState.imageUploadQueuePreviews, {name: fileObject.name, base64: reader.result}]}
+          // })
+          //console.log('this.state.imageUploadQueuePreviews: ', this.state.imageUploadQueuePreviews)
+          resolve({name: fileObject.name, base64: reader.result})
+        }
+      })
+    })
+
+   await Promise.all([...imagePromises]).then(async base64Images => { 
+      await this.setState(prevState => {
+        return {imageUploadQueuePreviews: [...prevState.imageUploadQueuePreviews, ...base64Images]}
+      })
+
+      console.log('this.state.imageUploadQueuePrevies: ', this.state.imageUploadQueuePreviews)
+    });
   }
 
   removeImageFromQueue = e => {
@@ -455,33 +472,19 @@ class RecipesPage extends Component {
         canCancel 
         canConfirm 
         isCreate
-        confirmText="Confirm"
-        onCancel={this.modalCancelHandler} 
-        onConfirm={this.modalConfirmHandler}
+        updateRecipeHandler = {this.modalConfirmHandler}
         validationError={this.state.validationError}
+        imageUploadQueue = {this.state.imageUploadQueue}
+        imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
+        imageUploadHandler = {this.imageUploadHandler}
+        removeFromQueue = {this.removeImageFromQueue}
+        tagsEl = {this.tagsEl}
+        newTagEl = {this.newTagEl}
+        allTags={this.state.allTags}
         >
-          <InputForm 
-          recipeNameEl={this.recipeNameEl} 
-          dateEl={this.dateEl} 
-          linkEl={this.linkEl} 
-          minutesEstimateEl={this.minutesEstimateEl}
-          yieldsEl={this.yieldsEl}
-          recipeDescriptionEl={this.recipeDescriptionEl} 
-          recipeIngredientsEl={this.recipeIngredientsEl} 
-          recipeStepsEl={this.recipeStepsEl}
-          recipeStepEl={this.recipeStepEl}
-          ingredientAmountEl={this.ingredientAmountEl}
-          ingredientUnitEl={this.ingredientUnitEl}
-          ingredientNameEl={this.ingredientNameEl}
-          imageEl = {this.imageEl}
-          imageUploadQueue = {this.state.imageUploadQueue}
-          imageHandler = {this.imageUploadHandler}
-          removeFromQueue = {this.removeImageFromQueue}
-          tagsEl = {this.tagsEl}
-          newTagEl = {this.newTagEl}
-          allTags={this.state.allTags}
-          />
+          
         </CreateAndUpdateModal>)}
+
         {this.state.selectedRecipe && 
         //in this case, the options are delete, edit(if owner) or subscribe(if visitor)
           (<ViewModal 
@@ -499,6 +502,8 @@ class RecipesPage extends Component {
           subscribeText={"Subscribe To Recipe" }
           selectedRecipe = {this.state.selectedRecipe}
           />)}
+
+
         {this.state.recipeToUpdate &&
         //in this case, the options are save changes or cancel (both if owner)
         (<CreateAndUpdateModal
@@ -506,43 +511,24 @@ class RecipesPage extends Component {
           isUpdate
           canCancel 
           canSaveChanges 
-          saveText={this.context.token && "Save Changes" }
-          onCancel={this.modalCancelHandler.bind(this, 'update')} 
-          onSaveChanges={this.modalConfirmHandler}
+          updateRecipeHandler = {this.modalConfirmHandler}
           selectedRecipe = {this.state.recipeToUpdate}
           validationError={this.state.validationError}
-        >
-          <InputForm 
-          recipeNameEl={this.recipeNameEl} 
-          dateEl={this.dateEl} 
-          linkEl={this.linkEl} 
-          minutesEstimateEl={this.minutesEstimateEl}
-          yieldsEl={this.yieldsEl}
-          recipeDescriptionEl={this.recipeDescriptionEl} 
-          recipeIngredientsEl={this.recipeIngredientsEl} 
-          recipeStepsEl={this.recipeStepsEl}
-          recipeStepEl={this.recipeStepEl}
-          ingredientAmountEl={this.ingredientAmountEl}
-          ingredientUnitEl={this.ingredientUnitEl}
-          ingredientNameEl={this.ingredientNameEl}
-          imageHandler = {this.imageUploadHandler}
+          imageUploadHandler = {this.imageUploadHandler}
           updateImageDeleteQueue = {this.updateImageDeleteQueue}
-          imageEl = {this.imageEl}
           removeFromQueue = {this.removeImageFromQueue}
-          uploadedImagesEl = {this.uploadedImagesEl}
           imageUploadQueue = {this.state.imageUploadQueue}
-          tagsEl = {this.tagsEl}
-          newTagEl = {this.newTagEl}
+          imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
           recipeToUpdate = {this.state.recipeToUpdate}
           allTags={this.state.allTags}
-          />
+        >
+         
         </CreateAndUpdateModal>)}
           <h1 className="ac fw5 suiz fw7 italic mt1 cw x f jcs">All Recipes</h1> 
         <div className="recipes-control f jcb container--5">
           <div className="left-control f fdc ">
             <div className="f fdc">
               <div className="search__container f fdc x">
-                {/* <label htmlFor="search">Search Recipes</label> */}
                 <div className="form-control f aic caps ls1 pt025 mb05 cw">
                   <div className="search-by_label">Search By: </div>
                   <select className="search-by_select caps fw6 ls1 cw" ref={this.searchByEl} onChange={(e)=>this.setState({searchBy: e.target.value})} defaultValue="name">
@@ -558,7 +544,6 @@ class RecipesPage extends Component {
                   <h4 className="pr025 caps ls1 fw6 mt025 mb0 cw">filter by tags </h4>
                   <div className={`plus-icon f ${this.state.filterOpen ? 'active' : ""}`} ><ClearIcon /></div>
                 </div>
-                
                 <ul className={`tag-container f aic mt1 container--5 fw p0 ${this.state.filterOpen ? 'active' : ''}`}>
                   {this.state.allTags.map((tag, idx )=> {
                     if(tag.recipesWithTag && tag.recipesWithTag.length > 0) {
