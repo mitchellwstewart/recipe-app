@@ -14,6 +14,7 @@ cloudinary.config({
 
 module.exports = {
     uploadToCloudinary: async args => {
+      console.log('Backend upload to cloudinary: ', args.imagesForCloudinary)
         try {
           const uploadPromises = args.imagesForCloudinary.map(async imageFile => {
             return new Promise((resolve, reject) => {
