@@ -35,6 +35,7 @@ const createRecipeMutation = `
             _id
             link
             featured
+            public_id
           }
           tags {
             tag
@@ -85,6 +86,7 @@ const updateRecipeMutation = `
           _id
           link
           featured
+          public_id
         }
         tags {
           tag
@@ -121,6 +123,7 @@ const fetchRecipesQuery = `
           _id
           link
           featured
+          public_id
         }
         tags {
           tag
@@ -146,9 +149,19 @@ const fetchRecipesQuery = `
       {
         secure_url
         resource_type
+        public_id
       }  
     }
   `
+
+  const cloudinaryDeleteMutation = `
+  mutation DeleteFromCloudinary($imageIdsToDelete: [ImageToDelete!]) {
+    deleteFromCloudinary(imageIdsToDelete: $imageIdsToDelete) 
+      
+      
+    }
+  `
+
   const addTagToRecipe = `
   mutation AddTagToRecipe(
     $tag: String!
@@ -164,4 +177,4 @@ const fetchRecipesQuery = `
   `
 
 
-module.exports = { createRecipeMutation, updateRecipeMutation, fetchRecipesQuery, cloudinaryUploadMutation }
+module.exports = { createRecipeMutation, updateRecipeMutation, fetchRecipesQuery, cloudinaryUploadMutation, cloudinaryDeleteMutation }

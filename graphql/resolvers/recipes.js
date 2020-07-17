@@ -66,6 +66,7 @@ module.exports = {
         }
     },
     createRecipe: async (args, req) => {
+      
       if(!req.isAuth) {
           throw new Error('Unauthenticated!')
       }
@@ -121,6 +122,7 @@ module.exports = {
       catch(err) { throw err }
     },
     updateRecipe:  async (args, req) => {
+      console.log('CREATE RECIPE IMAGES: ', args.recipeInput.imageLinks)
       if(!req.isAuth) {
         throw new Error ('Unauthenticated')
       }
@@ -159,7 +161,7 @@ module.exports = {
          const updatedRecipes = [...creator.createdRecipes.filter(recipe => recipe !== args.recipeId), updatedRecipe]
          creator.createdRecipes = updatedRecipes 
          await creator.save()
-         //console.log('updatedRecipe: ', updatedRecipe)
+         console.log('updatedRecipe: ', updatedRecipe)
          return updatedRecipe
       }
       catch(err) { 

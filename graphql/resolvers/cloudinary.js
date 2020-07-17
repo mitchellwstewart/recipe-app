@@ -6,20 +6,15 @@ const axios  = require('axios')
 require('dotenv').config();
 var fs = require('fs');
 var cloudinary = require('cloudinary').v2;
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 module.exports = {
     uploadToCloudinary: async args => {
-      console.log('hey are we hitting this?')
-      cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
-      })
         try {
-          args.imagesForCloudinary.forEach(image => {
-            console.log('image: ', image.name)
-              
-          })
           const uploadPromises = args.imagesForCloudinary.map(async imageFile => {
             return new Promise((resolve, reject) => {
               resolve(cloudinary.uploader.upload(imageFile.base64, {}))
@@ -27,12 +22,9 @@ module.exports = {
           })
       
          const cloudinaryResponse = await Promise.all([...uploadPromises])
-          console.log("cloudinaryImages: ", cloudinaryResponse)
           const cloudinaryImages =  cloudinaryResponse.map(res => {
-            return {secure_url: res.secure_url, resource_type: res.resource_type}
+            return {secure_url: res.secure_url, resource_type: res.resource_type, public_id: res.public_id}
           })
-          console.log('cloudinaryImages: ', cloudinaryImages)
-
           return cloudinaryImages
         }
         catch(err) {
@@ -41,7 +33,17 @@ module.exports = {
         }
         
     },
-    deleteImages: async ({ email, password }) => {
-       
+    deleteFromCloudinary: async (args) => {
+      const cloudIds = args.imageIdsToDelete.map(imageObj => imageObj.cloudId)
+      const mongoIds = args.imageIdsToDelete.map(imageObj => imageObj.mongoId)
+      try {
+        await cloudinary.api.delete_resources(cloudIds, (error, result) => {
+        });
+        return  mongoIds 
+      }
+      catch(err) {
+        console.log('err: ', err)
+          throw err
+      }      
     }
 }
