@@ -44,7 +44,7 @@ render() {
           : <ClearIcon />}
       </div>
       <div className="image-container f aic">
-        <img className="img" ref={this.imageEl} src={this.props.imageLink.link}/>
+        <img className="img" ref={this.imageEl} src={this.props.imageLink.link}  style={{ height: "100px", width: "100px", borderRadius: "50%", objectFit: 'cover'}}/>
       </div>
       {this.props.featuredImage && this.props.featuredImage._id === this.props.imageLink._id 
       ?  <div className="featured-label caps small sl2 abs">Featured</div>

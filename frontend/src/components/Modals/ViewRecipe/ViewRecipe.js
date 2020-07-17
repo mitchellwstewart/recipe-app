@@ -120,7 +120,7 @@ class ViewModal extends Component {
               {this.props.saveText}
             </button>}
           </section>
-          <div className="py05 f aic " onClick={this.props.onCancel}><ClearIcon /></div>
+          <div className="py05 f aic close-modal " onClick={this.props.onCancel}><ClearIcon /></div>
         </nav>
         <header className="modal__header main f jcb ">
           <div className="title f fdc x2 jcc mt1">
@@ -159,7 +159,6 @@ class ViewModal extends Component {
                   <div className={`close-fullscreen f jce p1 ${this.state.fullscreenView ? '' : 'hidden'}`} onClick={this.closeFullscreen}><ClearIcon/></div>
                   
                   {!this.state.fullscreenView && <p className="caps fw6 underline pb025">Photos</p> }
-
                   <div className="image-slider_container f">
                   <Flickity
                       className={'recipe-images view f fw x y aic '} // default ''
@@ -173,7 +172,7 @@ class ViewModal extends Component {
                     {recipeImages.map((image, idx) => {
                       return (
                         <div key={idx} className="image-container mr05 x" onClick={this.fullscreenHandler}>
-                          <img className="uploaded-image x" src={image.link} />
+                          <img className="uploaded-image" src={image.link}  />
                         </div>
                       )
                     })}

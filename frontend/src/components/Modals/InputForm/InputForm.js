@@ -347,35 +347,10 @@ class InputForm extends Component  {
               </div>
             </div>    
               <div className={`section-body images-container ${this.state.viewing === "images" ? '' : 'hidden'}`}>{/* Images */}
-              <div className="image-uploader pointer"  >
-                <p className="s12 soft-btn_hover" onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'close x' : 'upload image +'}</p>
-                { this.state.showImageUploader && 
-                <div className="form-control">
-                  <input type="file" multiple ref={this.imageFileInputEl} onChange={this.props.imageToBase64Handler}/>
-                  {this.props.imageUploadQueue.length > 0 && 
-                  <div className="upload-queue" >
-                    <p>Ready For Upload</p>
-                    <div className="images-for-upload f">
-                      {this.props.imageUploadQueue.map((image, idx)=> {
-                        return (
-                        <div className="p0 m0 f" key={image.name}>
-                          
-                          {this.props.imageUploadQueuePreviews && <img src={this.props.imageUploadQueuePreviews[idx]} alt="preview" style={{ height: "100px", width: "100px", borderRadius: "50%", objectFit: 'cover'}}/>}
-                          
-                          <div className="clear-file f aic pointer" data-image={image.name} onClick={this.removeFromQueue}>
-                            <ClearIcon />
-                          </div>
-                        </div>)
-                      })}
-                    </div>
-                  </div>
-                  }
-                </div>     
-                }
-                </div>
               <React.Fragment> 
               { this.props.recipeToUpdate &&
               <div className="form-control ">
+              
                 <div className="recipe-images f edit fw" ref={this.uploadedImagesEl}>
                   {this.state.imagesAdded && this.state.imagesAdded.map((imageLink, idx)=>{
                     return  (
@@ -393,6 +368,34 @@ class InputForm extends Component  {
               </div> 
               }
             </React.Fragment>
+              <div className="image-uploader pointer"  >
+          
+                
+                <div className="form-control f x ">
+                  { this.state.showImageUploader &&   <input type="file" multiple ref={this.imageFileInputEl} onChange={this.props.imageToBase64Handler}/> }
+                  <p className="s12 soft-btn_hover x f jce ais m0" onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'cancel upload' : 'upload image +'}</p>
+                </div>   
+                  {this.props.imageUploadQueue.length > 0 && 
+                  <div className="upload-queue" >
+                    <p className="caps fw6 pb025 mr05 ">Ready For Upload</p>
+                    <div className="images-for-upload f fw">
+                      {this.props.imageUploadQueue.map((image, idx)=> {
+                        console.log('image: ', image)
+                        return (
+                        <div className="image-preview p1 m0 f rel" key={image.name}>
+                          <img src={image.base64} alt="preview" style={{ height: "50px", width: "50px", borderRadius: "50%", objectFit: 'cover'}}/>
+                          <div className="clear-file f aic pointe abs right" data-image={image.name} onClick={this.removeFromQueue}>
+                            <ClearIcon />
+                          </div>
+                        </div>)
+                      })}
+                    </div>
+                  </div>
+                  }
+                  
+                
+                </div>
+           
             </div>
           </div>
         </div>
