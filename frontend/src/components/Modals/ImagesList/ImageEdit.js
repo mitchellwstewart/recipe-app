@@ -15,11 +15,8 @@ class ImageEdit extends Component {
 
   componentDidMount = () => {
   
-    //this.setState({isFeaturedImage: this.props.featuredImage._id === this.props.imageLink._id })
   }
  componentDidUpdate = () => {
-  //  console.log('imageLink :', this.props.imageLink)
-  //  console.log('this.props.featuredImage: ', this.props.featuredImage)
     if(this.props.featuredImage && this.props.featuredImage._id === this.props.imageLink._id && !this.props.featuredImage && this.props.featuredImage._id === this.props.imageLink._id) {
       this.setState({isFeaturedImage: true})
     }
@@ -27,21 +24,9 @@ class ImageEdit extends Component {
 
 
  setDeleteState = () => {
-  //  console.log('reverse state')
    this.setState({confirmDelete: !this.state.confirmDelete})
  }
 
-
-// openEditStepHandler = async () => {
-//   this.state.openStepEditor 
-//   ? await this.setState({openStepEditor: false})
-//   : await this.setState({openStepEditor: true})
-// }
-
-// confirmEditHandler = () => {
-//   this.props.updateStepHandler(this.state.originalStepInstruction, {updatedStepInstruction: this.recipeStepEl.current.value, stepNumber: this.props.step.stepNumber})
-//   this.setState({openStepEditor: false})
-// }
 
 render() {
   return  (
@@ -49,7 +34,7 @@ render() {
       <div className="delete-image abs right" onClick={this.setDeleteState} >
         {this.state.confirmDelete 
           ? <div className=" f ">
-              <div className="confirm-delete pointer clg small soft-btn_hover mr05" onClick={this.props.handleDeleteImage.bind(this, this.props.imageLink._id)}>
+              <div className="confirm-delete pointer clg small soft-btn_hover mr05" onClick={this.props.handleDeleteImage.bind(this, {mongoId: this.props.imageLink._id, cloudId: this.props.imageLink.public_id})}>
                 Confirm Delete
               </div> 
               <div className="cancel-delete pointer clg small soft-btn_hover mr05" onClick={this.setDeleteState}>

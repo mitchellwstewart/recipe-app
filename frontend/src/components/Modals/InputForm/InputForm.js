@@ -21,21 +21,6 @@ class InputForm extends Component  {
       tagSuggestions: [],
       featuredImage: null,
       confirmDelete: false,
-      columns: { 
-        'column1' : {
-          name: 'ToDo',
-          items: [
-            {id: 'item1', content: 'first task'},
-            {id: 'item2', content: 'second task'},
-            {id: 'item3', content: 'third task'}
-          ]
-        },
-        // 'column2' : {
-        //   name: 'In progress',
-        //   items: [
-        //   ]
-        // }
-      }
     }
     this.recipeNameEl = React.createRef();
     this.recipeDescriptionEl = React.createRef();
@@ -58,7 +43,6 @@ class InputForm extends Component  {
   }
   componentDidMount = async () => {
     if(this.props.recipeToUpdate) {
-      
       await this.setState({
        ingredientsAdded: this.props.recipeToUpdate.recipeIngredients,
        stepsAdded: this.props.recipeToUpdate.recipeSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}),
@@ -93,11 +77,9 @@ class InputForm extends Component  {
     const yields = +this.yieldsEl.current.value
     const minutesEstimate = +this.minutesEstimateEl.current.value
     const link = this.linkEl.current.value
-    const currentRecipeImages = this.uploadedImagesEl.current ? Array.from(this.uploadedImagesEl.current.children).map(uploadedImage => {      
-      let imageSrc = uploadedImage.querySelector('img').src
-      let featured = uploadedImage.dataset.featured === "true" ? true : false
-      return {link: imageSrc, featured: featured}
-    }) : []
+    const currentRecipeImages = this.state.imagesAdded.map(uploadedImage => {      
+      return {link: uploadedImage.link, featured: uploadedImage.featured, public_id: uploadedImage.public_id}
+    }) 
     const recipeElements = {
       recipeName: recipeName,
       recipeDescription: recipeDescription,
@@ -200,7 +182,7 @@ class InputForm extends Component  {
     this.props.removeFromQueue(e)
   }
 
-  handleDeleteImage = async imageId => {
+  handleDeleteImage = async ({ mongoId, cloudId })=> {
     let newFeaturedImage;
     this.state.imagesAdded.forEach((image, idx) => {
       if(image.featured) {
@@ -208,10 +190,10 @@ class InputForm extends Component  {
         else if (this.state.imagesAdded[idx+1]) newFeaturedImage = this.state.imagesAdded[idx+1]
       }
     });
-    newFeaturedImage.featured = true
-    const updatedImages = this.state.imagesAdded.filter((image) => image._id !== imageId)
+    if(newFeaturedImage) newFeaturedImage.featured = true
+    const updatedImages = this.state.imagesAdded.filter((image) => image._id !== mongoId)
      await this.setState({imagesAdded: updatedImages, featuredImage: newFeaturedImage})
-     this.props.updateImageDeleteQueue(imageId)
+     this.props.updateImageDeleteQueue({mongoId, cloudId })
   }
 
   onDragEnd = async (result, columns, setColumns) => {
@@ -226,7 +208,6 @@ class InputForm extends Component  {
   }
 
   render() {
-    console.log('this.props: ', this.props)
     return (
       <form encType="multipart/form-data" className={`recipe-form ${this.props.recipeToUpdate ? 'update-recipe' : 'create-recipe'}`}>
       {this.props.recipeToUpdate && 
@@ -316,12 +297,6 @@ class InputForm extends Component  {
                       <div
                         {...provided.droppableProps}
                         ref={provided.innerRef}
-                        // style={{
-                        //   background: snapshot.isDraggingOver ? 'lightblue' : 'lightgrey',
-                        //   padding: 4,
-                        //   width: 250,
-                        //   minHeight: 500,
-                        // }}
                         >
                           <ul className="recipe-steps_list" ref={this.recipeStepsEl} >
                           {
@@ -376,7 +351,7 @@ class InputForm extends Component  {
                 <p className="s12 soft-btn_hover" onClick={this.openImageUpdater}>{this.state.showImageUploader ? 'close x' : 'upload image +'}</p>
                 { this.state.showImageUploader && 
                 <div className="form-control">
-                  <input type="file" multiple ref={this.imageFileInputEl} onChange={this.props.imageUploadHandler}/>
+                  <input type="file" multiple ref={this.imageFileInputEl} onChange={this.props.imageToBase64Handler}/>
                   {this.props.imageUploadQueue.length > 0 && 
                   <div className="upload-queue" >
                     <p>Ready For Upload</p>
