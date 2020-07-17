@@ -12,7 +12,7 @@ class CreateAndUpdateModal extends Component {
     this.state = {
       viewing: 'description',
       imageUploadQueue: [],
-      imageUploadQueuePreviews: [],
+      // imageUploadQueuePreviews: [],
       uploadedCloudinaryLinks: [],
       imageDeleteQueue: [],
     }
@@ -35,7 +35,7 @@ class CreateAndUpdateModal extends Component {
       try {
      
       if(this.state.imageUploadQueue.length) { //UPLOAD IMAGES TO CLOUDINARY AND SET IMAGE OBJECT IN this.state.uploadedCloudinaryLinks
-        await this.uploadToCloudinary(this.state.imageUploadQueuePreviews, this.state.uploadedCloudinaryLinks, currentRecipeImages)
+        await this.uploadToCloudinary(this.state.imageUploadQueue, this.state.uploadedCloudinaryLinks, currentRecipeImages)
       }
 
     if(this.state.imageDeleteQueue.length) { //DELETE IMAGES FROM CLOUDINARY. Will later take mongoDB _ids from this.state.imageDeleteQueue
@@ -172,10 +172,7 @@ class CreateAndUpdateModal extends Component {
       })
   }
 
-  modalCancelHandler = () => {
-    document.querySelector('body').classList.remove('lock')
-    this.setState({creating: false, selectedRecipe: null, updating: false, recipeToUpdate: false})
-  }
+
 
   modalSubscribeToRecipeHandler = () => {
     if(!this.context.token) {
@@ -295,11 +292,10 @@ class CreateAndUpdateModal extends Component {
   }
 
   imageToBase64Handler = async e => {
-    const imagesForUpload = e.target.files
-    await this.setState(prevState => {
-      return {imageUploadQueue: [...imagesForUpload, ...prevState.imageUploadQueue]}
-    })
-    const imagePromises = this.state.imageUploadQueue.map(async fileObject => {
+    const imagesForUpload = [...e.target.files]
+    console.log('imageToBase64Handler: ', imagesForUpload)
+
+    const imagePromises = imagesForUpload.map(async fileObject => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader()
         reader.readAsDataURL(fileObject)
@@ -311,21 +307,24 @@ class CreateAndUpdateModal extends Component {
 
    await Promise.all([...imagePromises]).then(async base64Images => { 
       await this.setState(prevState => {
-        return {imageUploadQueuePreviews: [...prevState.imageUploadQueuePreviews, ...base64Images]}
+        return {imageUploadQueue: [...prevState.imageUploadQueue, ...base64Images]}
       })
+      console.log('this.state.imageUploadQueue: ', this.state.imageUploadQueue)
     });
+
+    
   }
 
 
   
   render() {
-    
+    console.log('this.props:', this.props)
   return (
     <div className="modal create-update-modal z2">
       <nav className="modal__nav  bcdbl p0 m0 f jcb aic z3" >
       
       <header className="modal__header f jcb s12 ls1 ccr caps f fw6 aic">{this.props.isUpdate ? "Updating Recipe" : "Creating Recipe"}</header>
-        <div className="p05 f aic pointer close-modal"  onClick={this.props.onCancel}>
+        <div className="py05 f aic pointer close-modal"  onClick={this.props.onCancel}>
         <ClearIcon/></div>
         </nav>
       
@@ -333,14 +332,14 @@ class CreateAndUpdateModal extends Component {
       {this.props.isUpdate 
       ?  <InputForm       
       saveText={this.context.token && "Save Changes" }
-      //onCancel={this.props.modalCancelHandler.bind(this, 'update')} 
+      onCancel={this.props.onCancel.bind(this, 'update')} 
       onSaveChanges={this.modalConfirmHandler}
       updateRecipeHandler = {this.modalConfirmHandler}
       imageToBase64Handler = {this.imageToBase64Handler}
       updateImageDeleteQueue = {this.updateImageDeleteQueue}
       removeFromQueue = {this.removeImageFromQueue}
       imageUploadQueue = {this.state.imageUploadQueue}
-      imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
+      // imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
       recipeToUpdate = {this.props.recipeToUpdate}
       allTags={this.props.allTags}
       canConfirm = {this.props.canConfrim}
@@ -348,11 +347,11 @@ class CreateAndUpdateModal extends Component {
       /> 
     : <InputForm 
       confirmText="Confirm"
-      onCancel={this.modalCancelHandler} 
+      onCancel={this.props.onCancel} 
       onConfirm={this.modalConfirmHandler}
       updateRecipeHandler = {this.modalConfirmHandler}
       imageUploadQueue = {this.state.imageUploadQueue}
-      imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
+      // imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
       imageToBase64Handler = {this.imageToBase64Handler}
       removeFromQueue = {this.removeImageFromQueue}
       tagsEl = {this.props.tagsEl}

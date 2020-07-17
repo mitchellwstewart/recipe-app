@@ -144,6 +144,11 @@ class RecipesPage extends Component {
     this.setState({filterOpen: !this.state.filterOpen})
   }
 
+  modalCancelHandler = () => {
+    document.querySelector('body').classList.remove('lock')
+    this.setState({creating: false, selectedRecipe: null, updating: false, recipeToUpdate: false})
+  }
+
   componentWillUnmount = () => {
     this.isActive = false
   }
@@ -158,6 +163,7 @@ class RecipesPage extends Component {
         //in this case, the options is confrim only (always owner)
         canCancel 
         canConfirm 
+        onCancel={this.modalCancelHandler} 
         isCreate
         validationError={this.state.validationError}
         tagsEl = {this.tagsEl}
@@ -193,6 +199,7 @@ class RecipesPage extends Component {
           title="Update Recipe" 
           isUpdate
           canCancel 
+          onCancel={this.modalCancelHandler} 
           canSaveChanges 
           selectedRecipe = {this.state.recipeToUpdate}
           validationError={this.state.validationError}
