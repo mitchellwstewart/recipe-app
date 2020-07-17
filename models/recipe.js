@@ -48,6 +48,10 @@ const recipeSchema = new Schema({
       featured: {
         type: Boolean,
         default: false
+      },
+      public_id: {
+        type: String,
+        required: true
       } 
     }],
     creator: {

@@ -47,6 +47,7 @@ type ImageLink {
   _id: ID
   link: String!
   featured: Boolean!
+  public_id: String!
 }
 
 type Tag {
@@ -65,6 +66,7 @@ type Step {
 type CloudinaryLink {
   secure_url: String!
   resource_type: String!
+  public_id: String!
 }
 
 input UserInput {
@@ -98,6 +100,7 @@ input IngredientInput{
 input ImageLinkInput {
   link: String!
   featured: Boolean!
+  public_id: String!
 }
 
 input StepInput {
@@ -108,6 +111,11 @@ input StepInput {
 input NewImageForCloudinaryInput {
   name: String!
   base64: String!
+}
+
+input ImageToDelete {
+  mongoId: String!
+  cloudId: String!
 }
 
 type RootQuery {
@@ -123,6 +131,7 @@ type RootMutation {
     deleteRecipe(recipeId: ID!): Recipe
     updateRecipe(recipeId: ID!, recipeInput: RecipeInput): Recipe
     uploadToCloudinary(imagesForCloudinary: [NewImageForCloudinaryInput]):[CloudinaryLink!]
+    deleteFromCloudinary(imageIdsToDelete: [ImageToDelete!]): [String!]
     subscribeToRecipe(recipeId: ID!): Subscription!
     unsubscribeFromRecipe(subscriptionId: ID!): Recipe!
 }

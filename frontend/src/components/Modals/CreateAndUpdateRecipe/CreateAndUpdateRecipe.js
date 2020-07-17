@@ -3,7 +3,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import '../Modals.scss'
 import AuthContext from '../../../context/auth-context'
 import InputForm from '../../Modals/InputForm/InputForm';
-import { createRecipeMutation, updateRecipeMutation, cloudinaryUploadMutation } from '../../../graphqlQueries/queries'
+import { createRecipeMutation, updateRecipeMutation, cloudinaryUploadMutation, cloudinaryDeleteMutation } from '../../../graphqlQueries/queries'
 
 
 class CreateAndUpdateModal extends Component {
@@ -32,16 +32,17 @@ class CreateAndUpdateModal extends Component {
     recipeIngredients, recipeSteps,
     tags, yields, minutesEstimate, link,
     currentRecipeImages }) => {
-    try {
-      if(this.state.imageUploadQueue.length) { //REMOVE ! WHEN DONE TESTING
-        console.log('this.state.imageUploadQueue: ', this.state.imageUploadQueue)
+      try {
+     
+      if(this.state.imageUploadQueue.length) { //UPLOAD IMAGES TO CLOUDINARY AND SET IMAGE OBJECT IN this.state.uploadedCloudinaryLinks
         await this.uploadToCloudinary(this.state.imageUploadQueuePreviews, this.state.uploadedCloudinaryLinks, currentRecipeImages)
       }
 
-    //  if(this.state.imageDeleteQueue.length) {
-    //    this.deleteFromCloudinary(this.state.imageDeleteQueue)
-    //  }
-      if(link.trim().length > 0 && recipeName.trim().length > 0) { this.setState({validationError: false}) }
+    if(this.state.imageDeleteQueue.length) { //DELETE IMAGES FROM CLOUDINARY. Will later take mongoDB _ids from this.state.imageDeleteQueue
+      await this.deleteFromCloudinary(this.state.imageDeleteQueue)
+    }
+
+    if(link.trim().length > 0 && recipeName.trim().length > 0) { this.setState({validationError: false}) }
       else if(
         recipeName.trim().length === 0 ||
         recipeIngredients.length === 0 ||
@@ -56,6 +57,8 @@ class CreateAndUpdateModal extends Component {
         return;
       }
     
+
+      const imageRefsToDelete = this.state.imageDeleteQueue.map(imageObj => imageObj.mongoId)
       const recipeId = this.props.isUpdate ? this.props.recipeToUpdate._id : null
       const defaultVariables = {
         recipeName: recipeName,
@@ -66,7 +69,9 @@ class CreateAndUpdateModal extends Component {
         minutesEstimate: minutesEstimate,
         date: new Date().toISOString(),
         link: link,
-        imageLinks: this.state.uploadedCloudinaryLinks.length ? [...currentRecipeImages, ...this.state.uploadedCloudinaryLinks] : currentRecipeImages,
+        imageLinks: this.state.uploadedCloudinaryLinks.length 
+          ? [...currentRecipeImages, ...this.state.uploadedCloudinaryLinks].filter(image => !imageRefsToDelete.includes(image._id))
+          : currentRecipeImages.filter(image => !imageRefsToDelete.includes(image._id)),
         tags: tags,
       }
 
@@ -76,7 +81,6 @@ class CreateAndUpdateModal extends Component {
         variables: updatedVariables
       };
 
-      console.log('requestBody: ', requestBody)
       const token = this.context.token;
       const mongoRes = await fetch('http://localhost:3001/graphql', {
           method: 'POST',
@@ -90,7 +94,7 @@ class CreateAndUpdateModal extends Component {
             throw new Error('Failed!')
           }
           const resData =  await mongoRes.json()
-          console.log("resData from create/update: ", resData)
+          // console.log("resData from create/update: ", resData)
           if(this.props.isCreate) {
             const createdRecipe = {
               _id: resData.data.createRecipe._id,
@@ -108,16 +112,11 @@ class CreateAndUpdateModal extends Component {
                 _id: this.context.userId,
               }
             }
-            
             this.props.handleRecipesStateUpdate(createdRecipe)
-            
           }
           else if (this.props.isUpdate) {
-            console.log("resData.data.updateRecipe: ", resData.data.updateRecipe)
             const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: this.props.recipeToUpdate.creator._id}}
-            console.log("UPDATED RECIPE: ", updatedRecipe)
             this.props.handleRecipesStateUpdate(updatedRecipe, true)
-            
           } 
      }
      catch(err) {
@@ -148,7 +147,7 @@ class CreateAndUpdateModal extends Component {
       body: JSON.stringify(requestBody),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + this.context.token
+        // 'Authorization': 'Bearer ' + this.context.token
       }
       }).then(res => {
         if(res.status !== 200 && res.status !== 201) {
@@ -156,7 +155,6 @@ class CreateAndUpdateModal extends Component {
         }
         return res.json()
       }).then(resData => {
-        console.log("resData delete: ", resData)
         this.setState(prevState => {
           return {  
                   creating: false,
@@ -222,63 +220,69 @@ class CreateAndUpdateModal extends Component {
 
 
   uploadToCloudinary = async (imageFilesForProcessing, uploadedCloudinaryLinks, currentRecipeImages) => {
-
     const imagesForCloudinary = []
-    
-    console.log('imageFilesForProcessing: ', imageFilesForProcessing)
-
-
     const requestBody = {
       query: cloudinaryUploadMutation,
       variables: {
         imagesForCloudinary: imageFilesForProcessing //images ready for upload to cloudinary
       }
     }
-
-    
+  
     const token = this.context.token;
     const cloudinaryRes = await fetch('http://localhost:3001/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
+        //'Authorization': 'Bearer ' + token
       }
     })
     if (cloudinaryRes.status !== 200 && cloudinaryRes.status !== 201) {
       throw new Error('Failed!')
     }
     const resData =  await cloudinaryRes.json()
-    console.log('cloudinary resData: ', resData)
 
     await this.setState(prevState => {
       return {uploadedCloudinaryLinks: [...prevState.uploadedCloudinaryLinks, ...resData.data.uploadToCloudinary.map(image => {
-        // !currentRecipeImages.length && !newImageLinks.length  //this is the first image, set as featured
-        //   ? newImageLinks.push({link: res.data.secure_url, featured: true})
-        //   : newImageLinks.push({link: res.data.secure_url, featured: false})
-
-        return {link: image.secure_url, featured: false} //update code above to set true or false feature
-      })]}
+         const imageObj = !currentRecipeImages.length   //this is the first image, set as featured
+           ? {link: image.secure_url, featured: true, public_id: image.public_id}
+           : {link: image.secure_url, featured: false, public_id: image.public_id}
+           return imageObj
+        })
+      ]}
     })
-
-    console.log('this.state.uploadedCloudinaryLinks: ', this.state.uploadedCloudinaryLinks)
-
-
   }
 
-  deleteFromCloudinary = images => {
-    console.log('delete images from coudinary: ', images)
+  deleteFromCloudinary = async imagesToDelete => {
+    const requestBody = {
+      query: cloudinaryDeleteMutation,
+      variables: {
+        imageIdsToDelete: imagesToDelete //images ready for deletion from cloudinary
+      }
+    }
+  
+    const cloudinaryRes = await fetch('http://localhost:3001/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    if (cloudinaryRes.status !== 200 && cloudinaryRes.status !== 201) {
+      throw new Error('Failed!')
+    }
+    const resData =  await cloudinaryRes.json()
+    if(resData.data.deleteFromCloudinary) {
+      return resData.data.deleteFromCloudinary
+    }
   }
 
-  updateImageDeleteQueue = async imageId => {
+  updateImageDeleteQueue = async ({mongoId, cloudId}) => {
     //const imageToDelete = e.currentTarget.dataset.image
-    console.log('IMAGE DELETE HANDLER: ', imageId)
     await this.setState(prevState => {
-      let newImageDeleteQueue = [...prevState.imageDeleteQueue, imageId]
-      console.log('new delete queue: ', newImageDeleteQueue)
-      return {imageDeleteQueue: newImageDeleteQueue}
+      const deleteQueue = [...prevState.imageDeleteQueue,  {mongoId, cloudId}]
+      return {imageDeleteQueue: deleteQueue}
     })
-    console.log('images to delete from Cloudinary: ', this.state.imageDeleteQueue)
   }
 
 
@@ -290,25 +294,16 @@ class CreateAndUpdateModal extends Component {
     })
   }
 
-  imageUploadHandler = async e => {
-    console.log(e.target.files)
-
+  imageToBase64Handler = async e => {
     const imagesForUpload = e.target.files
     await this.setState(prevState => {
       return {imageUploadQueue: [...imagesForUpload, ...prevState.imageUploadQueue]}
     })
-
-
     const imagePromises = this.state.imageUploadQueue.map(async fileObject => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader()
         reader.readAsDataURL(fileObject)
         reader.onloadend = async () => {
-          // await this.setState( prevState => {
-          //   console.log('setting state: ', prevState.imageUploadQueuePreviews)
-          //   return {imageUploadQueuePreviews: [...prevState.imageUploadQueuePreviews, {name: fileObject.name, base64: reader.result}]}
-          // })
-          //console.log('this.state.imageUploadQueuePreviews: ', this.state.imageUploadQueuePreviews)
           resolve({name: fileObject.name, base64: reader.result})
         }
       })
@@ -318,15 +313,13 @@ class CreateAndUpdateModal extends Component {
       await this.setState(prevState => {
         return {imageUploadQueuePreviews: [...prevState.imageUploadQueuePreviews, ...base64Images]}
       })
-
-      console.log('this.state.imageUploadQueuePrevies: ', this.state.imageUploadQueuePreviews)
     });
   }
 
 
   
   render() {
-    console.log('create and update this.props: ', this.props)
+    
   return (
     <div className="modal create-update-modal z2">
       <nav className="modal__nav  bcdbl p0 m0 f jcb aic z3" >
@@ -343,7 +336,7 @@ class CreateAndUpdateModal extends Component {
       //onCancel={this.props.modalCancelHandler.bind(this, 'update')} 
       onSaveChanges={this.modalConfirmHandler}
       updateRecipeHandler = {this.modalConfirmHandler}
-      imageUploadHandler = {this.imageUploadHandler}
+      imageToBase64Handler = {this.imageToBase64Handler}
       updateImageDeleteQueue = {this.updateImageDeleteQueue}
       removeFromQueue = {this.removeImageFromQueue}
       imageUploadQueue = {this.state.imageUploadQueue}
@@ -360,7 +353,7 @@ class CreateAndUpdateModal extends Component {
       updateRecipeHandler = {this.modalConfirmHandler}
       imageUploadQueue = {this.state.imageUploadQueue}
       imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
-      imageUploadHandler = {this.imageUploadHandler}
+      imageToBase64Handler = {this.imageToBase64Handler}
       removeFromQueue = {this.removeImageFromQueue}
       tagsEl = {this.props.tagsEl}
       newTagEl = {this.props.newTagEl}

@@ -9,7 +9,7 @@ import Backdrop from '../components/Backdrop/Backdrop'
 import AuthContext from '../context/auth-context'
 import RecipeList from '../components/Recipes/RecipeList/RecipeList'
 import Spinner from '../components/Spinner/Spinner'
-import { createRecipeMutation, updateRecipeMutation, fetchRecipesQuery, cloudinaryUploadMutation } from '../graphqlQueries/queries'
+import {  fetchRecipesQuery } from '../graphqlQueries/queries'
 
 
 class RecipesPage extends Component {
@@ -159,12 +159,7 @@ class RecipesPage extends Component {
         canCancel 
         canConfirm 
         isCreate
-        //updateRecipeHandler = {this.modalConfirmHandler}
         validationError={this.state.validationError}
-        //imageUploadQueue = {this.state.imageUploadQueue}
-        // imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
-        // imageUploadHandler = {this.imageUploadHandler}
-        // removeFromQueue = {this.removeImageFromQueue}
         tagsEl = {this.tagsEl}
         newTagEl = {this.newTagEl}
         allTags={this.state.allTags}
@@ -199,14 +194,8 @@ class RecipesPage extends Component {
           isUpdate
           canCancel 
           canSaveChanges 
-          //updateRecipeHandler = {this.modalConfirmHandler}
           selectedRecipe = {this.state.recipeToUpdate}
           validationError={this.state.validationError}
-          //imageUploadHandler = {this.imageUploadHandler}
-          //updateImageDeleteQueue = {this.updateImageDeleteQueue}
-          //removeFromQueue = {this.removeImageFromQueue}
-          // imageUploadQueue = {this.state.imageUploadQueue}
-          // imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
           recipeToUpdate = {this.state.recipeToUpdate}
           allTags={this.state.allTags}
           handleRecipesStateUpdate={this.handleRecipesStateUpdate}
