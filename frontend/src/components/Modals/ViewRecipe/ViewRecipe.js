@@ -4,12 +4,12 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Flickity from 'react-flickity-component';
 import 'flickity-imagesloaded';
 
-
 import ClearIcon from '@material-ui/icons/Clear';
 import '../Modals.scss'
 import '../../../styles/lib/_display.scss'
 import AuthContext from '../../../context/auth-context'
 import Ingredients from '../Ingredients/Ingredients'
+import { cloudinaryDeleteMutation } from '../../../graphqlQueries/queries'
 
 class ViewModal extends Component {
   state = {
@@ -57,12 +57,84 @@ class ViewModal extends Component {
     this.setState({confirmDelete: !this.state.confirmDelete})
   }
 
+
+  deleteFromCloudinary = async imagesToDelete => {
+    console.log('imagesToDelete: ', imagesToDelete)
+    
+    const requestBody = {
+      query: cloudinaryDeleteMutation,
+      variables: {
+        imageIdsToDelete: imagesToDelete //images ready for deletion from cloudinary
+      }
+    }
+    const cloudinaryRes = await fetch('http://localhost:3001/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    if (cloudinaryRes.status !== 200 && cloudinaryRes.status !== 201) {
+      throw new Error('Failed!')
+    }
+    const resData =  await cloudinaryRes.json()
+    if(resData.data.deleteFromCloudinary) {
+      return resData.data.deleteFromCloudinary
+    }
+  }
+
+
+  modalDeleteRecipeHandler = async () => {
+    if(!this.context.token) {
+      this.setState({selectedRecipe: null})
+      return;
+    }
+    console.log('this.props.selectedRecipe: ', this.props.selectedRecipe)
+    if(this.props.selectedRecipe.imageLinks.length) { //DELETE IMAGES FROM CLOUDINARY. Will later take mongoDB _ids from this.state.imageDeleteQueue
+      const imagesToDelete = this.props.selectedRecipe.imageLinks.map(imageObj => {
+        return {mongoId: imageObj._id, cloudId: imageObj.public_id}
+      })
+      await this.deleteFromCloudinary(imagesToDelete)
+      console.log('succesfully deleted all images from cloudinary')
+    }
+    
+    
+    const requestBody = {
+      query: `
+        mutation DeleteRecipe ($id: ID!) {
+          deleteRecipe(recipeId: $id){
+            _id
+          }
+        }
+      `,
+      variables: {
+        id: this.props.selectedRecipe._id
+      }
+    }
+    fetch('http://localhost:3001/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + this.context.token
+      }
+      }).then(res => {
+        if(res.status !== 200 && res.status !== 201) {
+          throw new Error('Failed!')
+        }
+        return res.json()
+      }).then(resData => {
+        console.log('resData: ', resData)
+        this.props.handleRecipesStateUpdate(resData.data.deleteRecipe._id, 'delete')
+      })
+      .catch(err => {
+        throw err
+      })
+  }
+
   fullscreenHandler = e => {
     e.preventDefault()
-    if(this.state.fullscreenView){
-      this.flkty.resize()
-      //this.setState({fullscreenView: !this.state.fullscreenView})
-    }
+    if(this.state.fullscreenView){ this.flkty.resize() }
     else {
       this.flkty.resize()
       this.setState({fullscreenView: !this.state.fullscreenView})
@@ -109,7 +181,7 @@ class ViewModal extends Component {
               <div className="f aic">
               {this.state.confirmDelete 
                 ? <React.Fragment>
-                  <div className="confirm-delete soft-btn soft-btn_hover" onClick={this.props.onDelete}>Confirm Delete</div>
+                  <div className="confirm-delete soft-btn soft-btn_hover" onClick={this.modalDeleteRecipeHandler}>Confirm Delete</div>
                   <div className="cancel-delete f aic" onClick={this.deleteHandler}><ClearIcon /></div>
                 </React.Fragment>
                 : <div className="soft-btn soft-btn_hover" onClick={this.deleteHandler}>{this.  props.deleteText}</div>}

@@ -101,6 +101,7 @@ module.exports = {
       }
     },
     deleteRecipe:  async (args, req) => {
+      console.log("Req: ", req)
       if(!req.isAuth) {
         throw new Error ('Unauthenticated')
       }
