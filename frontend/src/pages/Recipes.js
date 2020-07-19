@@ -58,25 +58,47 @@ class RecipesPage extends Component {
     })
   }
 
-  handleRecipesStateUpdate = (recipe, recipeUpdated) => {
+  handleRecipesStateUpdate = (recipe, trigger) => {
     this.searchBarEl.current.value = ""
-    this.setState(prevState => { 
-       const updatedRecipes = recipeUpdated 
-        ? [...prevState.recipes.filter(exisitingRecipe => exisitingRecipe._id !== recipe._id), recipe]
-        : [recipe, ...prevState.recipes]
-       const previousAllTags = {}
-       prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
-       const updatedAllTags = recipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
-       return {
-         recipes: updatedRecipes,
-         recipesInSearch: updatedRecipes, 
-         recipeToUpdate: null, 
-         creating: false, 
-         updating: false, 
-         selectedRecipe: recipeUpdated ? recipe : { ...recipe, creator: {_id: this.context.userId}, }, 
-         allTags: recipeUpdated ? [...prevState.allTags, ...updatedAllTags] : updatedAllTags, 
-       }
-     })
+    if(trigger === "delete") {
+      const deletedRecipe = this.state.recipes.find(existingRecipe => {
+        console.log('exisitingRecipe: ', existingRecipe)
+       return existingRecipe._id === recipe
+      })
+      this.setState(prevState => { 
+        const updatedRecipes = [...prevState.recipes.filter(existingRecipe => existingRecipe._id !== deletedRecipe._id)]
+        const previousAllTags = {}
+        prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
+        return {
+          recipes: updatedRecipes,
+          recipesInSearch: updatedRecipes, 
+          recipeToUpdate: null, 
+          creating: false, 
+          updating: false, 
+          selectedRecipe: null 
+        }
+      })
+    }
+    else {
+      this.setState(prevState => { 
+         const updatedRecipes = trigger === 'update' 
+          ? [...prevState.recipes.filter(exisitingRecipe => exisitingRecipe._id !== recipe._id), recipe]
+          : [recipe, ...prevState.recipes]
+         const previousAllTags = {}
+         prevState.allTags.forEach(tagObj => previousAllTags[tagObj.tag] = tagObj) 
+         const updatedAllTags = recipe.tags.filter(newTag => !previousAllTags[newTag.tag] && newTag );
+         return {
+           recipes: updatedRecipes,
+           recipesInSearch: updatedRecipes, 
+           recipeToUpdate: null, 
+           creating: false, 
+           updating: false, 
+           selectedRecipe: trigger === "update" ? recipe : { ...recipe, creator: {_id: this.context.userId}, }, 
+           allTags: trigger === "update" ? [...prevState.allTags, ...updatedAllTags] : updatedAllTags, 
+         }
+       })
+
+    }
   }
 
 
@@ -190,6 +212,7 @@ class RecipesPage extends Component {
           onEdit={this.startCreateOrUpdateRecipeHandler.bind(this, 'update')}
           subscribeText={"Subscribe To Recipe" }
           selectedRecipe = {this.state.selectedRecipe}
+          handleRecipesStateUpdate={this.handleRecipesStateUpdate}
           />)}
 
 

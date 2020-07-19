@@ -35,8 +35,10 @@ module.exports = {
         
     },
     deleteFromCloudinary: async (args) => {
+      console.log('DELETE: ')
       const cloudIds = args.imageIdsToDelete.map(imageObj => imageObj.cloudId)
       const mongoIds = args.imageIdsToDelete.map(imageObj => imageObj.mongoId)
+      console.log('cloudIds: ', cloudIds)
       try {
         await cloudinary.api.delete_resources(cloudIds, (error, result) => {
         });

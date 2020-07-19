@@ -26,21 +26,19 @@ class InputForm extends Component  {
     this.recipeDescriptionEl = React.createRef();
     this.recipeIngredientsEl = React.createRef();
     this.recipeStepsEl = React.createRef();
-    
+    this.recipeStepEl = React.createRef();
     this.minutesEstimateEl = React.createRef();
     this.yieldsEl = React.createRef();
     this.dateEl = React.createRef();
     this.linkEl = React.createRef();
-
     this.imageEl = React.createRef();
     this.uploadedImagesEl = React.createRef()
     this.tagsEl = React.createRef();
     this.newTagEl = React.createRef();
-
-
     this.tagSuggestionsEl = React.createRef();
     this.imageFileInputEl = React.createRef();
   }
+
   componentDidMount = async () => {
     if(this.props.recipeToUpdate) {
       await this.setState({
@@ -105,7 +103,7 @@ class InputForm extends Component  {
 
   addStepHandler = (e) => { 
      this.setState(prevState => {
-       const updatedSteps = [...prevState.stepsAdded, {stepNumber: prevState.stepsAdded.length+1, stepInstruction: this.props.recipeStepEl.current.value}]
+       const updatedSteps = [...prevState.stepsAdded, {stepNumber: prevState.stepsAdded.length+1, stepInstruction: this.recipeStepEl.current.value}]
        return {stepsAdded: updatedSteps.map((step, idx)=> {return{stepInstruction: step.stepInstruction, stepNumber: idx + 1 }}), openStepsDropdown: false}
      })
   }
@@ -210,17 +208,19 @@ class InputForm extends Component  {
   render() {
     return (
       <form encType="multipart/form-data" className={`recipe-form ${this.props.recipeToUpdate ? 'update-recipe' : 'create-recipe'}`}>
-      {this.props.recipeToUpdate && 
         <header className="modal__header main f jcb section-body">
             <div className="title f fdc x2 jcc rel">
             <p className="small s12 clg abs top mt0">Click on any field to edit</p>
               <div className="title-edit_container form-control mt1">
-                <textarea className="suiz fw6 f fw p0" ref={this.recipeNameEl} type="text" id="recipeName" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeName : ""}/>
+                <textarea className="suiz fw6 f fw p0" ref={this.recipeNameEl} type="text" id="recipeName" placeholder="Recipe Title" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.recipeName : ""}/>
               </div>
               <div className="time-edit_container form-control">
                 <div className="f"><span className="">Time:</span> 
-                  <input ref={this.minutesEstimateEl} type="number" id="minutesEstimate" className="mx025" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.minutesEstimate : 1} /> 
-                  {this.props.recipeToUpdate.minutesEstimate > 1 ? " mins" : ' min'}
+                  <input ref={this.minutesEstimateEl} type="number" id="minutesEstimate" className="mx025" defaultValue={this.props.recipeToUpdate ? this.props.recipeToUpdate.minutesEstimate : 30} /> 
+                  {this.props.recipeToUpdate 
+                    ? this.props.recipeToUpdate.minutesEstimate > 1 ? " mins" : ' min' 
+                    : 'mins' 
+                  }
                 </div>
               </div>
             </div>
@@ -228,7 +228,6 @@ class InputForm extends Component  {
               <img className="main-image" src={this.state.featuredImage ? this.state.featuredImage.link : null} alt='featured-image' />
             </div>
         </header>
-        }
         <div className="modal__content f fw">
           <div className="desktop-only ingredients-container section-body form-control"> {/*Ingredients*/}
             <Ingredients
@@ -392,15 +391,12 @@ class InputForm extends Component  {
                     </div>
                   </div>
                   }
-                  
-                
                 </div>
-           
             </div>
           </div>
         </div>
 
-        <div className="modal__header_actions f fdc jce p1">
+        <div className="modal__footer_actions f fdc jce p1">
           {this.props.canConfirm &&  <button className="btn" onClick={this.prepareRecipeHandler}> {this.props.confirmText } </button> }
           {this.props.canSaveChanges && <button className="btn" onClick={this.prepareRecipeHandler}> {this.props.saveText } </button> }
       </div>
