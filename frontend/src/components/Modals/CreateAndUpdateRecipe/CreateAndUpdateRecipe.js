@@ -17,12 +17,10 @@ class CreateAndUpdateModal extends Component {
       imageDeleteQueue: [],
     }
   }
-  
   static contextType = AuthContext
-
   componentDidMount() {
     document.querySelector('.main-content').classList.add('lock')
-   }
+  }
   viewHandler = (e) => {
     this.setState({viewing: e.target.id})
   }
@@ -32,17 +30,14 @@ class CreateAndUpdateModal extends Component {
     recipeIngredients, recipeSteps,
     tags, yields, minutesEstimate, link,
     currentRecipeImages }) => {
-      try {
-     
+    try {
       if(this.state.imageUploadQueue.length) { //UPLOAD IMAGES TO CLOUDINARY AND SET IMAGE OBJECT IN this.state.uploadedCloudinaryLinks
         await this.uploadToCloudinary(this.state.imageUploadQueue, this.state.uploadedCloudinaryLinks, currentRecipeImages)
       }
-
-    if(this.state.imageDeleteQueue.length) { //DELETE IMAGES FROM CLOUDINARY. Will later take mongoDB _ids from this.state.imageDeleteQueue
-      await this.deleteFromCloudinary(this.state.imageDeleteQueue)
-    }
-
-    if(link.trim().length > 0 && recipeName.trim().length > 0) { this.setState({validationError: false}) }
+      if(this.state.imageDeleteQueue.length) { //DELETE IMAGES FROM CLOUDINARY. Will later take mongoDB _ids from this.state.imageDeleteQueue
+        await this.deleteFromCloudinary(this.state.imageDeleteQueue)
+      }
+      if(link.trim().length > 0 && recipeName.trim().length > 0) { this.setState({validationError: false}) }
       else if(
         recipeName.trim().length === 0 ||
         recipeIngredients.length === 0 ||
@@ -56,7 +51,6 @@ class CreateAndUpdateModal extends Component {
         }, 3000)
         return;
       }
-    
 
       const imageRefsToDelete = this.state.imageDeleteQueue.map(imageObj => imageObj.mongoId)
       const recipeId = this.props.isUpdate ? this.props.recipeToUpdate._id : null
@@ -90,89 +84,38 @@ class CreateAndUpdateModal extends Component {
             'Authorization': 'Bearer ' + token
           }
         })
-          if(mongoRes.status !== 200 && mongoRes.status !== 201) {
-            throw new Error('Failed!')
-          }
-          const resData =  await mongoRes.json()
-          // console.log("resData from create/update: ", resData)
-          if(this.props.isCreate) {
-            const createdRecipe = {
-              _id: resData.data.createRecipe._id,
-              recipeName: resData.data.createRecipe.recipeName,
-              recipeDescription: resData.data.createRecipe.recipeDescription,
-              recipeIngredients: resData.data.createRecipe.recipeIngredients,
-              recipeSteps: resData.data.createRecipe.recipeSteps,
-              yields: resData.data.createRecipe.yields,
-              minutesEstimate: resData.data.createRecipe.minutesEstimate,
-              date: resData.data.createRecipe.date,
-              link: resData.data.createRecipe.link,
-              imageLinks: resData.data.createRecipe.imageLinks,
-              tags: resData.data.createRecipe.tags,
-              creator: {
-                _id: this.context.userId,
-              }
+        if(mongoRes.status !== 200 && mongoRes.status !== 201) {
+          throw new Error('Failed!')
+        }
+        const resData =  await mongoRes.json()
+        if(this.props.isCreate) {
+          const createdRecipe = {
+            _id: resData.data.createRecipe._id,
+            recipeName: resData.data.createRecipe.recipeName,
+            recipeDescription: resData.data.createRecipe.recipeDescription,
+            recipeIngredients: resData.data.createRecipe.recipeIngredients,
+            recipeSteps: resData.data.createRecipe.recipeSteps,
+            yields: resData.data.createRecipe.yields,
+            minutesEstimate: resData.data.createRecipe.minutesEstimate,
+            date: resData.data.createRecipe.date,
+            link: resData.data.createRecipe.link,
+            imageLinks: resData.data.createRecipe.imageLinks,
+            tags: resData.data.createRecipe.tags,
+            creator: {
+              _id: this.context.userId,
             }
-            this.props.handleRecipesStateUpdate(createdRecipe)
           }
-          else if (this.props.isUpdate) {
-            const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: this.props.recipeToUpdate.creator._id}}
-            this.props.handleRecipesStateUpdate(updatedRecipe, true)
-          } 
+          this.props.handleRecipesStateUpdate(createdRecipe, 'create')
+        }
+        else if (this.props.isUpdate) {
+          const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: this.props.recipeToUpdate.creator._id}}
+          this.props.handleRecipesStateUpdate(updatedRecipe, 'update')
+        } 
      }
      catch(err) {
        throw err
      }
   }
-
-  modalDeleteRecipeHandler = () => {
-    if(!this.context.token) {
-      this.setState({selectedRecipe: null})
-      return;
-    }
-    
-    const requestBody = {
-      query: `
-        mutation DeleteRecipe ($id: ID!) {
-          deleteRecipe(recipeId: $id){
-            _id
-          }
-        }
-      `,
-      variables: {
-        id: this.props.selectedRecipe._id
-      }
-    }
-    fetch('http://localhost:3001/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer ' + this.context.token
-      }
-      }).then(res => {
-        if(res.status !== 200 && res.status !== 201) {
-          throw new Error('Failed!')
-        }
-        return res.json()
-      }).then(resData => {
-        this.setState(prevState => {
-          return {  
-                  creating: false,
-                  selectedRecipe: null,
-                  recipes: prevState.recipes.filter(recipe => recipe._id !== resData.data.deleteRecipe._id)
-                }
-        })
- 
-
-        this.setState({recipesInSearch: this.state.recipes})
-        
-      })
-      .catch(err => {
-        throw err
-      })
-  }
-
-
 
   modalSubscribeToRecipeHandler = () => {
     if(!this.context.token) {
@@ -214,7 +157,6 @@ class CreateAndUpdateModal extends Component {
         throw err
     })
   }
-
 
   uploadToCloudinary = async (imageFilesForProcessing, uploadedCloudinaryLinks, currentRecipeImages) => {
     const imagesForCloudinary = []
@@ -318,7 +260,7 @@ class CreateAndUpdateModal extends Component {
 
   
   render() {
-    console.log('this.props:', this.props)
+    console.log('this.props in parent modal:', this.props.canConfirm)
   return (
     <div className="modal create-update-modal z2">
       <nav className="modal__nav  bcdbl p0 m0 f jcb aic z3" >
@@ -331,38 +273,36 @@ class CreateAndUpdateModal extends Component {
       {this.props.validationError && <p className="caps cr">Validation Error: Check your inputs!</p>}
       {this.props.isUpdate 
       ?  <InputForm       
-      saveText={this.context.token && "Save Changes" }
-      onCancel={this.props.onCancel.bind(this, 'update')} 
-      onSaveChanges={this.modalConfirmHandler}
-      updateRecipeHandler = {this.modalConfirmHandler}
-      imageToBase64Handler = {this.imageToBase64Handler}
-      updateImageDeleteQueue = {this.updateImageDeleteQueue}
-      removeFromQueue = {this.removeImageFromQueue}
-      imageUploadQueue = {this.state.imageUploadQueue}
-      // imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
-      recipeToUpdate = {this.props.recipeToUpdate}
-      allTags={this.props.allTags}
-      canConfirm = {this.props.canConfrim}
-      canSaveChanges = {this.props.canSaveChanges}
+        saveText={this.context.token && "Save Changes" }
+        onCancel={this.props.onCancel.bind(this, 'update')} 
+        onSaveChanges={this.modalConfirmHandler}
+        updateRecipeHandler = {this.modalConfirmHandler}
+        imageToBase64Handler = {this.imageToBase64Handler}
+        updateImageDeleteQueue = {this.updateImageDeleteQueue}
+        removeFromQueue = {this.removeImageFromQueue}
+        imageUploadQueue = {this.state.imageUploadQueue}
+        // imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
+        recipeToUpdate = {this.props.recipeToUpdate}
+        allTags={this.props.allTags}
+        canConfirm = {this.props.canConfirm}
+        canSaveChanges = {this.props.canSaveChanges}
       /> 
-    : <InputForm 
-      confirmText="Confirm"
-      onCancel={this.props.onCancel} 
-      onConfirm={this.modalConfirmHandler}
-      updateRecipeHandler = {this.modalConfirmHandler}
-      imageUploadQueue = {this.state.imageUploadQueue}
-      // imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
-      imageToBase64Handler = {this.imageToBase64Handler}
-      removeFromQueue = {this.removeImageFromQueue}
-      tagsEl = {this.props.tagsEl}
-      newTagEl = {this.props.newTagEl}
-      allTags={this.props.allTags}
-      canConfirm = {this.props.canConfrim}
-      canSaveChanges = {this.props.canSaveChanges}
-    />
-    
+      : <InputForm 
+        confirmText="Confirm"
+        onCancel={this.props.onCancel} 
+        onConfirm={this.modalConfirmHandler}
+        updateRecipeHandler = {this.modalConfirmHandler}
+        imageUploadQueue = {this.state.imageUploadQueue}
+        // imageUploadQueuePreviews = {this.state.imageUploadQueuePreviews}
+        imageToBase64Handler = {this.imageToBase64Handler}
+        removeFromQueue = {this.removeImageFromQueue}
+        tagsEl = {this.props.tagsEl}
+        newTagEl = {this.props.newTagEl}
+        allTags={this.props.allTags}
+        canConfirm = {this.props.canConfirm}
+        canSaveChanges = {this.props.canSaveChanges}
+      />
     }
- 
     </div>
     )
   }

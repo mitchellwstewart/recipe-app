@@ -2,37 +2,7 @@
   padding: 0;
   &.update-recipe {
     .modal{
-      &__header {
-        .form-control {
-          &.title-edit_container {
-            color: red;
-            textarea {
-              font-size: 2.25em;
-              border: none;
-              white-space: wrap;
-              width: 90%;
-            }
-          }
-          &.time-edit_container {
-            input {
-              max-width: 20px;
-              border: none;
-              border-bottom: 1px solid black;
-              text-align: center;
-              &::-webkit-outer-spin-button,
-              &::-webkit-inner-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-              }
-    
-              /* Firefox */
-              &[type=number] {
-                -moz-appearance: textfield;
-              }
-            }
-          }
-        }
-      }
+     
       &__content {
         
       }
@@ -48,6 +18,40 @@
   }
 
   .modal {
+
+    &__header {
+      .form-control {
+        &.title-edit_container {
+          color: red;
+          textarea {
+            font-size: 2.25em;
+            border: none;
+            white-space: wrap;
+            width: 90%;
+          }
+        }
+        &.time-edit_container {
+          input {
+            max-width: 20px;
+            border: none;
+            border-bottom: 1px solid black;
+            text-align: center;
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+              -webkit-appearance: none;
+              margin: 0;
+            }
+  
+            /* Firefox */
+            &[type=number] {
+              -moz-appearance: textfield;
+            }
+          }
+        }
+      }
+    }
+
+    
     &__content {
       border-bottom: 1px solid currentColor;
       // padding: 0 1rem;
