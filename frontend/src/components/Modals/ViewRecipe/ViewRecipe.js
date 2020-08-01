@@ -113,6 +113,7 @@ class ViewModal extends Component {
     }
     fetch('http://localhost:3001/graphql', {
       method: 'POST',
+      credentials: 'include',
       body: JSON.stringify(requestBody),
       headers: {
         'Content-Type': 'application/json',
