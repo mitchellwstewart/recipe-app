@@ -53,9 +53,10 @@ const removeRecipeFromTag =  async (tagsForRecipeRemoval, recipeId) => {
 
 
 module.exports = {
-    recipes: async (args, req) => {
+    recipes: async (args, { req, res } ) => {
         try {
             const recipes = await Recipe.find()
+            //console.log('RECIPES req.session: ', req.session)
              return recipes.map(recipe =>  {
               //recipe._doc.tags.forEach(tag => console.log('fpr each tag: ', tag._doc))
               return transformRecipe(recipe)
@@ -65,8 +66,7 @@ module.exports = {
             throw err
         }
     },
-    createRecipe: async (args, req) => {
-      
+    createRecipe: async (args, { req }) => {
       if(!req.isAuth) {
           throw new Error('Unauthenticated!')
       }
@@ -100,7 +100,7 @@ module.exports = {
         throw err 
       }
     },
-    deleteRecipe:  async (args, req) => {
+    deleteRecipe:  async (args, { req }) => {
       console.log("Req: ", req)
       if(!req.isAuth) {
         throw new Error ('Unauthenticated')
@@ -122,9 +122,11 @@ module.exports = {
       }
       catch(err) { throw err }
     },
-    updateRecipe:  async (args, req) => {
-      console.log('CREATE RECIPE IMAGES: ', args.recipeInput.imageLinks)
+    updateRecipe:  async (args, { req }) => {
+      console.log('CREATED RECIPE IMAGES: ', args.recipeInput.imageLinks)
+      console.log('req: ', req)
       if(!req.isAuth) {
+        console.log('no auth')
         throw new Error ('Unauthenticated')
       }
       try{

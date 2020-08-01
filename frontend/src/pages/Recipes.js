@@ -59,6 +59,7 @@ class RecipesPage extends Component {
   }
 
   handleRecipesStateUpdate = (recipe, trigger) => {
+    console.log('recipe: ', recipe)
     this.searchBarEl.current.value = ""
     if(trigger === "delete") {
       const deletedRecipe = this.state.recipes.find(existingRecipe => {
@@ -134,9 +135,11 @@ class RecipesPage extends Component {
   fetchRecipes() {
     this.setState({isLoading: true})
     const requestBody = { query: fetchRecipesQuery }
+    console.log('this.context.token: ', this.context.token)
     const token = this.context.token;
       fetch('http://localhost:3001/graphql', {
         method: 'POST',
+        credentials: 'include',
         body: JSON.stringify(requestBody),
         headers: {
           'Content-Type': 'application/json',

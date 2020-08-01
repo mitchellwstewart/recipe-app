@@ -7,6 +7,7 @@ import RecipesPage from './pages/Recipes'
 import SubscriptionPage from './pages/Subscription'
 import MainNavigation from './components/Navigation/MainNavigation'
 import AuthContext from './context/auth-context';
+import { checkForUserQuery, logoutQuery } from './graphqlQueries/queries'
 require('dotenv').config()
 
 class App extends Component {
@@ -17,42 +18,95 @@ class App extends Component {
     email: null,
   }
   login = (token, email, userId, tokenExpiration) => {
-    
+    console.log('logging in - save this to session cookie? ')
     this.setState({token: token, tokenExpiration: tokenExpiration, email: email, userId: userId})
-    localStorage.setItem('jwt', token)
-    localStorage.setItem('jwtExpiration', tokenExpiration)
-    localStorage.setItem('loginTime', new Date().toISOString())
-    localStorage.setItem('userId', userId)
-    localStorage.setItem('email', email)
+    // localStorage.setItem('jwt', token)
+    // localStorage.setItem('jwtExpiration', tokenExpiration)
+    // localStorage.setItem('loginTime', new Date().toISOString())
+    // localStorage.setItem('userId', userId)
+    // localStorage.setItem('email', email)
   }
 
   logout = () => {
-    localStorage.removeItem('jwt')
-    localStorage.removeItem('jwtExpiration')
-    localStorage.removeItem('loginTime', new Date().toISOString())
-    localStorage.removeItem('userId')
-    localStorage.removeItem('email')
-    this.setState({token: null, userId: null})
+    // localStorage.removeItem('jwt')
+    // localStorage.removeItem('jwtExpiration')
+    // localStorage.removeItem('loginTime', new Date().toISOString())
+    // localStorage.removeItem('userId')
+    // localStorage.removeItem('email')
+    
+
+    const requestBody = { query: logoutQuery }
+    fetch('http://localhost:3001/graphql', {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => {
+      if(res.status !== 200 && res.status !== 201) {
+        throw new Error('Failed!')
+      }
+      return res.json()
+    }).then(resData => {
+      console.log("resData for Logout: ", resData)
+      if(resData.data.logout) {
+        console.log('user logged out: setState')
+        this.setState({token: null, userId: null})
+      }
+    })
+    .catch(err => {
+      throw err
+    })
+  }
+
+  checkSession = () => {
+    const requestBody = { query: checkForUserQuery }
+      fetch('http://localhost:3001/graphql', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(requestBody),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(res => {
+        if(res.status !== 200 && res.status !== 201) {
+          throw new Error('Failed!')
+        }
+        return res.json()
+      }).then(resData => {
+        console.log("resData: ", resData)
+        if(resData.data.checkForUser) {
+          console.log('user found: setState')
+          this.setState({token: resData.data.checkForUser.token, tokenExpiration: resData.data.checkForUser.tokenExpiration, email: resData.data.checkForUser.email, userId: resData.data.checkForUser.userId}) 
+        }
+      })
+      .catch(err => {
+        throw err
+      })
   }
 
   componentDidMount = () => {
-    let LStoken = localStorage.getItem('jwt')
-    let LSuser = localStorage.getItem('userId')
-    let LSemail = localStorage.getItem('email')
-    let LSloginTime = localStorage.getItem('loginTime')
-    let LStokenExpiration = localStorage.getItem('jwtExpiration')
-    let currentTime = new Date().getTime()
-    console.log('currentTime: ', currentTime)
-    console.log('LStokenExpiration: ', LStokenExpiration)
-    console.log('currentTime - new Date(LSloginTime).getTime(): ', currentTime - new Date(LSloginTime).getTime())
-    console.log(' +LStokenExpiration * 60 * 60 * 1000: ',  +LStokenExpiration * 60 * 60 * 1000)
+    console.log('check cookie, make a request to backend to validate user based on sid')
+    this.checkSession()
+    console.log('this.context: ', this.context)
+    // let LStoken = localStorage.getItem('jwt')
+    // let LSuser = localStorage.getItem('userId')
+    // let LSemail = localStorage.getItem('email')
+    // let LSloginTime = localStorage.getItem('loginTime')
+    // let LStokenExpiration = localStorage.getItem('jwtExpiration')
+    // let currentTime = new Date().getTime()
+    // console.log('currentTime: ', currentTime)
+    // console.log('LStokenExpiration: ', LStokenExpiration)
+    // console.log('currentTime - new Date(LSloginTime).getTime(): ', currentTime - new Date(LSloginTime).getTime())
+    // console.log(' +LStokenExpiration * 60 * 60 * 1000: ',  +LStokenExpiration * 60 * 60 * 1000)
 
-    if(currentTime - new Date(LSloginTime).getTime() > +LStokenExpiration * 60 * 60 * 1000) {
-      this.logout()
-    }
-    else {
-      LStoken && LSuser && this.setState({token: LStoken, userId: LSuser , email: LSemail})
-    }
+    // if(currentTime - new Date(LSloginTime).getTime() > +LStokenExpiration * 60 * 60 * 1000) {
+    //   this.logout()
+    // }
+    // else {
+    //   LStoken && LSuser && this.setState({token: LStoken, userId: LSuser , email: LSemail})
+    // }
     
   }
   render (){

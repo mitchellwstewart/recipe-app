@@ -122,7 +122,9 @@ type RootQuery {
     recipes: [Recipe!]!
     subscriptions: [Subscription!]!
     tags: [Tag!]
+    checkForUser: AuthData
     login(email: String!, password: String!): AuthData!
+    logout: String!
 }
 type RootMutation {
     createUser(userInput: UserInput): User

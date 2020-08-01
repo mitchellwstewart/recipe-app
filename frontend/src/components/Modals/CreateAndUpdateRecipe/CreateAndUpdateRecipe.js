@@ -78,6 +78,7 @@ class CreateAndUpdateModal extends Component {
       const token = this.context.token;
       const mongoRes = await fetch('http://localhost:3001/graphql', {
           method: 'POST',
+          credentials: 'include',
           body: JSON.stringify(requestBody),
           headers: {
             'Content-Type': 'application/json',
@@ -108,7 +109,9 @@ class CreateAndUpdateModal extends Component {
           this.props.handleRecipesStateUpdate(createdRecipe, 'create')
         }
         else if (this.props.isUpdate) {
+          console.log('resData.updateRecipe: ', resData.data)
           const updatedRecipe = {...resData.data.updateRecipe, creator: {_id: this.props.recipeToUpdate.creator._id}}
+          console.log('updatedRecipe: ', updatedRecipe)
           this.props.handleRecipesStateUpdate(updatedRecipe, 'update')
         } 
      }
@@ -140,6 +143,7 @@ class CreateAndUpdateModal extends Component {
     fetch('http://localhost:3001/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + this.context.token
