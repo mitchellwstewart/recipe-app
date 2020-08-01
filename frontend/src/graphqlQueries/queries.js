@@ -1,4 +1,23 @@
 
+const loginQuery = `
+query Login($email: String!, $password: String! ) {
+  login(email: $email, password: $password) {
+    userId
+    email
+    token
+    tokenExpiration
+  }
+}
+`
+
+const createUserMutation = `
+mutation CreateUser($email: String!, $password: String!){
+  createUser(userInput: {email: $email, password: $password}){
+    _id
+    email
+  }
+}
+`
 
 const createRecipeMutation = `
       mutation CreateRecipe(
@@ -99,7 +118,22 @@ const updateRecipeMutation = `
     }
   `
 
+  const checkForUserQuery = `
+  query {
+    checkForUser {
+      userId
+      email
+      token
+      tokenExpiration
+    }
+  }
+  `
 
+  const logoutQuery = `
+  query {
+    logout 
+  }
+  `
 const fetchRecipesQuery = `
     query {
       recipes{
@@ -141,7 +175,6 @@ const fetchRecipesQuery = `
         }
       }
     }
-  
   `
   const cloudinaryUploadMutation = `
   mutation UploadToCloudinary($imagesForCloudinary: [NewImageForCloudinaryInput]) {
@@ -157,8 +190,6 @@ const fetchRecipesQuery = `
   const cloudinaryDeleteMutation = `
   mutation DeleteFromCloudinary($imageIdsToDelete: [ImageToDelete!]) {
     deleteFromCloudinary(imageIdsToDelete: $imageIdsToDelete) 
-      
-      
     }
   `
 
@@ -177,4 +208,4 @@ const fetchRecipesQuery = `
   `
 
 
-module.exports = { createRecipeMutation, updateRecipeMutation, fetchRecipesQuery, cloudinaryUploadMutation, cloudinaryDeleteMutation }
+module.exports = { loginQuery, logoutQuery, checkForUserQuery, createUserMutation, createRecipeMutation, updateRecipeMutation, fetchRecipesQuery, cloudinaryUploadMutation, cloudinaryDeleteMutation }
