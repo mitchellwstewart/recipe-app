@@ -4,12 +4,12 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Flickity from 'react-flickity-component';
 import 'flickity-imagesloaded';
 
-
 import ClearIcon from '@material-ui/icons/Clear';
 import '../Modals.scss'
 import '../../../styles/lib/_display.scss'
 import AuthContext from '../../../context/auth-context'
 import Ingredients from '../Ingredients/Ingredients'
+import { cloudinaryDeleteMutation } from '../../../graphqlQueries/queries'
 
 class ViewModal extends Component {
   state = {
@@ -33,16 +33,6 @@ class ViewModal extends Component {
     imagesLoaded: true,
     pageDots: window.matchMedia('(min-width: 768px').matches ? false : true,
     draggable: window.matchMedia('(min-width: 768px').matches ? false : true,
-    on: {
-      ready: function() {
-        // console.log('Flickity is ready: ', this.element.querySelector('.flickity-slider'));
-        // this.resize()
-        // this.element.querySelector('.flickity-slider').style.transform = "translateX(0)!important"
-      },
-      change: function( index ) {
-        console.log( 'Slide changed to ' + index );
-      }
-    }
   }
 
   static contextType = AuthContext
@@ -67,12 +57,85 @@ class ViewModal extends Component {
     this.setState({confirmDelete: !this.state.confirmDelete})
   }
 
+
+  deleteFromCloudinary = async imagesToDelete => {
+    console.log('imagesToDelete: ', imagesToDelete)
+    
+    const requestBody = {
+      query: cloudinaryDeleteMutation,
+      variables: {
+        imageIdsToDelete: imagesToDelete //images ready for deletion from cloudinary
+      }
+    }
+    const cloudinaryRes = await fetch('http://localhost:3001/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    if (cloudinaryRes.status !== 200 && cloudinaryRes.status !== 201) {
+      throw new Error('Failed!')
+    }
+    const resData =  await cloudinaryRes.json()
+    if(resData.data.deleteFromCloudinary) {
+      return resData.data.deleteFromCloudinary
+    }
+  }
+
+
+  modalDeleteRecipeHandler = async () => {
+    if(!this.context.token) {
+      this.setState({selectedRecipe: null})
+      return;
+    }
+    console.log('this.props.selectedRecipe: ', this.props.selectedRecipe)
+    if(this.props.selectedRecipe.imageLinks.length) { //DELETE IMAGES FROM CLOUDINARY. Will later take mongoDB _ids from this.state.imageDeleteQueue
+      const imagesToDelete = this.props.selectedRecipe.imageLinks.map(imageObj => {
+        return {mongoId: imageObj._id, cloudId: imageObj.public_id}
+      })
+      await this.deleteFromCloudinary(imagesToDelete)
+      console.log('succesfully deleted all images from cloudinary')
+    }
+    
+    
+    const requestBody = {
+      query: `
+        mutation DeleteRecipe ($id: ID!) {
+          deleteRecipe(recipeId: $id){
+            _id
+          }
+        }
+      `,
+      variables: {
+        id: this.props.selectedRecipe._id
+      }
+    }
+    fetch('http://localhost:3001/graphql', {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + this.context.token
+      }
+      }).then(res => {
+        if(res.status !== 200 && res.status !== 201) {
+          throw new Error('Failed!')
+        }
+        return res.json()
+      }).then(resData => {
+        console.log('resData: ', resData)
+        this.props.handleRecipesStateUpdate(resData.data.deleteRecipe._id, 'delete')
+      })
+      .catch(err => {
+        throw err
+      })
+  }
+
   fullscreenHandler = e => {
     e.preventDefault()
-    if(this.state.fullscreenView){
-      this.flkty.resize()
-      //this.setState({fullscreenView: !this.state.fullscreenView})
-    }
+    if(this.state.fullscreenView){ this.flkty.resize() }
     else {
       this.flkty.resize()
       this.setState({fullscreenView: !this.state.fullscreenView})
@@ -100,7 +163,7 @@ class ViewModal extends Component {
     const featuredImage = this.props.selectedRecipe.imageLinks.find(img => img.featured)
     return (
       <div className={`modal z2 ${this.state.fullscreenView ? 'image-fullscreen' : ''}`}>
-        <nav className="modal__nav pointer bcbl p0 m0 f jcb bcbl z1" >
+        <nav className="modal__nav pointer bcdbl p0 m0 f jcb z1" >
         <section className="modal__header_actions f jce">
             {/* {this.props.canConfirm && <button className="btn" onClick={this.props.onConfirm}> {this.props.confirmText} </button>} */}
             {/* {this.props.canSubscribe &&
@@ -116,11 +179,11 @@ class ViewModal extends Component {
             }
             {this.props.canDelete && 
               <div className="action-container delete-actions f aic">
-              <div className="f">
+              <div className="f aic">
               {this.state.confirmDelete 
                 ? <React.Fragment>
-                  <div className="confirm-delete soft-btn soft-btn_hover" onClick={this.props.onDelete}>Confirm Delete</div>
-                  <div className="cancel-delete" onClick={this.deleteHandler}><ClearIcon /></div>
+                  <div className="confirm-delete soft-btn soft-btn_hover" onClick={this.modalDeleteRecipeHandler}>Confirm Delete</div>
+                  <div className="cancel-delete f aic" onClick={this.deleteHandler}><ClearIcon /></div>
                 </React.Fragment>
                 : <div className="soft-btn soft-btn_hover" onClick={this.deleteHandler}>{this.  props.deleteText}</div>}
                   </div> 
@@ -130,7 +193,7 @@ class ViewModal extends Component {
               {this.props.saveText}
             </button>}
           </section>
-          <div className="py05 f aic " onClick={this.props.onCancel}><ClearIcon /></div>
+          <div className="py05 f aic close-modal " onClick={this.props.onCancel}><ClearIcon /></div>
         </nav>
         <header className="modal__header main f jcb ">
           <div className="title f fdc x2 jcc mt1">
@@ -169,7 +232,6 @@ class ViewModal extends Component {
                   <div className={`close-fullscreen f jce p1 ${this.state.fullscreenView ? '' : 'hidden'}`} onClick={this.closeFullscreen}><ClearIcon/></div>
                   
                   {!this.state.fullscreenView && <p className="caps fw6 underline pb025">Photos</p> }
-
                   <div className="image-slider_container f">
                   <Flickity
                       className={'recipe-images view f fw x y aic '} // default ''
@@ -183,7 +245,7 @@ class ViewModal extends Component {
                     {recipeImages.map((image, idx) => {
                       return (
                         <div key={idx} className="image-container mr05 x" onClick={this.fullscreenHandler}>
-                          <img className="uploaded-image x" src={image.link} />
+                          <img className="uploaded-image" src={image.link}  />
                         </div>
                       )
                     })}

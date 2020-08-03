@@ -100,7 +100,7 @@ state = {
             yields={this.state.updatedYield} 
             ingredient={ingredient} 
             idx={idx}
-            
+            key={idx}
             ingredientAmountEl = {this.props.ingredientAmountEl}
             ingredientUnitEl = {this.props.ingredientUnitEl}
             ingredientNameEl = {this.props.ingredientNameEl}
@@ -111,7 +111,9 @@ state = {
             :  <Ingredient 
             yields={this.state.updatedYield} 
             ingredient={ingredient} 
-            idx={idx}/> 
+            idx={idx}
+            key={idx}
+            /> 
           )
         })}
 

@@ -32,6 +32,12 @@
         }
       }
     }
+    .close-modal {
+      svg {
+        fill: #efeced;
+        stroke: #efeced;
+      }
+    }
   }
 
 
@@ -141,6 +147,7 @@
         &.fullscreen {
           position: absolute;
           z-index: 100;
+          margin: 0;
           .image-slider_container {
             .recipe-images {
               top: 0;
@@ -150,8 +157,10 @@
               .image-container {
                 cursor: default;
                 width: 600px;
+                height: auto;
                 max-width: 100%;
                 img {
+                  border-radius: unset;
                   max-width: 100%;
                   height: 500px
                 }
@@ -175,11 +184,17 @@
           }
           .recipe-images {
             .image-container {
+              
               cursor: pointer;
-                width: 200px;
+                width: 100px;
+                height: 100px;
+                padding: 0.5em;
                 img {
+                  border-radius: 50%;
                   max-width: 100%;
-                  height: 200px
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
                 }
             }
           }
@@ -214,11 +229,11 @@
       &.tag-container {
           font-size: 10px;
           .tag {
-            border: 1px solid #4a4a4a;
+            border: 1px solid #27596d;
             border-radius: 25px;
             transition: all 0.25s;
-            background: #7ca7b9 !important;
-            color: rgb(255, 247, 247);
+            color: #efeced  !important;
+            background-color: #27596d;
             font-size: 12px;
             max-height: 15px;
             display: flex;

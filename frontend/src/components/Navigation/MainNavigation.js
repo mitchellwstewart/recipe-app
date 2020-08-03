@@ -22,10 +22,10 @@ class MainNavigation extends Component{
   static contextType = AuthContext
  render () {
   return (
-    <header className="main-navigation x top left fix f jcc z1 rel">
+    <header className="main-navigation x top left fix f jcc z1 rel bccr">
       <div className={`main-navigation__inner f aic jcc x y jcb ${this.state.open ? "open" : ""} ${this.state.open ? "visible" : ""} `}>
         <div className="main-navigation__logo">
-          <h1 className="m0 caps italic"> - Recipals - </h1>
+          <h1 className="m0 caps italic cdbl"> - Recipals - </h1>
         </div>
         <HamburgerMenu
           isOpen={this.state.open}
@@ -39,10 +39,10 @@ class MainNavigation extends Component{
           animationDuration={0.5}
           className="hamburger-menu"
       />
-        <nav className="main-navigation__items">
+        <nav className="main-navigation__items ">
           <div className="arrow-up abs" />
           <ul className="f m0 p0">
-            <li onClick={this.handleHamburgerMenu}><NavLink to="/recipes">All Recipes</NavLink></li>
+            <li onClick={this.handleHamburgerMenu} className="cdbl"><NavLink to="/recipes">All Recipes</NavLink></li>
           {
           this.context.token && 
           <React.Fragment>
@@ -50,8 +50,8 @@ class MainNavigation extends Component{
             <li>
               <div className="pointer account-welcome " >
                 <div className="f jcc aic ">
-                  <p className="m0 nowrap"> Welcome {this.props.email}</p>
-                  <div className="pl05">+</div>
+                  <p className="m0 nowrap cdbl"> Welcome {this.props.email}</p>
+                  <div className="pl05 cdbl">+</div>
                 </div>
                 <div className="account-dropdown abs">
                   <div className="pointer" onClick={() => {

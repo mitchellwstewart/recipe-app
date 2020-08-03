@@ -1,4 +1,23 @@
 
+const loginQuery = `
+query Login($email: String!, $password: String! ) {
+  login(email: $email, password: $password) {
+    userId
+    email
+    token
+    tokenExpiration
+  }
+}
+`
+
+const createUserMutation = `
+mutation CreateUser($email: String!, $password: String!){
+  createUser(userInput: {email: $email, password: $password}){
+    _id
+    email
+  }
+}
+`
 
 const createRecipeMutation = `
       mutation CreateRecipe(
@@ -35,6 +54,7 @@ const createRecipeMutation = `
             _id
             link
             featured
+            public_id
           }
           tags {
             tag
@@ -85,6 +105,7 @@ const updateRecipeMutation = `
           _id
           link
           featured
+          public_id
         }
         tags {
           tag
@@ -97,7 +118,22 @@ const updateRecipeMutation = `
     }
   `
 
+  const checkForUserQuery = `
+  query {
+    checkForUser {
+      userId
+      email
+      token
+      tokenExpiration
+    }
+  }
+  `
 
+  const logoutQuery = `
+  query {
+    logout 
+  }
+  `
 const fetchRecipesQuery = `
     query {
       recipes{
@@ -121,6 +157,7 @@ const fetchRecipesQuery = `
           _id
           link
           featured
+          public_id
         }
         tags {
           tag
@@ -138,7 +175,22 @@ const fetchRecipesQuery = `
         }
       }
     }
-  
+  `
+  const cloudinaryUploadMutation = `
+  mutation UploadToCloudinary($imagesForCloudinary: [NewImageForCloudinaryInput]) {
+    uploadToCloudinary(imagesForCloudinary: $imagesForCloudinary )
+      {
+        secure_url
+        resource_type
+        public_id
+      }  
+    }
+  `
+
+  const cloudinaryDeleteMutation = `
+  mutation DeleteFromCloudinary($imageIdsToDelete: [ImageToDelete!]) {
+    deleteFromCloudinary(imageIdsToDelete: $imageIdsToDelete) 
+    }
   `
 
   const addTagToRecipe = `
@@ -156,4 +208,4 @@ const fetchRecipesQuery = `
   `
 
 
-module.exports = { createRecipeMutation, updateRecipeMutation, fetchRecipesQuery }
+module.exports = { loginQuery, logoutQuery, checkForUserQuery, createUserMutation, createRecipeMutation, updateRecipeMutation, fetchRecipesQuery, cloudinaryUploadMutation, cloudinaryDeleteMutation }

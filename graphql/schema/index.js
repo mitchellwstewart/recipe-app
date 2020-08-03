@@ -47,6 +47,7 @@ type ImageLink {
   _id: ID
   link: String!
   featured: Boolean!
+  public_id: String!
 }
 
 type Tag {
@@ -62,9 +63,15 @@ type Step {
   stepNumber: Float!
 }
 
+type CloudinaryLink {
+  secure_url: String!
+  resource_type: String!
+  public_id: String!
+}
+
 input UserInput {
-    email: String!
-    password: String!
+  email: String!
+  password: String!
 }
 
 input TagInput {
@@ -72,16 +79,16 @@ input TagInput {
 }
 
 input RecipeInput {
-    recipeName: String!
-    recipeDescription: String
-    recipeIngredients: [IngredientInput!]
-    recipeSteps: [StepInput!]
-    yields: Float
-    minutesEstimate: Float
-    date: String!
-    link: String
-    imageLinks: [ImageLinkInput!]
-    tags: [TagInput!]
+  recipeName: String!
+  recipeDescription: String
+  recipeIngredients: [IngredientInput!]
+  recipeSteps: [StepInput!]
+  yields: Float
+  minutesEstimate: Float
+  date: String!
+  link: String
+  imageLinks: [ImageLinkInput!]
+  tags: [TagInput!]
 }
 
 input IngredientInput{
@@ -93,6 +100,7 @@ input IngredientInput{
 input ImageLinkInput {
   link: String!
   featured: Boolean!
+  public_id: String!
 }
 
 input StepInput {
@@ -100,11 +108,23 @@ input StepInput {
   stepInstruction: String!
 }
 
+input NewImageForCloudinaryInput {
+  name: String!
+  base64: String!
+}
+
+input ImageToDelete {
+  mongoId: String!
+  cloudId: String!
+}
+
 type RootQuery {
     recipes: [Recipe!]!
     subscriptions: [Subscription!]!
     tags: [Tag!]
+    checkForUser: AuthData
     login(email: String!, password: String!): AuthData!
+    logout: String!
 }
 type RootMutation {
     createUser(userInput: UserInput): User
@@ -112,6 +132,8 @@ type RootMutation {
     createRecipe(recipeInput: RecipeInput): Recipe
     deleteRecipe(recipeId: ID!): Recipe
     updateRecipe(recipeId: ID!, recipeInput: RecipeInput): Recipe
+    uploadToCloudinary(imagesForCloudinary: [NewImageForCloudinaryInput]):[CloudinaryLink!]
+    deleteFromCloudinary(imageIdsToDelete: [ImageToDelete!]): [String!]
     subscribeToRecipe(recipeId: ID!): Subscription!
     unsubscribeFromRecipe(subscriptionId: ID!): Recipe!
 }

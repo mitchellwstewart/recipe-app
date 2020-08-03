@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import './Auth.scss'
 import AuthContext from '../context/auth-context'
 import Button from '@material-ui/core/Button';
+import { loginQuery, createUserMutation } from '../graphqlQueries/queries'
 
 class AuthPage extends Component {
   state = {
     isLogin: true,
     validationMessage: false
-
   }
 
   static contextType = AuthContext;
@@ -32,84 +32,73 @@ class AuthPage extends Component {
     const email = this.emailEl.current.value;
     const password = this.passwordEl.current.value;
     if(email.trim().length === 0 || password.trim().length === 0) {
+      console.log('not here')
       this.handleValidation()
       return;
     }
 
     // ...
-let requestBody = {
-  query: `
-    query Login($email: String!, $password: String! ) {
-      login(email: $email, password: $password) {
-        userId
-        email
-        token
-        tokenExpiration
-      }
-    }
-  `,
-  variables: {
-    email: email,
-    password: password
-  }
-}
-
-if(!this.state.isLogin) {
-   requestBody = {
-    query: `
-      mutation CreateUser($email: String!, $password: String!){
-        createUser(userInput: {email: $email, password: $password}){
-          _id
-          email
-        }
-      }
-    `,
+  let requestBody = {
+    query: loginQuery,
     variables: {
-      email: email, //the key is the graphql name we set, the value is the value pulled from evt
+      email: email,
       password: password
     }
-  };
-}
+  }
+
+  if(!this.state.isLogin) {
+    requestBody = {
+      query: createUserMutation,
+      variables: {
+        email: email, //the key is the graphql name we set, the value is the value pulled from evt
+        password: password
+      }
+    };
+  }
     
-    fetch('http://localhost:3001/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).then(res => {
-      console.log('res: ', res.errors)
-      if(res.status !== 200 && res.status !== 201) {
-        //this.handleValidation()
-        //throw new Error('Failed!')
-        return
-      }
-      return res.json()
-    }).then(resData => {
-      if(resData.data.login && resData.data.login.token) {
-        this.context.login(resData.data.login.token, resData.data.login.email, resData.data.login.userId, resData.data.login.tokenExpiration)
-      }
-    })
-    
-    .catch(err => {
-      console.log('err: ', err)
-      this.handleValidation()
-      //throw err
-    })
-  };
+  fetch('http://localhost:3001/graphql', {
+    method: 'POST',
+    credentials: 'include',
+    body: JSON.stringify(requestBody),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(res => {
+    console.log('res: ', res)
+    console.log('res.erros: ', res.errors)
+    console.log('res.locals: ', res.locals)
+    if(res.status !== 200 && res.status !== 201) {
+      //this.handleValidation()
+      //throw new Error('Failed!')
+      return
+    }
+    return res.json()
+  }).then(resData => {
+    console.log('login Res Data: ', resData)
+    if(resData.data.login && resData.data.login.token) {
+      console.log('this.context: ', this.context)
+      this.context.login(resData.data.login.token, resData.data.login.email, resData.data.login.userId, resData.data.login.tokenExpiration)
+    }
+  })
+  .catch(err => {
+    console.log('err: ', err)
+    this.handleValidation()
+    //throw err
+  })
+};
 
   
     render() {
         return(
           <div className="auth-container f fdc">
-            <h3>{this.state.isLogin ? "Welcome back! Log in with your email" : "Welcome! Sign up for an account"}</h3>
+            <h3 className="ccr">{this.state.isLogin ? "Welcome back! Log in with your email" : "Welcome! Sign up for an account"}</h3>
             <form className="auth-form" onSubmit={this.submitHandler}>
               <div className="form-control" >
-                <label htmlFor="email">Email: </label>
+                <label htmlFor="email" className="ccr">Email: </label>
                 <input type="email" id="email" ref={this.emailEl}/>
               </div>
               <div className="form-control" >
-                <label htmlFor="password">Password: </label>
+                <label htmlFor="password" className="ccr">Password: </label>
                 <input type="password" id="password" ref={this.passwordEl} />
               </div>
               <div className={`form-validation ${this.state.validationMessage ? '' : 'hidden'}`}>
